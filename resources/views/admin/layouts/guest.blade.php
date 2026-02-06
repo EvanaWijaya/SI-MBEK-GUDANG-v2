@@ -4,8 +4,13 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
+        <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
 
-        <title>{{ config('app.name', 'Si MBEK') }}</title>
+        @php
+        $settings = App\Models\SiteSetting::first();
+    @endphp
+
+    <title>{{ $settings->site_name ?? 'SI MBEK' }}</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

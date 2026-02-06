@@ -14,14 +14,38 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
+        // 1. User dasar
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@a.com',
             'password' => Hash::make('Password@123'),
         ]);
 
-        $this->call(SiteSettingSeeder::class);
+        // 2. Setting & master
+        $this->call([
+            SiteSettingSeeder::class,
+            SupplierSeeder::class,
+            MaterialSeeder::class,
+            OwnerSeeder::class,
+        ]);
+
+        // 3. Role / user level
+        $this->call([
+            SuperAdminSeeder::class,
+            AdminSeeder::class,
+        ]);
+
+        // 4. Data utama
+        $this->call([
+            DombaSeeder::class,
+            KambingSeeder::class,
+        ]);
+
+        // 5. History (TERAKHIR)
+        $this->call([
+            DombaHistorySeeder::class,
+            KambingHistorySeeder::class,
+        ]);
     }
+
 }

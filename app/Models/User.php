@@ -6,13 +6,13 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
- use App\Notifications\CustomVerifyEmail;
- use App\Notifications\CustomResetPassword;
+use App\Notifications\CustomVerifyEmail;
+use App\Notifications\CustomResetPassword;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable;
-        public function kambing()
+    public function kambing()
     {
         return $this->hasMany(Kambing::class);
     }
@@ -22,17 +22,17 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Domba::class);
     }
 
-   
 
-public function sendEmailVerificationNotification()
-{
-    $this->notify(new CustomVerifyEmail);
-}
 
-public function sendPasswordResetNotification($token)
-{
-    $this->notify(new CustomResetPassword($token));
-}
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new CustomVerifyEmail);
+    }
+
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new CustomResetPassword($token));
+    }
 
 
 
@@ -47,7 +47,9 @@ public function sendPasswordResetNotification($token)
         'alamat',
         'no_telepon',
         'password',
-        'profile_picture' ,
+        'provinsi',
+        'kota',
+        'profile_picture',
     ];
 
     /**

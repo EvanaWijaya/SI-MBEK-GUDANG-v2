@@ -33,8 +33,10 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'alamat' => ['required', 'string', 'max:255'],
             'no_telepon' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required','min:8','regex:/[a-zA-Z]/', 'confirmed', Rules\Password::defaults()],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+            'provinsi' => ['required', 'string', 'max:100'],
+            'kota' => ['required', 'string', 'max:100'],
+            'password' => ['required', 'min:8', 'regex:/[a-zA-Z]/', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $user = User::create([
@@ -43,6 +45,8 @@ class RegisteredUserController extends Controller
             'no_telepon' => $request->no_telepon,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'provinsi' => $request->provinsi,
+            'kota' => $request->kota,
         ]);
 
         event(new Registered($user));
@@ -50,8 +54,8 @@ class RegisteredUserController extends Controller
         Auth::login($user);
 
         session([
-    'email_autofill' => $request->email,
-]);
+            'email_autofill' => $request->email,
+        ]);
 
         return redirect(route('dashboard', absolute: false));
     }
