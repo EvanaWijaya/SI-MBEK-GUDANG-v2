@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AdminProfileUpdateRequest;
 use App\Models\User;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -16,7 +15,7 @@ use Illuminate\View\View;
 class ProfileController extends Controller
 {
     /**
-     * Display the user's profile form.
+     * Display the admin profile page
      */
     public function edit(Request $request): View
     {
@@ -26,11 +25,11 @@ class ProfileController extends Controller
     }
 
     /**
-     * Update the user's profile information.
+     * Update profile information (name, email, etc.)
      */
-    public function update(AdminProfileUpdateRequest $request): RedirectResponse
+    public function update(AdminProfileUpdateRequest $request)
     {
-        $admin = auth('admin')->user(); // ✅ Explicit guard
+        $admin = auth('admin')->user();
 
         $admin->fill($request->validated());
 
@@ -40,23 +39,24 @@ class ProfileController extends Controller
 
         $admin->save();
 
-        return Redirect::route('admin.profile.edit')->with('status', 'profile-updated');
+        return Redirect::route('admin.profile.edit')
+            ->with('status', 'profile-updated');
     }
 
     /**
-     * Delete the user's account.
+     * Delete admin account
      */
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Request $request)
     {
         $request->validateWithBag('userDeletion', [
             'password' => ['required', 'current_password:admin'],
         ]);
 
-        $user = $request->user();
+        $admin = auth('admin')->user();
 
         Auth::guard('admin')->logout();
 
-        $user->delete();
+        $admin->delete();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
@@ -65,49 +65,62 @@ class ProfileController extends Controller
     }
 
     /**
-     * Delete penitip user (super_admin only)
+     * 🔐 CHANGE PASSWORD
+     * - First login: tanpa current password
+     * - Normal: wajib current password
+     */
+    public function changePassword(Request $request)
+    {
+        $admin = auth('admin')->user();
+
+        if ($admin->must_change_password) {
+            // FIRST LOGIN
+            $request->validate([
+                'password' => ['required', 'confirmed', Password::min(8)],
+            ]);
+        } else {
+            // NORMAL CHANGE PASSWORD
+            $request->validate([
+                'current_password' => ['required', 'current_password:admin'],
+                'password' => ['required', 'confirmed', Password::min(8)],
+            ]);
+        }
+
+        $admin->update([
+            'password' => Hash::make($request->password),
+            'must_change_password' => false, // 🔥 INI KUNCI SUPAYA TIDAK LOOP
+            'password_changed_at' => now(),
+        ]);
+
+        return redirect()->route('admin.dashboard')
+            ->with('success', 'Password berhasil diperbarui');
+    }
+
+    /**
+     * Delete penitip user (super admin only)
      */
     public function destroyuser(User $user)
     {
-        // ✅ Tambah validasi role
         if (auth('admin')->user()->role !== 'super_admin') {
-            return redirect()->back()->with('error', 'Tidak memiliki akses untuk menghapus user.');
+            return redirect()->back()
+                ->with('error', 'Tidak memiliki akses.');
         }
 
         $imagePath = public_path('upload/profilImage/' . $user->profile_picture);
 
-        // Cek dulu apakah user punya foto dan file-nya ada
         if ($user->profile_picture && file_exists($imagePath)) {
-            @chmod($imagePath, 0755);
             @unlink($imagePath);
         }
 
-        // Hapus user dari database
         $user->delete();
 
-        return redirect()->back()->with('success', 'Data user berhasil dihapus');
+        return redirect()->back()
+            ->with('success', 'Data user berhasil dihapus');
     }
 
     /**
-     * Update password from profile page
+     * List penitip users
      */
-    public function updatePassword(Request $request)
-    {
-        $request->validate([
-            'current_password' => ['required', 'current_password:admin'],
-            'password' => ['required', 'confirmed', Password::min(8)],
-        ]);
-
-        $admin = auth('admin')->user();
-
-        $admin->update([
-            'password' => Hash::make($request->password),
-            'password_changed_at' => now(),
-        ]);
-
-        return back()->with('success', 'Password berhasil diperbarui!');
-    }
-
     public function penitip(Request $request, $type = null)
     {
         $query = User::query()->withCount(['kambing', 'domba']);
@@ -117,10 +130,8 @@ class ProfileController extends Controller
             $query->has($relation);
         }
 
-        $users = $query->paginate(10);
-
         return view('admin.pengguna', [
-            'users' => $users,
+            'users' => $query->paginate(10),
             'currentType' => $type
         ]);
     }

@@ -49,12 +49,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Logout
         Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
-        // Change Password (tanpa middleware must.change.password)
-        Route::get('change-password', [ProfileController::class, 'showChangePasswordForm'])
-            ->name('password.change.form');
-        Route::post('change-password', [ProfileController::class, 'changePassword'])
-            ->name('password.change');
-
         // ============================================
         // PROTECTED ROUTES (dengan must.change.password)
         // ============================================
@@ -112,7 +106,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
             Route::patch('profile', [ProfileController::class, 'update'])->name('profile.update');
             Route::delete('profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-            Route::put('password', [PasswordController::class, 'update'])->name('password.update');
+            Route::post('change-password', [ProfileController::class, 'changePassword'])->name('password.change');
 
             // ============================================
             // SUPER ADMIN ONLY ROUTES

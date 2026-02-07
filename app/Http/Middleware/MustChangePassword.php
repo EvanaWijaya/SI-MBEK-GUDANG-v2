@@ -12,7 +12,7 @@ class MustChangePassword
      */
     public function handle(Request $request, Closure $next)
     {
-        
+
         // Deteksi guard mana yang sedang login
         $guard = null;
         $user = null;
@@ -35,14 +35,14 @@ class MustChangePassword
 
             // Route yang diperbolehkan meski must_change_password = true
             $allowedRoutes = [
-                $guard . '.password.change.form',
+                $guard . '.profile.edit',
                 $guard . '.password.change',
                 $guard . '.logout',
             ];
 
             // Jika bukan route yang diperbolehkan, redirect ke change password
             if (!$request->routeIs($allowedRoutes)) {
-                return redirect()->route($guard . '.password.change.form')
+                return redirect()->route($guard . '.profile.edit')
                     ->with('warning', 'Anda harus mengganti password terlebih dahulu.');
             }
         }
