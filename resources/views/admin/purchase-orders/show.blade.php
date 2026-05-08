@@ -25,7 +25,7 @@
                             {{ ucfirst($po->status) }}
                         </span>
                     </div>
-                    <p class="text-sm text-gray-500 mt-0.5">Detail Purchase Order</p>
+                    <p class="text-sm text-gray-500 mt-0.5">Detail Pemesanan Bahan</p>
                 </div>
             </div>
         </div>
@@ -235,7 +235,6 @@
                                         @if($po->type === 'material' || ($item->product && $item->product->type === 'obat')) required @endif
                                         class="w-full border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none bg-gray-50 focus:bg-white transition-all">
                                     @if($po->type === 'material' || ($item->product && $item->product->type === 'obat'))
-                                        <p class="text-[10px] text-red-500 mt-1">* Wajib diisi</p>
                                     @endif
                                 </td>
                             </tr>
@@ -266,7 +265,7 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="font-semibold text-green-800">Purchase Order Selesai</p>
+                            <p class="font-semibold text-green-800">Pemesanan Bahan Selesai</p>
                             <p class="text-sm text-green-600 mt-0.5">
                                 Semua barang telah diterima pada
                                 {{ $po->tanggal_diterima ? \Carbon\Carbon::parse($po->tanggal_diterima)->format('d M Y, H:i') : '-' }}
@@ -282,6 +281,14 @@
     @push('scripts')
     <script>
         function confirmReceive() {
+        const form = document.getElementById('receive-form');
+
+            if (!form.reportValidity()) {
+                // Kalau ada yang required tapi kosong, browser otomatis ngasih tau.
+                // SweetAlert dibatalin jalan.
+                return; 
+            }
+
             Swal.fire({
                 title: 'Konfirmasi Penerimaan Barang?',
                 text: 'Stok akan diperbarui sesuai jumlah yang diterima.',

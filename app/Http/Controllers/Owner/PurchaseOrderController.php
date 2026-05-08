@@ -6,10 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
 use App\Models\Material;
+use App\Models\Product;
 use App\Models\MaterialStock;
 use App\Models\Supplier;
 use App\Models\Owner;
 use App\Models\ActivityLog;
+use App\Models\StockMovement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -37,45 +39,34 @@ class PurchaseOrderController extends Controller
     {
         $suppliers = Supplier::all();
         $materials = Material::all();
+        $products = Product::where('type', 'obat')->get();
 
-        return view('owner.purchase-orders.create', compact('suppliers', 'materials'));
+        return view('owner.purchase-orders.create', compact('suppliers', 'materials', 'products'));
     }
 
     /**
+     * 💾 Simpan PO + item
+     */
+   /**
      * 💾 Simpan PO + item
      */
     public function store(Request $request)
     {
         $request->validate([
             'supplier_id' => 'required|exists:suppliers,id',
+            'type' => 'required|in:material,product',
             'tanggal_pesan' => 'required|date',
-            'items' => 'required|array',
-            'items.*.material_id' => 'required|exists:materials,id',
+            'items' => 'required|array|min:1',
+            'items.*.material_id' => 'nullable|required_if:type,material|exists:materials,id',
+            'items.*.product_id' => 'nullable|required_if:type,product|exists:products,id',
             'items.*.jumlah' => 'required|integer|min:1',
-            'items.*.harga_satuan' => 'required|numeric|min:0',
+            'items.*.harga_satuan' => 'nullable|numeric|min:0',
         ]);
 
         $po = DB::transaction(function () use ($request) {
-
-            if (Auth::guard('admin')->check()) {
-                $pencatat = Auth::guard('admin')->user();
-                $guardPencatat = 'admin';
-            } elseif (Auth::guard('owner')->check()) {
-                $pencatat = Auth::guard('owner')->user();
-                $guardPencatat = 'owner';
-            } else {
-                abort(401, 'Unauthorized');
-            }
-
-            if ($guardPencatat === 'admin' && $request->filled('dipesan_oleh_type')) {
-                if ($request->dipesan_oleh_type === 'Owner') {
-                    $pemesan = Owner::findOrFail($request->dipesan_oleh_id);
-                } else {
-                    $pemesan = $pencatat;
-                }
-            } else {
-                $pemesan = $pencatat;
-            }
+            
+            // 🔥 Langsung ambil data Owner yang lagi login
+            $owner = Auth::guard('owner')->user();
 
             $kode_po = 'PO-' . date('Ymd') . '-' . rand(1000, 9999);
 
@@ -85,32 +76,29 @@ class PurchaseOrderController extends Controller
                 'type' => $request->type,
                 'tanggal_pesan' => $request->tanggal_pesan,
                 'status' => 'draft',
-                'dipesan_oleh_id' => $pemesan->id,
-                'dipesan_oleh_type' => get_class($pemesan),
-                'dicatat_oleh_id' => $pencatat->id,
-                'dicatat_oleh_type' => get_class($pencatat),
-                'catatan_owner' => $request->catatan_owner,
+                'dipesan_oleh_id' => $owner->id, // Memakai variabel $owner
+                'dipesan_oleh_type' => get_class($owner),
+                'dicatat_oleh_id' => $owner->id,
+                'dicatat_oleh_type' => get_class($owner),
+                'catatan' => $request->catatan_owner,
             ]);
 
             foreach ($request->items as $item) {
                 PurchaseOrderItem::create([
                     'purchase_order_id' => $po->id,
-                    'material_id' => $item['material_id'],
+                    'material_id' => $po->type === 'material' ? ($item['material_id'] ?? null) : null,
+                    'product_id' => $po->type === 'product' ? ($item['product_id'] ?? null) : null,
                     'jumlah' => $item['jumlah'],
-                    'harga_satuan' => $item['harga_satuan'],
-                    'subtotal' => $item['jumlah'] * $item['harga_satuan'],
+                    'harga_satuan' => $item['harga_satuan'] ?? 0,
+                    'subtotal' => $item['jumlah'] * ($item['harga_satuan'] ?? 0),
                 ]);
             }
 
-            return $po; // 🔥 penting
+            return $po; 
         });
 
-        $route = Auth::guard('owner')->check()
-            ? 'owner.purchase-orders.index'
-            : 'admin.purchase-orders.index';
-
-        $actor = $this->getCurrentActor();
-
+        // Catat Log Aktivitas
+        $actor = Auth::guard('owner')->user();
         if ($actor) {
             ActivityLog::create([
                 'actor_id' => $actor->id,
@@ -121,10 +109,9 @@ class PurchaseOrderController extends Controller
             ]);
         }
 
-        return redirect()->route($route)
+        return redirect()->route('owner.purchase-orders.index')
             ->with('success', 'Purchase Order berhasil dibuat');
     }
-
 
     /**
      * 🔍 Detail PO
@@ -162,7 +149,6 @@ class PurchaseOrderController extends Controller
 
         // 🔥 Tambahkan ini
         $actor = Auth::guard('owner')->user();
-        //dump($actor);
 
         ActivityLog::create([
             'actor_id' => $actor->id,
@@ -199,7 +185,7 @@ class PurchaseOrderController extends Controller
         $request->validate([
             'items' => 'required|array',
             'items.*.id' => 'required|exists:purchase_order_items,id',
-            'items.*.jumlah_diterima' => 'required|integer|min:0',
+            'items.*.jumlah_diterima' => 'required|integer|min:1',
             'items.*.expired_date' => 'nullable|date',
         ]);
 
@@ -213,7 +199,7 @@ class PurchaseOrderController extends Controller
                 return back()->with('error', 'Item tidak ditemukan.');
             }
 
-            if ($item->jumlah_diterima !== null && $item->jumlah_diterima != 0) {
+            if (!empty($item->jumlah_diterima)) {
                 return back()->with('error', 'Item sudah pernah diterima.');
             }
         }
@@ -227,20 +213,19 @@ class PurchaseOrderController extends Controller
                     ->firstOrFail();
 
                 $jumlahPesan = $item->jumlah;
-                $jumlahDiterimaBaru = (int) $data['jumlah_diterima'];
+                $jumlahDiterima = (int) $data['jumlah_diterima'];
 
-                // Hitung selisih
-                $selisih = $jumlahDiterimaBaru - $jumlahPesan;
+                $selisih = $jumlahDiterima - $jumlahPesan;
 
-                // Update item
+                // Update item (single receive only)
                 $item->update([
-                    'jumlah_diterima' => $jumlahDiterimaBaru,
+                    'jumlah_diterima' => $jumlahDiterima,
                     'selisih' => $selisih,
                 ]);
 
                 /*
                 |--------------------------------------------------------------------------
-                | Jika PO Material → Buat Batch Stock
+                | PO TYPE: MATERIAL
                 |--------------------------------------------------------------------------
                 */
                 if ($purchaseOrder->type === 'material') {
@@ -253,28 +238,70 @@ class PurchaseOrderController extends Controller
 
                     MaterialStock::create([
                         'material_id' => $material->id,
-                        'qty' => $jumlahDiterimaBaru,
+                        'qty' => $jumlahDiterima,
                         'received_date' => now(),
                         'expired_date' => $data['expired_date'] ?? null,
                         'created_by' => auth('admin')->id(),
                     ]);
 
-                    $material->increment('stok', $jumlahDiterimaBaru);
+                    $material->stok = $material->materialStocks()->sum('qty');
+                    $material->save();
+
+                    StockMovement::create([
+                        'stockable_id' => $material->id,
+                        'stockable_type' => Material::class,
+                        'type' => 'in',
+                        'quantity' => $jumlahDiterima,
+                        'source' => 'PO',
+                        'reference_id' => $purchaseOrder->id,
+                        'note' => 'PO ' . $purchaseOrder->kode_po .
+                            ($purchaseOrder->catatan ? ' | ' . $purchaseOrder->catatan : ''),
+                        'movement_date' => now(),
+                        'catatan' => $purchaseOrder->catatan,
+                    ]);
                 }
 
                 /*
                 |--------------------------------------------------------------------------
-                | Jika PO Product → Tambah stok product
+                | PO TYPE: PRODUCT (HANYA OBAT & SOURCE PEMBELIAN)
                 |--------------------------------------------------------------------------
                 */ elseif ($purchaseOrder->type === 'product') {
 
                     $product = $item->product;
 
                     if (!$product) {
-                        throw new \Exception('Produk tidak ditemukan.');
+                        throw new \Exception('Product tidak ditemukan.');
                     }
 
-                    $product->increment('stok', $jumlahDiterimaBaru);
+                    if ($product->type !== 'obat') {
+                        throw new \Exception('Hanya produk obat yang boleh via PO.');
+                    }
+
+                    if ($product->source !== 'pembelian') {
+                        throw new \Exception('Produk ini bukan dari pembelian.');
+                    }
+
+                    \App\Models\ProductStock::create([
+                        'product_id' => $product->id,
+                        'qty' => $jumlahDiterima, 
+                        'received_date' => now(),
+                        'expired_date' => $data['expired_date'] ?? null,
+                        'source' => 'purchase', // Biar labelnya muncul "PO" warna ungu
+                        'created_by' => auth('owner')->id(), // 🔥 Pastikan ini pakai 'owner'
+                    ]);
+
+                    $product->increment('stok', $jumlahDiterima);
+
+                    StockMovement::create([
+                        'stockable_id' => $product->id,
+                        'stockable_type' => Product::class,
+                        'type' => 'in',
+                        'quantity' => $jumlahDiterima,
+                        'source' => 'PO',
+                        'reference_id' => $purchaseOrder->id,
+                        'movement_date' => now(),
+                        'catatan' => $purchaseOrder->catatan,
+                    ]);
                 }
             }
 
@@ -284,14 +311,12 @@ class PurchaseOrderController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            // ✅ Perbaikan: cek jumlah_diterima > 0
             $allReceived = $purchaseOrder->items()
                 ->where(function ($q) {
                     $q->whereNull('jumlah_diterima')
                         ->orWhere('jumlah_diterima', '<=', 0);
                 })
                 ->count() === 0;
-
 
             if ($allReceived) {
                 $purchaseOrder->update([

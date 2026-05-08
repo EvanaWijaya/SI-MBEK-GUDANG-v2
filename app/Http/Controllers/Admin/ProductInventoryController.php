@@ -28,29 +28,31 @@ class ProductInventoryController extends Controller
      * 📋 Detail batch per produk
      */
     public function show(Product $product)
-{
-    // 1. Ambil data batch yang masih memiliki stok
-    $batches = $product->stocks()
-        //->where('qty', '>', 0)
-        ->orderBy('received_date', 'asc')
-        ->get();
+    {
+        // 🔥 TAMBAHAN: Load relasi stocks dari awal biar jadi Collection utuh
+        $product->load(['stocks' => function ($query) {
+            $query->orderBy('received_date', 'asc');
+        }]);
 
-    // 2. Ambil riwayat pergerakan stok (Movements)
-    $movements = $product->stockMovements() // Pastikan relasi stockMovements ada di Model Product
-        ->orderBy('movement_date', 'desc')
-        ->latest()
-        ->get();
+        // 1. Ambil data batch dari relasi yang udah di-load
+        $batches = $product->stocks;
 
-    // 3. Ambil data alokasi produk
-    $allocations = $product->allocations; // Ambil relasi alokasi
+        // 2. Ambil riwayat pergerakan stok (Movements)
+        $movements = $product->stockMovements() 
+            ->orderBy('movement_date', 'desc')
+            ->latest()
+            ->get();
 
-    return view('admin.inventory.product.show', compact(
-        'product',
-        'batches',
-        'movements',
-        'allocations'
-    ));
-}
+        // 3. Ambil data alokasi produk
+        $allocations = $product->allocations; 
+
+        return view('admin.inventory.product.show', compact(
+            'product',
+            'batches',
+            'movements',
+            'allocations'
+        ));
+    }
 
     /**
      * 🔄 Sync summary stok dengan total batch
@@ -74,20 +76,23 @@ class ProductInventoryController extends Controller
      */
     public function adjust(Request $request, Product $product)
     {
-        $request->validate([
-            'qty' => 'required|integer|min:1',
-            'type' => 'required|in:in,out',
-            'expired_date' => 'nullable|date', // Tambahkan validasi date
-            'reason' => 'nullable|string'
-        ]);
+       $request->validate([
+        'type' => 'required|in:in,out',
+        'qty' => 'required|integer|min:1',
+        'expired_date' => 'required_if:type,in|nullable|date|after_or_equal:today',
+        'reason' => 'nullable|string' // Ini adalah catatan/alasan
+    ], [
+        'expired_date.required_if' => 'Expired date wajib diisi untuk penambahan stok barang baru.',
+    ]);
 
         DB::transaction(function () use ($request, $product) {
+            $jumlahAdjust = $request->qty;
 
             if ($request->type === 'in') {
 
                 ProductStock::create([
                     'product_id' => $product->id,
-                    'qty' => $request->qty,
+                    'qty' => $jumlahAdjust,
                     'source' => 'manual_adjustment',
                     'reference_id' => null,
                     'received_date' => now(),
@@ -130,16 +135,16 @@ class ProductInventoryController extends Controller
                 $product->decrement('stok', $request->qty);
             }
 
-            StockMovement::create([
+           StockMovement::create([
                 'stockable_id' => $product->id,
-                'stockable_type' => Product::class,
+                'stockable_type' => get_class($product), // Menggunakan class Product
                 'type' => $request->type,
-                'quantity' => $request->qty,
+                'quantity' => $jumlahAdjust,
                 'source' => 'manual_adjustment',
                 'reference_id' => null,
                 'movement_date' => now(),
-                'catatan'        => $request->reason,
-                'created_by' => auth('admin')->id(), // 🔥 penting
+                'catatan' => $request->reason, // Mengambil 'reason' dari form
+                'created_by' => auth('admin')->id(),
             ]);
         });
 

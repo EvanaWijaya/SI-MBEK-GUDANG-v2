@@ -141,7 +141,7 @@
                                     </span>
                                 </td>
                                 <td class="px-4 py-3 text-xs text-gray-500 max-w-[200px] truncate">{{ $d->notes ?? '—' }}</td>
-                                <td class="px-4 py-3 text-xs text-gray-600">{{ $d->owner?->name ?? '—' }}</td>
+                               <td class="px-4 py-3 text-xs text-gray-600">{{ $d->admin?->name ?? '—' }}</td>
                             </tr>
                         @endforeach
                     </tbody>

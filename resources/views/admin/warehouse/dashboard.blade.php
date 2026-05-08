@@ -241,26 +241,72 @@
                 </div>
 
                 {{-- Buyer Distribution --}}
-                <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-                    <h3 class="text-sm font-semibold text-gray-700 mb-4">Top Pembeli Produk</h3>
-                    @if($buyerDistribution->isEmpty())
-                        <p class="text-sm text-gray-400 text-center py-4">Belum ada data transaksi.</p>
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 flex flex-col">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-semibold text-gray-700">Top 5 Kota Pembeli</h3>
+                        <button type="button" onclick="document.getElementById('modalSemuaKota').classList.remove('hidden')" class="text-xs text-orange-500 hover:text-orange-700 font-bold transition-colors">
+                            Lihat Semua &rarr;
+                        </button>
+                    </div>
+                    
+                    @php
+                        $ordersSukses = \App\Models\Order::with('user')
+                            ->whereIn('status', ['success', 'settlement', 'capture'])
+                            ->get();
+
+                        $allBuyerData = $ordersSukses->groupBy(function($order) {
+                            return ($order->user && $order->user->kota) ? $order->user->kota : 'Lainnya';
+                        })->map(function($group, $kota) {
+                            return [
+                                'daerah' => (string) $kota,
+                                'total'  => $group->count()
+                            ];
+                        })->sortByDesc('total')->values();
+
+                       $top5Data = $allBuyerData->take(5);
+                        
+                        $labelsJson = $top5Data->pluck('daerah')->values()->toJson();
+                        $totalsJson = $top5Data->pluck('total')->values()->toJson();
+                    @endphp
+
+                    @if($top5Data->isEmpty())
+                        <div class="flex flex-col items-center justify-center py-10 my-auto text-gray-400">
+                            <span class="text-3xl mb-2">📊</span>
+                            <p class="text-sm">Belum ada data transaksi sukses.</p>
+                        </div>
                     @else
-                        @php $maxBuy = $buyerDistribution->max('total'); @endphp
-                        <div class="space-y-3">
-                            @foreach($buyerDistribution->take(4) as $bd)
-                                <div>
-                                    <div class="flex justify-between text-xs mb-1.5">
-                                        <span class="font-medium text-gray-700 truncate max-w-[150px]">{{ $bd->user?->name ?? 'User #'.$bd->user_id }}</span>
-                                        <span class="font-bold text-orange-500">{{ $bd->total }} Order</span>
-                                    </div>
-                                    <div class="w-full bg-gray-100 rounded-full h-1.5">
-                                        <div class="h-1.5 rounded-full bg-orange-400 transition-all duration-700" style="width: {{ $maxBuy > 0 ? ($bd->total / $maxBuy * 100) : 0 }}%"></div>
-                                    </div>
-                                </div>
-                            @endforeach
+                        <div class="flex-1 relative min-h-[220px]">
+                            <canvas id="buyerRegionChart"></canvas>
                         </div>
                     @endif
+                </div>
+
+                {{-- MODAL POPUP LIHAT SEMUA KOTA --}}
+                <div id="modalSemuaKota" class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4">
+                    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 relative max-h-[80vh] flex flex-col">
+                        <div class="flex justify-between items-center border-b border-gray-100 pb-3 mb-3">
+                            <h3 class="text-lg font-bold text-gray-800">Seluruh Kota Pembeli</h3>
+                            <button type="button" onclick="document.getElementById('modalSemuaKota').classList.add('hidden')" class="text-gray-400 hover:text-red-500 font-bold text-2xl">&times;</button>
+                        </div>
+                        <div class="overflow-y-auto flex-1 pr-1">
+                            <table class="w-full text-sm text-left">
+                                <thead class="bg-gray-50 text-gray-500 sticky top-0">
+                                    <tr>
+                                        <th class="py-2 px-3 rounded-l-lg font-semibold">Kota</th>
+                                        <th class="py-2 px-3 text-right rounded-r-lg font-semibold">Total Order</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    @foreach($allBuyerData as $data)
+                                    <tr class="hover:bg-orange-50/50">
+                                        <td class="py-2.5 px-3 text-gray-700">{{ $data['daerah'] }}</td>
+                                        <td class="py-2.5 px-3 text-right text-orange-500 font-bold">{{ $data['total'] }}x</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -386,6 +432,51 @@
         }
     });
 @endif
+
+@if(isset($labelsJson) && $labelsJson !== '[]')
+    new Chart(document.getElementById('buyerRegionChart'), {
+        type: 'pie', // 🔥 Sudah jadi Pie Chart
+        data: {
+            labels: {!! $labelsJson !!},
+            datasets: [{
+                data: {!! $totalsJson !!},
+                backgroundColor: [
+                    '#f97316', // Orange
+                    '#3b82f6', // Blue
+                    '#22c55e', // Green
+                    '#a855f7', // Purple
+                    '#eab308'  // Yellow
+                ],
+                borderWidth: 2,
+                borderColor: '#ffffff',
+                hoverOffset: 15 // Efek membesar pas di-hover biar keren
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { 
+                legend: { 
+                    position: 'right', // Daftar kota di sebelah kanan
+                    labels: { 
+                        boxWidth: 12, 
+                        usePointStyle: true, 
+                        font: { size: 11, family: "'Inter', sans-serif" } 
+                    } 
+                },
+                tooltip: {
+                    callbacks: {
+                        // Menampilkan label: X Order
+                        label: function(context) {
+                            return ' ' + context.label + ': ' + context.parsed + ' Order';
+                        }
+                    }
+                }
+            }
+        }
+    });
+@endif
+
 </script>
 @endpush
 

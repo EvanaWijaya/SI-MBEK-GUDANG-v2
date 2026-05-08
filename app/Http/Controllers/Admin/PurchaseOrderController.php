@@ -98,7 +98,7 @@ class PurchaseOrderController extends Controller
                 'dipesan_oleh_type' => get_class($pemesan),
                 'dicatat_oleh_id' => $pencatat->id,
                 'dicatat_oleh_type' => get_class($pencatat),
-                'catatan' => $request->catatan,
+                'catatan' => $request->catatan_owner,
             ]);
 
             foreach ($request->items as $item) {
@@ -280,6 +280,7 @@ class PurchaseOrderController extends Controller
                         'note' => 'PO ' . $purchaseOrder->kode_po .
                             ($purchaseOrder->catatan ? ' | ' . $purchaseOrder->catatan : ''),
                         'movement_date' => now(),
+                       'catatan' => $purchaseOrder->catatan,
                     ]);
                 }
 
@@ -303,6 +304,15 @@ class PurchaseOrderController extends Controller
                         throw new \Exception('Produk ini bukan dari pembelian.');
                     }
 
+                    \App\Models\ProductStock::create([
+                        'product_id' => $product->id,
+                        'qty' => $jumlahDiterima, 
+                        'received_date' => now(),
+                        'expired_date' => $data['expired_date'] ?? null,
+                        'source' => 'purchase', 
+                        'created_by' => auth('admin')->id(), // Pakai admin
+                    ]);
+
                     $product->increment('stok', $jumlahDiterima);
 
                     StockMovement::create([
@@ -313,6 +323,7 @@ class PurchaseOrderController extends Controller
                         'source' => 'PO',
                         'reference_id' => $purchaseOrder->id,
                         'movement_date' => now(),
+                       'catatan' => $purchaseOrder->catatan,
                     ]);
                 }
             }

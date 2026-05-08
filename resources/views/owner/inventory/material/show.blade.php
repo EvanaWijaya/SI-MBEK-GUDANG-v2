@@ -103,7 +103,7 @@
             @if($belowRop)
                 <div class="bg-orange-50 border border-orange-200 rounded-xl p-5 flex justify-between items-center gap-4">
                     <p class="font-semibold text-orange-800 text-sm">Stok di bawah ROP! Segera pesan ulang.</p>
-                    <a href="{{ route('owner.purchase-orders.create') }}" class="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-4 py-2 rounded-lg text-sm shadow">Buang PO Sekarang</a>
+                    <a href="{{ route('owner.purchase-orders.create') }}" class="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-4 py-2 rounded-lg text-sm shadow">Buat PO Sekarang</a>
                 </div>
             @endif
         </div>

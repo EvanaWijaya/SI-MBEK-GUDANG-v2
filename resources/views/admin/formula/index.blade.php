@@ -4,7 +4,7 @@
         {{-- Header --}}
         <div class="flex items-start justify-between mb-8">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800">Resep Produksi (Formula)</h1>
+                <h1 class="text-2xl font-bold text-gray-800">Resep Produksi</h1>
                 <p class="text-sm text-gray-500 mt-1">Kelola komposisi bahan baku untuk setiap formula produk</p>
             </div>
             <a href="{{ route('admin.formula.create') }}"

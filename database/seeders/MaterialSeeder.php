@@ -27,9 +27,9 @@ class MaterialSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'nama' => 'Vitamin Ternak A',
-                'kategori' => 'obat',
-                'satuan' => 'botol',
+                'nama' => 'Daun Lamtoro',
+                'kategori' => 'pakan',
+                'satuan' => 'kg',
                 'stok' => 0,
                 'created_at' => now(),
                 'updated_at' => now(),

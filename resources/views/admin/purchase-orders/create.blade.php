@@ -185,70 +185,74 @@
 
         // ─── Add first item on load ──────────────────────────
 
-       function addItem() {
-    const container = document.getElementById('items-container');
-    const poType = document.getElementById('po-type').value;
+document.getElementById('add-item').addEventListener('click', addItem);
 
-    if (!poType) {
-        alert('Silakan pilih Tipe PO terlebih dahulu');
-        return;
-    }
+    function addItem() {
+            const container = document.getElementById('items-container');
+            const poType = document.getElementById('po-type').value;
 
-    const idx = itemIndex++;
-    const row = document.createElement('div');
-    row.className = 'item-row grid grid-cols-12 gap-3 items-start bg-gray-50 rounded-lg p-4 border border-gray-200';
-    row.dataset.index = idx;
+            if (!poType) {
+                alert('Silakan pilih Tipe PO terlebih dahulu');
+                return;
+            }
 
-    // Logika pemilihan list
-    let options = '';
-    let selectName = '';
-    
-    if (poType === 'material') {
-        selectName = `items[${idx}][material_id]`;
-        options = `<option value="">-- Pilih Material --</option>` + 
-                  materials.map(m => `<option value="${m.id}">${m.nama} (${m.satuan})</option>`).join('');
-    } else {
-        selectName = `items[${idx}][product_id]`;
-        options = `<option value="">-- Pilih Obat --</option>` + 
-                  products.map(p => `<option value="${p.id}">${p.nama}</option>`).join('');
-    }
+            const idx = itemIndex++;
+            const row = document.createElement('div');
+            row.className = 'item-row grid grid-cols-12 gap-3 items-start bg-gray-50 rounded-lg p-4 border border-gray-200';
+            row.dataset.index = idx;
 
-    row.innerHTML = `
-        <div class="col-span-12 sm:col-span-5">
-            <label class="block text-xs font-medium text-gray-500 mb-1">
-                ${poType === 'material' ? 'Bahan / Material' : 'Produk Obat'}
-            </label>
-            <select name="${selectName}" required onchange="updateSatuan(this, ${idx})"
-                class="w-full border border-gray-300 bg-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent">
-                ${options}
-            </select>
-        </div>
-        <div class="col-span-4 sm:col-span-2">
-            <label class="block text-xs font-medium text-gray-500 mb-1">Jumlah</label>
-            <input type="number" name="items[${idx}][jumlah]" min="1" placeholder="0" required
-                oninput="calcRow(${idx})"
-                class="w-full border border-gray-300 bg-white rounded-lg px-3 py-2 text-sm">
-        </div>
-        <div class="col-span-8 sm:col-span-4">
-            <label class="block text-xs font-medium text-gray-500 mb-1">Harga Satuan (Rp)</label>
-            <input type="number" name="items[${idx}][harga_satuan]" min="0" placeholder="0" required
-                oninput="calcRow(${idx})"
-                class="w-full border border-gray-300 bg-white rounded-lg px-3 py-2 text-sm">
-        </div>
-        <div class="col-span-12 sm:col-span-1 flex items-end sm:pt-5">
-            <button type="button" onclick="removeItem(this)" class="p-2 text-gray-400 hover:text-red-500">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-            </button>
-        </div>
-        <div class="col-span-12">
-            <div class="flex items-center justify-between text-xs text-gray-400">
-                <span id="satuan-label-${idx}"></span>
-                <span>Subtotal: <strong class="text-gray-700" id="subtotal-${idx}">Rp 0</strong></span>
-            </div>
-        </div>
-    `;
-    container.appendChild(row);
-}
+            let options = '';
+            let selectName = '';
+            
+            if (poType === 'material') {
+                selectName = `items[${idx}][material_id]`;
+                options = `<option value="">-- Pilih Material --</option>` + 
+                          materials.map(m => `<option value="${m.id}">${m.nama} (${m.satuan})</option>`).join('');
+            } else {
+                selectName = `items[${idx}][product_id]`;
+                options = `<option value="">-- Pilih Obat --</option>` + 
+                          products.map(p => `<option value="${p.id}">${p.nama}</option>`).join('');
+            }
+
+            // 👇 UBAH BAGIAN SELECT DI SINI 👇
+            row.innerHTML = `
+                <div class="col-span-12 sm:col-span-5">
+                    <label class="block text-xs font-medium text-gray-500 mb-1">
+                        ${poType === 'material' ? 'Bahan / Material' : 'Produk Obat'}
+                    </label>
+                    <select name="${selectName}" required onchange="updateSatuan(this, ${idx}); updateDropdownOptions();"
+                        class="item-select w-full border border-gray-300 bg-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent">
+                        ${options}
+                    </select>
+                </div>
+                <div class="col-span-4 sm:col-span-2">
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Jumlah</label>
+                    <input type="number" name="items[${idx}][jumlah]" min="1" placeholder="0" required
+                        oninput="calcRow(${idx})"
+                        class="w-full border border-gray-300 bg-white rounded-lg px-3 py-2 text-sm">
+                </div>
+                <div class="col-span-8 sm:col-span-4">
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Harga Satuan (Rp)</label>
+                    <input type="number" name="items[${idx}][harga_satuan]" min="0" placeholder="0" required
+                        oninput="calcRow(${idx})"
+                        class="w-full border border-gray-300 bg-white rounded-lg px-3 py-2 text-sm">
+                </div>
+                <div class="col-span-12 sm:col-span-1 flex items-end sm:pt-5">
+                    <button type="button" onclick="removeItem(this)" class="p-2 text-gray-400 hover:text-red-500">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                </div>
+                <div class="col-span-12">
+                    <div class="flex items-center justify-between text-xs text-gray-400">
+                        <span id="satuan-label-${idx}"></span>
+                        <span>Subtotal: <strong class="text-gray-700" id="subtotal-${idx}">Rp 0</strong></span>
+                    </div>
+                </div>
+            `;
+            container.appendChild(row);
+
+            updateDropdownOptions();
+        }
 
         function removeItem(btn) {
             const rows = document.querySelectorAll('.item-row');
@@ -258,6 +262,8 @@
             }
             btn.closest('.item-row').remove();
             updateGrandTotal();
+
+            updateDropdownOptions();
         }
 
         function updateSatuan(select, idx) {
@@ -303,6 +309,36 @@
                 alert('Tambahkan minimal 1 item pesanan.');
             }
         });
+
+        function updateDropdownOptions() {
+            // Ambil semua dropdown item
+            const allSelects = document.querySelectorAll('.item-select');
+            
+            // Kumpulkan semua value (ID bahan/obat) yang lagi dipilih (selain yang kosong)
+            const selectedValues = Array.from(allSelects)
+                .map(select => select.value)
+                .filter(value => value !== '');
+
+            // Cek setiap dropdown satu per satu
+            allSelects.forEach(select => {
+                const currentValue = select.value;
+                
+                // Cek setiap opsi di dalam dropdown tersebut
+                Array.from(select.options).forEach(option => {
+                    if (option.value === '') return; // Lewati opsi "-- Pilih --"
+
+                    // Kalau opsi ini ada di daftar yang udah dipilih DAN bukan yang lagi dipilih di baris ini
+                    if (selectedValues.includes(option.value) && option.value !== currentValue) {
+                        option.disabled = true; // Matikan opsi
+                        option.classList.add('text-gray-300', 'bg-gray-100'); // Biar kelihatan abu-abu
+                    } else {
+                        option.disabled = false; // Nyalakan opsi
+                        option.classList.remove('text-gray-300', 'bg-gray-100');
+                    }
+                });
+            });
+        }
+
     </script>
     @endpush
 </x-admin-app-layout>

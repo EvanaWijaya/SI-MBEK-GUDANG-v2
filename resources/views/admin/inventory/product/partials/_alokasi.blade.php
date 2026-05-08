@@ -97,38 +97,6 @@
                 </div>
 
                 <div class="border-t border-gray-100"></div>
-
-                {{-- Catat Penjualan --}}
-                <div>
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Catat Penjualan</p>
-                    @if($qJual > 0)
-                        <form method="POST" action="{{ route('admin.product.allocations.sell', $product->id) }}"
-                            class="space-y-2">
-                            @csrf
-                            <div class="flex gap-2">
-                                <input type="number" name="qty" min="1" max="{{ $qJual }}" required
-                                    placeholder="Qty (maks. {{ $qJual }})"
-                                    class="flex-1 border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400">
-                                <button type="submit"
-                                    class="px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white text-xs font-semibold rounded-lg transition-colors flex-shrink-0">
-                                    Jual
-                                </button>
-                            </div>
-                            <input type="text" name="nama_pembeli"
-                                placeholder="Nama pembeli (opsional)"
-                                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400">
-                            <input type="text" name="catatan"
-                                placeholder="Catatan (opsional)"
-                                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400">
-                        </form>
-                        <p class="text-xs text-gray-400 mt-2">Akan mengurangi stok + alokasi jual via FIFO.</p>
-                    @else
-                        <div class="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 text-xs text-gray-400">
-                            <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            Set alokasi jual terlebih dahulu.
-                        </div>
-                    @endif
-                </div>
             </div>
         </div>
 
@@ -214,10 +182,12 @@
                     class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400">
             </div>
             <div id="adj-expired-wrap">
-                <label class="block text-xs font-medium text-gray-500 mb-1.5">Expired Date</label>
-                <input type="date" name="expired_date"
-                    class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent">
-            </div>
+    <label class="block text-xs text-gray-500 mb-1.5">
+        Expired Date <span id="exp-required-star" class="text-red-500">*</span>
+    </label>
+    <input type="date" name="expired_date" id="adj-expired-input" 
+        class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-orange-400">
+</div>
             <div>
                 <label class="block text-xs font-medium text-gray-600 mb-1.5">Alasan</label>
                 <input type="text" name="reason" placeholder="Misal: stok opname..."
@@ -233,17 +203,26 @@
     </div>
 
     @push('scripts')
-    <script>
-        const adjType = document.getElementById('adj-type');
-        const expWrap = document.getElementById('adj-expired-wrap');
+<script>
+    const adjType = document.getElementById('adj-type');
+    const expWrap = document.getElementById('adj-expired-wrap');
+    const expInput = document.getElementById('adj-expired-input');
+    const expStar = document.getElementById('exp-required-star');
 
-        function toggleExpiredField() {
-            expWrap.style.display = adjType.value === 'out' ? 'none' : '';
+    function toggleExpiredField() {
+        if (adjType.value === 'out') {
+            expWrap.style.display = 'none';
+            expInput.required = false; // Tidak wajib kalau stok keluar
+        } else {
+            expWrap.style.display = '';
+            expInput.required = true; // WAJIB kalau stok masuk/tambah
+            expStar.style.display = 'inline';
         }
+    }
 
-        adjType.addEventListener('change', toggleExpiredField);
-        toggleExpiredField();
-    </script>
-    @endpush
+    adjType.addEventListener('change', toggleExpiredField);
+    toggleExpiredField(); // Jalankan saat halaman pertama kali dibuka
+</script>
+@endpush
 
 </div>

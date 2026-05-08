@@ -40,8 +40,8 @@
                 <label class="block text-xs font-semibold text-gray-500 mb-1.5">QC</label>
                 <select name="qc_status" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-300">
                     <option value="">Semua</option>
-                    <option value="lulus" {{ request('qc_status')==='lulus'?'selected':'' }}>Lulus</option>
-                    <option value="gagal" {{ request('qc_status')==='gagal'?'selected':'' }}>Gagal</option>
+                    <option value="layak" {{ request('qc_status')==='layak'?'selected':'' }}>Lulus / Layak</option>
+                    <option value="tidak_layak" {{ request('qc_status')==='tidak_layak'?'selected':'' }}>Gagal / Tidak Layak</option>
                     <option value="pending" {{ request('qc_status')==='pending'?'selected':'' }}>Pending</option>
                 </select>
             </div>
@@ -147,8 +147,8 @@
                                 <td class="px-4 py-3 text-center">
                                     @if($prod->qc_status)
                                         <span class="text-xs px-2 py-0.5 rounded-full font-semibold
-                                            {{ $prod->qc_status === 'lulus' ? 'bg-green-100 text-green-700' : ($prod->qc_status === 'gagal' ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-500') }}">
-                                            {{ ucfirst($prod->qc_status) }}
+                                            {{ $prod->qc_status === 'layak' ? 'bg-green-100 text-green-700' : ($prod->qc_status === 'tidak_layak' ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-500') }}">
+                                            {{ $prod->qc_status === 'layak' ? 'Lulus' : ($prod->qc_status === 'tidak_layak' ? 'Gagal' : ucfirst($prod->qc_status)) }}
                                         </span>
                                     @else
                                         <span class="text-xs text-gray-300">—</span>

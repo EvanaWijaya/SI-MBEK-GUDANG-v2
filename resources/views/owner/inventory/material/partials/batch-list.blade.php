@@ -27,7 +27,6 @@
                         <th class="px-5 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wide">Expired Date</th>
                         <th class="px-5 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wide">Harga</th>
                         <th class="px-5 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wide">Status</th>
-                        <th class="px-5 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wide">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50">
@@ -82,19 +81,6 @@
                                     <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">Hampir Expired</span>
                                 @else
                                     <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">Aktif</span>
-                                @endif
-                            </td>
-                            <td class="px-5 py-3.5 text-center">
-                                @if($bExp && !$bEmpty)
-                                    <form action="{{ url('owner/disposal/material/'.$batch->id) }}" method="POST" onsubmit="return confirm('Buang seluruh sisa stok di batch ini ke Disposal?');">
-                                        @csrf
-                                        <input type="hidden" name="reason" value="expired">
-                                        <button type="submit" class="inline-flex items-center gap-1 bg-red-100 hover:bg-red-200 text-red-700 font-medium px-2 py-1 rounded text-xs transition-colors">
-                                            Buang
-                                        </button>
-                                    </form>
-                                @else
-                                    <span class="text-xs text-gray-300">—</span>
                                 @endif
                             </td>
                         </tr>

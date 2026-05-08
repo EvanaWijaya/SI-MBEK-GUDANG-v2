@@ -184,16 +184,6 @@
                                     </x-sidebar-link>
                                 </li>
 
-                                {{-- Pengaturan --}}
-                                <li>
-                                    <x-sidebar-link :href="route('admin.site-settings.edit')" :active="request()->routeIs('admin.site-settings.edit')">
-                                        <x-slot name="icon">
-                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M11.5 2a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M9.05 3a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0V3zM4.5 7a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M2.05 8a2.5 2.5 0 0 1 4.9 0H16v1H6.95a2.5 2.5 0 0 1-4.9 0H0V8zm9.45 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3m-2.45 1a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0v-1z" /></svg>
-                                        </x-slot>
-                                        {{ __('Pengaturan') }}
-                                    </x-sidebar-link>
-                                </li>
-
                                 {{-- Pemesanan Bahan --}}
                                 <li>
                                     <x-sidebar-link :href="route('admin.purchase-orders.index')" :active="request()->routeIs('admin.purchase-orders.*')">
@@ -264,6 +254,16 @@
                                     </x-sidebar-link>
                                 </li>
                             </ul>
+
+                            {{-- Pengaturan --}}
+                                <li>
+                                    <x-sidebar-link :href="route('admin.site-settings.edit')" :active="request()->routeIs('admin.site-settings.edit')">
+                                        <x-slot name="icon">
+                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M11.5 2a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M9.05 3a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0V3zM4.5 7a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M2.05 8a2.5 2.5 0 0 1 4.9 0H16v1H6.95a2.5 2.5 0 0 1-4.9 0H0V8zm9.45 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3m-2.45 1a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0v-1z" /></svg>
+                                        </x-slot>
+                                        {{ __('Pengaturan') }}
+                                    </x-sidebar-link>
+                                </li>
                             
                             {{-- Sidebar Bottom (Profile & Logout) --}}
                             <div class="space-y-2 pt-2 ">

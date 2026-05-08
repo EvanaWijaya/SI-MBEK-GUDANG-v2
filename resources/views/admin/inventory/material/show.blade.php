@@ -105,7 +105,13 @@
                     @csrf
                     <div><label class="block text-xs text-gray-500 mb-1.5">Tipe</label><select name="type" id="adj-type" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-orange-400"><option value="in">➕ Tambah</option><option value="out">➖ Kurangi</option></select></div>
                     <div><label class="block text-xs text-gray-500 mb-1.5">Jumlah</label><input type="number" name="quantity" min="1" required class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm"></div>
-                    <div id="adj-expired-wrap"><label class="block text-xs text-gray-500 mb-1.5">Expired Date</label><input type="date" name="expired_date" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm"></div>
+                   <div id="adj-expired-wrap">
+    <label class="block text-xs text-gray-500 mb-1.5">
+        Expired Date <span id="exp-required-star" class="text-red-500">*</span>
+    </label>
+    <input type="date" name="expired_date" id="adj-expired-input" 
+        class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-orange-400">
+</div>
                     <div><label class="block text-xs text-gray-500 mb-1.5">Catatan</label><input type="text" name="note" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm"></div>
                     <div><button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-lg text-sm">Simpan</button></div>
                 </form>
@@ -119,17 +125,32 @@
             @if($belowRop)
                 <div class="bg-orange-50 border border-orange-200 rounded-xl p-5 flex justify-between items-center gap-4">
                     <p class="font-semibold text-orange-800 text-sm">Stok di bawah ROP! Segera pesan ulang.</p>
-                    <a href="{{ route('admin.purchase-orders.create') }}" class="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-4 py-2 rounded-lg text-sm shadow">Buang PO Sekarang</a>
+                    <a href="{{ route('admin.purchase-orders.create') }}" class="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-4 py-2 rounded-lg text-sm shadow">Buat PO Sekarang</a>
                 </div>
             @endif
         </div>
     </div>
 
-    @push('scripts')
-    <script>
-        const adjType = document.getElementById('adj-type'), expWrap = document.getElementById('adj-expired-wrap');
-        function toggleExpiredField() { expWrap.style.display = adjType.value === 'out' ? 'none' : ''; }
-        adjType.addEventListener('change', toggleExpiredField); toggleExpiredField();
-    </script>
-    @endpush
+   @push('scripts')
+<script>
+    const adjType = document.getElementById('adj-type');
+    const expWrap = document.getElementById('adj-expired-wrap');
+    const expInput = document.getElementById('adj-expired-input');
+    const expStar = document.getElementById('exp-required-star');
+
+    function toggleExpiredField() {
+        if (adjType.value === 'out') {
+            expWrap.style.display = 'none';
+            expInput.required = false; // Tidak wajib kalau stok keluar
+        } else {
+            expWrap.style.display = '';
+            expInput.required = true; // WAJIB kalau stok masuk/tambah
+            expStar.style.display = 'inline';
+        }
+    }
+
+    adjType.addEventListener('change', toggleExpiredField);
+    toggleExpiredField(); // Jalankan saat halaman pertama kali dibuka
+</script>
+@endpush
 </x-admin-app-layout>

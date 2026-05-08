@@ -42,12 +42,16 @@ class MaterialInventoryController extends Controller
      */
     public function adjust(Request $request, Material $material)
     {
-        $request->validate([
-            'type' => 'required|in:in,out',
-            'quantity' => 'required|numeric|min:1',
-            'expired_date' => 'nullable|date',
-            'note' => 'nullable|string'
-        ]);
+       $request->validate([
+        'type' => 'required|in:in,out',
+        'quantity' => 'required|integer|min:1',
+        // 🔥 Tambahkan baris ini: Wajib diisi jika type adalah 'in'
+        'expired_date' => 'required_if:type,in|nullable|date|after_or_equal:today',
+        'note' => 'nullable|string|max:255',
+    ], [
+        // Custom pesan error biar lebih jelas
+        'expired_date.required_if' => 'Expired date wajib diisi untuk penambahan stok barang baru.',
+    ]);
 
         DB::transaction(function () use ($request, $material) {
 

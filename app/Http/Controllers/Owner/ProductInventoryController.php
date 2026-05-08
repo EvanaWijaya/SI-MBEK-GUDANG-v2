@@ -24,33 +24,35 @@ class ProductInventoryController extends Controller
         return view('owner.inventory.product.index', compact('products'));
     }
 
-    /**
+   /**
      * 📋 Detail batch per produk
      */
     public function show(Product $product)
-{
-    // 1. Ambil data batch yang masih memiliki stok
-    $batches = $product->stocks()
-        //->where('qty', '>', 0)
-        ->orderBy('received_date', 'asc')
-        ->get();
+    {
+        // 🔥 TAMBAHAN: Load relasi stocks dari awal biar jadi Collection utuh
+        $product->load(['stocks' => function ($query) {
+            $query->orderBy('received_date', 'asc');
+        }]);
 
-    // 2. Ambil riwayat pergerakan stok (Movements)
-    $movements = $product->stockMovements() // Pastikan relasi stockMovements ada di Model Product
-        ->orderBy('movement_date', 'desc')
-        ->latest()
-        ->get();
+        // 1. Ambil data batch dari relasi yang udah di-load
+        $batches = $product->stocks;
 
-    // 3. Ambil data alokasi produk
-    $allocations = $product->allocations; // Ambil relasi alokasi
+        // 2. Ambil riwayat pergerakan stok (Movements)
+        $movements = $product->stockMovements() 
+            ->orderBy('movement_date', 'desc')
+            ->latest()
+            ->get();
 
-    return view('owner.inventory.product.show', compact(
-        'product',
-        'batches',
-        'movements',
-        'allocations'
-    ));
-}
+        // 3. Ambil data alokasi produk
+        $allocations = $product->allocations; 
+
+        return view('owner.inventory.product.show', compact(
+            'product',
+            'batches',
+            'movements',
+            'allocations'
+        ));
+    }
 
     /**
      * 🔄 Sync summary stok dengan total batch

@@ -150,12 +150,7 @@
                     </p>
                 </div>
             </div>
-            @if($product->source === 'produksi')
-                <a href="{{ route('owner.productions.index') }}"
-                    class="flex-shrink-0 inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold px-4 py-2 rounded-lg text-sm shadow transition-colors">
-                    🏭 Jalankan Produksi
-                </a>
-            @else
+            @if($product->source === 'pembelian')
                 <a href="{{ route('owner.purchase-orders.create') }}"
                     class="flex-shrink-0 inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold px-4 py-2 rounded-lg text-sm shadow transition-colors">
                     📋 Buat PO Sekarang

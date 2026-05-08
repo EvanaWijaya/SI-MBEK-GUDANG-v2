@@ -123,6 +123,9 @@ Route::get('/products/{product}', [ProductController::class, 'show'])->name('pro
 Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
 Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
 
+ Route::get('/productions', [ProductionController::class, 'index'])->name('productions.index');
+Route::get('/productions/{production}', [ProductionController::class, 'show'])->name('productions.show');
+
 // Product Inventory (Gunakan ->names() untuk menghindari bentrok dengan Master Data)
 Route::resource('inventory/product', ProductInventoryController::class)
     ->names([

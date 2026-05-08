@@ -41,14 +41,17 @@ class WarehouseDashboardController extends Controller
             ->with('supplier:id,nama_supplier')
             ->get();
 
-        // ── 4. Buyer Distribution ────────────────────────────────
-        $buyerDistribution = Order::whereIn('status', ['success', 'settlement'])
-            ->selectRaw('user_id, COUNT(*) as total')
-            ->groupBy('user_id')
-            ->with('user:id,name')
-            ->orderByDesc('total')
-            ->take(8)
-            ->get();
+ // ── 4. Distribusi Pembeli Berdasarkan Kota ───────────────
+$buyerDistribution = Order::whereIn('orders.status', ['success', 'settlement'])
+    ->join('users', 'orders.user_id', '=', 'users.id')
+    ->select(
+        'users.kota',
+        DB::raw('COUNT(orders.id) as total')
+    )
+    ->groupBy('users.kota')
+    ->orderByDesc('total')
+    ->take(6)
+    ->get();
 
         // ── 5. Recent Activities (dashboard, 7 latest) ───────────
        $recentActivities = ActivityLog::whereIn('type', [

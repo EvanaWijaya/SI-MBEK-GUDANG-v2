@@ -113,7 +113,9 @@
                                 </td>
                                 <td class="px-4 py-3">
                                     @if($m->stockable)
-                                        <p class="font-medium text-gray-800">{{ $m->stockable->nama ?? $m->stockable->name ?? '-' }}</p>
+                                        <p class="font-medium text-gray-800">
+                                            {{ $m->stockable->nama_bahan ?? $m->stockable->nama ?? $m->stockable->name ?? '-' }}
+                                        </p>
                                         <p class="text-xs text-gray-400">{{ class_basename($m->stockable_type) }}</p>
                                     @else
                                         <span class="text-xs text-gray-400 italic">Item dihapus</span>

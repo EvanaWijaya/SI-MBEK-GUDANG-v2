@@ -2,31 +2,92 @@
     use App\Models\Kambing;
     use App\Models\Domba;
     use App\Models\Product;
-    use Illuminate\Support\Facades\Storage;
+    use Illuminate\Pagination\LengthAwarePaginator;
 
     $kategoriProduk = request('kategori_produk', 'semua');
     $jenisList = [];
-    $currentProduk = collect();
+    
+    $kambings = collect();
+    $dombas = collect();
+    $products = collect();
 
     if ($kategoriProduk === 'kambing') {
         $jenisList = Kambing::whereNotNull('type_goat')->distinct()->pluck('type_goat')->toArray();
-        $currentProduk = $kambings;
+        $kambings = Kambing::where('for_sale', 'yes')->get();
     } elseif ($kategoriProduk === 'domba') {
         $jenisList = Domba::whereNotNull('type_domba')->distinct()->pluck('type_domba')->toArray();
-        $currentProduk = $dombas;
+        $dombas = Domba::where('for_sale', 'yes')->get();
     } elseif ($kategoriProduk === 'produk') {
-        // Kategori khusus Pakan dan Obat
         $jenisList = Product::whereNotNull('type')->distinct()->pluck('type')->toArray();
-        $currentProduk = $products;
+        $products = Product::whereHas('allocations', function ($q) {
+            $q->where('type', 'jual')->where('qty', '>', 0);
+        })->where('stok', '>', 0)->with(['allocations'])->get();
     } else {
-        // Gabungkan kambing, domba, dan produk untuk kategori "semua"
         $jenisList = array_merge(
             Kambing::whereNotNull('type_goat')->distinct()->pluck('type_goat')->toArray(),
             Domba::whereNotNull('type_domba')->distinct()->pluck('type_domba')->toArray(),
             Product::whereNotNull('type')->distinct()->pluck('type')->toArray()
         );
-        $currentProduk = collect()->concat($kambings)->concat($dombas)->concat($products);
+        $kambings = Kambing::where('for_sale', 'yes')->get();
+        $dombas = Domba::where('for_sale', 'yes')->get();
+        $products = Product::whereHas('allocations', function ($q) {
+            $q->where('type', 'jual')->where('qty', '>', 0);
+        })->where('stok', '>', 0)->with(['allocations'])->get();
     }
+
+    $currentProduk = collect([...$kambings, ...$dombas, ...$products]);
+
+    // FILTER PENCARIAN (q)
+    if (request()->filled('q')) {
+        $q = strtolower(request()->q);
+        $currentProduk = $currentProduk->filter(function ($item) use ($q) {
+            $nama = strtolower($item->name ?? $item->nama ?? '');
+            $jenis = strtolower($item->type_goat ?? $item->type_domba ?? $item->type ?? '');
+            return str_contains($nama, $q) || str_contains($jenis, $q);
+        });
+    }
+
+    // FILTER JENIS
+    if (request()->filled('jenis')) {
+        $jenis = request()->jenis;
+        $currentProduk = $currentProduk->filter(function ($item) use ($jenis) {
+            return ($item->type_goat ?? '') === $jenis 
+                || ($item->type_domba ?? '') === $jenis 
+                || ($item->type ?? '') === $jenis;
+        });
+    }
+
+    // FILTER HARGA
+    if (request()->filled('harga_min')) {
+        $currentProduk = $currentProduk->where('harga', '>=', request()->harga_min);
+    }
+    if (request()->filled('harga_max')) {
+        $currentProduk = $currentProduk->where('harga', '<=', request()->harga_max);
+    }
+
+    // SORTING
+    $sort = request('sort', 'latest');
+    if ($sort === 'latest') {
+        $currentProduk = $currentProduk->sortByDesc('created_at');
+    } elseif ($sort === 'oldest') {
+        $currentProduk = $currentProduk->sortBy('created_at');
+    } elseif ($sort === 'price_low') {
+        $currentProduk = $currentProduk->sortBy('harga');
+    } elseif ($sort === 'price_high') {
+        $currentProduk = $currentProduk->sortByDesc('harga');
+    }
+
+    $perPage = 10; // Jumlah item per halaman (bisa lu ganti sesuka hati)
+    $currentPage = request()->get('page', 1);
+    $pagedData = $currentProduk->slice(($currentPage - 1) * $perPage, $perPage)->all();
+    
+    $paginatedProduk = new LengthAwarePaginator(
+        $pagedData, 
+        $currentProduk->count(), 
+        $perPage, 
+        $currentPage, 
+        ['path' => request()->url(), 'query' => request()->query()]
+    );
 @endphp
 
 <x-home-layout>
@@ -218,8 +279,7 @@
                 @endif
 
                 <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-6">
-                    @forelse($currentProduk as $produk)
-                        @php
+@forelse($paginatedProduk as $produk)                        @php
                             // Cek class_basename untuk bedain ternak dan produk kemasan
                             $modelType = class_basename($produk);
                             $isTernak = in_array($modelType, ['Kambing', 'Domba']);
@@ -306,11 +366,8 @@
                 </div>
 
                 <div class="mt-10 flex justify-center p-4">
-                    @if ($kategoriProduk === 'kambing' && method_exists($kambings, 'links'))
-                        {{ $kambings->appends(request()->query())->links() }}
-                    @elseif ($kategoriProduk === 'domba' && method_exists($dombas, 'links'))
-                        {{ $dombas->appends(request()->query())->links() }}
-                    @endif
+                    {{-- Langsung panggil variabel paginated yang baru kita bikin --}}
+                    {{ $paginatedProduk->links() }}
                 </div>
             </section>
         </div>

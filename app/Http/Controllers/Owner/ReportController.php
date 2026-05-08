@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
-    /**
+   /**
      * 📦 1. Laporan Stok Masuk & Keluar
      */
     public function stock(Request $request)
@@ -21,8 +21,12 @@ class ReportController extends Controller
         $startDate = $request->start_date ?? now()->startOfMonth()->toDateString();
         $endDate   = $request->end_date   ?? now()->toDateString();
 
+        // 🔥 FIX 1: TAMBAHKAN JAM BIAR TRANSAKSI HARI INI KEBACA
+        $start = $startDate . ' 00:00:00';
+        $end   = $endDate . ' 23:59:59';
+
         $query = StockMovement::with('stockable')
-            ->whereBetween('movement_date', [$startDate, $endDate]);
+            ->whereBetween('movement_date', [$start, $end]);
 
         if ($request->filled('type')) {
             $query->where('type', $request->type);
@@ -34,7 +38,7 @@ class ReportController extends Controller
         $movements = $query->latest('movement_date')->paginate(20)->withQueryString();
 
         // Summary
-        $summary = StockMovement::whereBetween('movement_date', [$startDate, $endDate])
+        $summary = StockMovement::whereBetween('movement_date', [$start, $end])
             ->when($request->filled('source'), fn($q) => $q->where('source', $request->source))
             ->selectRaw('
                 SUM(CASE WHEN type="in"  THEN quantity ELSE 0 END) as total_masuk,
@@ -44,7 +48,7 @@ class ReportController extends Controller
             ->first();
 
         // Chart data — per hari
-        $chartData = StockMovement::whereBetween('movement_date', [$startDate, $endDate])
+        $chartData = StockMovement::whereBetween('movement_date', [$start, $end])
             ->when($request->filled('source'), fn($q) => $q->where('source', $request->source))
             ->selectRaw('
                 DATE(movement_date) as tgl,
@@ -55,7 +59,6 @@ class ReportController extends Controller
             ->orderBy('tgl')
             ->get();
 
-        // Source options untuk filter
         $sources = StockMovement::distinct()->pluck('source')->sort()->values();
 
         return view('owner.report.stock', compact(
@@ -72,8 +75,12 @@ class ReportController extends Controller
         $startDate = $request->start_date ?? now()->startOfMonth()->toDateString();
         $endDate   = $request->end_date   ?? now()->toDateString();
 
+        // 🔥 FIX 1: TAMBAHKAN JAM BIAR TRANSAKSI HARI INI KEBACA
+        $start = $startDate . ' 00:00:00';
+        $end   = $endDate . ' 23:59:59';
+
         $query = Production::with(['product', 'formula', 'admin'])
-            ->whereBetween('production_date', [$startDate, $endDate]);
+            ->whereBetween('production_date', [$start, $end]);
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
@@ -88,25 +95,25 @@ class ReportController extends Controller
         $productions = $query->latest('production_date')->paginate(20)->withQueryString();
 
         // Summary
-        $summary = Production::whereBetween('production_date', [$startDate, $endDate])
+        $summary = Production::whereBetween('production_date', [$start, $end])
             ->when($request->filled('status'), fn($q) => $q->where('status', $request->status))
             ->selectRaw('
                 COUNT(*) as total_batch,
                 SUM(qty_produksi) as total_qty,
                 SUM(CASE WHEN status="selesai" THEN 1 ELSE 0 END) as selesai,
                 SUM(CASE WHEN status="diproses" THEN 1 ELSE 0 END) as diproses,
-                SUM(CASE WHEN qc_status="lulus" THEN 1 ELSE 0 END) as lulus_qc,
-                SUM(CASE WHEN qc_status="gagal" THEN 1 ELSE 0 END) as gagal_qc
+                SUM(CASE WHEN qc_status="layak" THEN 1 ELSE 0 END) as lulus_qc,        -- 🔥 FIX 2: UBAH LULUS JADI LAYAK
+                SUM(CASE WHEN qc_status="tidak_layak" THEN 1 ELSE 0 END) as gagal_qc   -- 🔥 FIX 2: UBAH GAGAL JADI TIDAK_LAYAK
             ')
             ->first();
 
         // Chart — produksi per hari
-        $chartData = Production::whereBetween('production_date', [$startDate, $endDate])
+        $chartData = Production::whereBetween('production_date', [$start, $end])
             ->selectRaw('
                 DATE(production_date) as tgl,
                 SUM(qty_produksi) as qty,
-                SUM(CASE WHEN qc_status="lulus" THEN 1 ELSE 0 END) as lulus,
-                SUM(CASE WHEN qc_status="gagal" THEN 1 ELSE 0 END) as gagal
+                SUM(CASE WHEN qc_status="layak" THEN 1 ELSE 0 END) as lulus,          -- 🔥 FIX 2: UBAH LULUS JADI LAYAK
+                SUM(CASE WHEN qc_status="tidak_layak" THEN 1 ELSE 0 END) as gagal     -- 🔥 FIX 2: UBAH GAGAL JADI TIDAK_LAYAK
             ')
             ->groupBy('tgl')
             ->orderBy('tgl')
