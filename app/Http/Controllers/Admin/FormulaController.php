@@ -30,7 +30,11 @@ class FormulaController extends Controller
     {
         $materials = Material::all();
 
-        return view('admin.formula.create', compact('materials'));
+        $lastFormula = Formula::latest('id')->first();
+        $nextNumber = $lastFormula ? ($lastFormula->id + 1) : 1;
+        $kodeFormula = 'FRM-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+
+        return view('admin.formula.create', compact('materials', 'kodeFormula'));
     }
 
     /**
@@ -39,7 +43,6 @@ class FormulaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'kode_formula' => 'required|unique:formulas,kode_formula',
             'nama_formula' => 'required|string|max:255',
             'materials' => 'required|array|min:1',
             'materials.*.material_id' => 'required|exists:materials,id',
@@ -60,8 +63,14 @@ class FormulaController extends Controller
 
         try {
 
+            $lastFormula = Formula::latest('id')->first();
+
+            $nextNumber = $lastFormula ? ($lastFormula->id + 1) : 1;
+
+            $kodeFormula = 'FRM-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+
             $formula = Formula::create([
-                'kode_formula' => $request->kode_formula,
+                'kode_formula' => $kodeFormula,
                 'nama_formula' => $request->nama_formula,
                 'deskripsi' => $request->deskripsi,
                 'created_by' => auth('admin')->id(),

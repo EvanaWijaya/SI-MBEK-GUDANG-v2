@@ -37,22 +37,22 @@ class OrderController extends Controller
     /**
      * Display a listing of the resource (halaman list order).
      */
-   public function index()
-{
-    $kambings = Kambing::where('for_sale', 'yes')->get();
-    $dombas   = Domba::where('for_sale', 'yes')->get();
+    public function index()
+    {
+        $kambings = Kambing::where('for_sale', 'yes')->get();
+        $dombas = Domba::where('for_sale', 'yes')->get();
 
-    // Tampilkan produk yang punya alokasi jual > 0
-    // (admin sudah mengalokasikan stok untuk dijual)
-    $products = Product::whereHas('allocations', function ($q) {
+        // Tampilkan produk yang punya alokasi jual > 0
+        // (admin sudah mengalokasikan stok untuk dijual)
+        $products = Product::whereHas('allocations', function ($q) {
             $q->where('type', 'jual')->where('qty', '>', 0);
         })
-        ->where('stok', '>', 0)      // double-check stok tidak 0
-        ->with(['allocations'])
-        ->get();
+            ->where('stok', '>', 0)      // double-check stok tidak 0
+            ->with(['allocations'])
+            ->get();
 
-    return view('order', compact('kambings', 'dombas', 'products'));
-}
+        return view('order', compact('kambings', 'dombas', 'products'));
+    }
 
     /**
      * Display the specified resource (halaman detail order berdasarkan category dan id).
@@ -432,7 +432,10 @@ class OrderController extends Controller
             'bank_origin' => 'required|string|max:255',
             'transfer_date' => 'required|date',
             'transfer_amount' => 'required|numeric|min:1',
-            'transfer_proof' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'transfer_proof' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+        ], [
+            'transfer_proof.mimes' => 'Bukti transfer hanya boleh format JPG, JPEG, atau PNG.',
+            'transfer_proof.max' => 'Ukuran bukti transfer maksimal 2MB.',
         ]);
 
         // Cari produk
