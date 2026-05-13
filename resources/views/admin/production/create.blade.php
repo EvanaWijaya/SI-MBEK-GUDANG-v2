@@ -84,7 +84,7 @@
                             Jumlah Produksi <span class="text-red-500">*</span>
                         </label>
                         <div class="relative">
-                            <input type="number" name="qty_produksi" min="1" step="1" required
+                           <input type="number" name="qty_produksi" id="qtyProduksi" min="1" step="1" required
                                 value="{{ old('qty_produksi') }}" placeholder="0"
                                 class="w-full border border-gray-300 rounded-lg pl-3 pr-10 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all">
                             <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">kg</span>
@@ -120,14 +120,15 @@
 
     @push('scripts')
     <script>
-    // Data formula → produk dari controller
     const formulaProducts  = @json($formulaProducts ?? []);
     const formulaMaterials = @json($formulaMaterials ?? []);
+
+    const qtyInput = document.getElementById('qtyProduksi');
+    const selectFormula = document.getElementById('selectFormula');
 
     function loadProducts(formulaId) {
         const select   = document.getElementById('selectProduct');
         const preview  = document.getElementById('previewKomposisi');
-        const list     = document.getElementById('komposisiList');
         const products = formulaProducts[formulaId] || [];
 
         select.innerHTML = '';
@@ -145,23 +146,44 @@
             });
         }
 
-        // Preview komposisi bahan
+        // Tampilkan preview komposisi dan langsung hitung konversi Kg
         const materials = formulaMaterials[formulaId] || [];
         if (materials.length > 0) {
-            list.innerHTML = materials.map(m =>
-                `<div class="flex justify-between items-center px-4 py-2.5 text-xs">
-                    <span class="text-gray-700">${m.nama_bahan}</span>
-                    <span class="font-semibold text-gray-800">${m.persentase}%</span>
-                </div>`
-            ).join('');
             preview.classList.remove('hidden');
+            hitungKebutuhanKg(formulaId);
         } else {
             preview.classList.add('hidden');
         }
     }
 
-    // Jika ada old value setelah error
-    const oldFormula = document.getElementById('selectFormula').value;
+    // 🔥 FUNGSI BARU BUAT NGITUNG KG REALTIME 🔥
+    function hitungKebutuhanKg(formulaId = null) {
+        if(!formulaId) formulaId = selectFormula.value;
+
+        const list = document.getElementById('komposisiList');
+        const materials = formulaMaterials[formulaId] || [];
+        let totalProduksi = parseFloat(qtyInput.value) || 0; // Ambil nilai kg dari input user
+
+        if (materials.length > 0) {
+            list.innerHTML = materials.map(m => {
+                // Hitung: (Persentase / 100) * Total Produksi
+                let hitungKg = (parseFloat(m.persentase) / 100) * totalProduksi;
+                let tampilKg = Math.round(hitungKg * 100) / 100; // Bulatkan 2 desimal
+
+                return `
+                <div class="flex justify-between items-center px-4 py-2.5 text-xs">
+                    <span class="text-gray-700">${m.nama_bahan} <span class="text-gray-400">(${m.persentase}%)</span></span>
+                    <span class="font-bold text-orange-600">${tampilKg} Kg</span>
+                </div>`;
+            }).join('');
+        }
+    }
+
+    // Trigger hitung ulang pas ngetik angka jumlah produksi
+    qtyInput.addEventListener('input', () => hitungKebutuhanKg());
+
+    // Jika ada old value
+    const oldFormula = selectFormula.value;
     if (oldFormula) loadProducts(oldFormula);
     </script>
     @endpush

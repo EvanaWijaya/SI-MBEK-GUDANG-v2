@@ -221,6 +221,38 @@
     <script>
     let rowIdx = {{ old('materials') ? count(old('materials')) : 1 }};
 
+    // ==========================================
+    // 1. FUNGSI ANTI-DUPLICATE BAHAN
+    // ==========================================
+    function updateDropdownOptions() {
+        // Ambil semua dropdown BAHAN (Classnya material-select, bukan item-select)
+        const allSelects = document.querySelectorAll('.material-select'); 
+        
+        // Kumpulkan semua value yang dipilih (yang gak kosong)
+        const selectedValues = Array.from(allSelects)
+            .map(select => select.value)
+            .filter(value => value !== '');
+
+        allSelects.forEach(select => {
+            const currentValue = select.value;
+            
+            Array.from(select.options).forEach(option => {
+                if (option.value === '') return; 
+
+                if (selectedValues.includes(option.value) && option.value !== currentValue) {
+                    option.disabled = true; 
+                    option.classList.add('text-gray-300', 'bg-gray-100'); 
+                } else {
+                    option.disabled = false; 
+                    option.classList.remove('text-gray-300', 'bg-gray-100');
+                }
+            });
+        });
+    }
+
+    // ==========================================
+    // 2. FUNGSI HITUNG TOTAL PERSEN
+    // ==========================================
     function updateTotal() {
         let total = 0;
         document.querySelectorAll('.persentase-input').forEach(i => total += parseFloat(i.value) || 0);
@@ -262,22 +294,44 @@
         });
     }
 
+    // ==========================================
+    // 3. EVENT LISTENERS
+    // ==========================================
+    
+    // Bind ke select bawaan
+    document.querySelectorAll('.material-select').forEach(sel => {
+        sel.addEventListener('change', updateDropdownOptions);
+    });
+
+    // Tambah Baris
     document.getElementById('btnTambahBahan').addEventListener('click', function () {
         const tpl = document.getElementById('rowTemplate').innerHTML.replace(/__IDX__/g, rowIdx++);
         const div = document.createElement('div');
         div.innerHTML = tpl.trim();
         const row = div.firstChild;
-        row.querySelector('.btn-remove').addEventListener('click', () => { row.remove(); updateRemoveButtons(); updateTotal(); });
+        
+        row.querySelector('.btn-remove').addEventListener('click', () => { 
+            row.remove(); 
+            updateRemoveButtons(); 
+            updateTotal(); 
+            updateDropdownOptions(); // Refresh kuncian
+        });
         row.querySelector('.persentase-input').addEventListener('input', updateTotal);
+        row.querySelector('.material-select').addEventListener('change', updateDropdownOptions); // Bind select baru
+        
         document.getElementById('materialRows').appendChild(row);
+        
         updateRemoveButtons();
+        updateDropdownOptions(); // Kunci select yg udah dipilih
     });
 
+    // Hapus baris bawaan
     document.querySelectorAll('.btn-remove').forEach(btn => {
         btn.addEventListener('click', function () {
             this.closest('.material-row').remove();
             updateRemoveButtons();
             updateTotal();
+            updateDropdownOptions(); // Lepas kuncian
         });
     });
 
@@ -292,8 +346,12 @@
         }
     });
 
+    // ==========================================
+    // INISIALISASI AWAL
+    // ==========================================
     updateTotal();
     updateRemoveButtons();
+    updateDropdownOptions();
     </script>
     @endpush
 </x-admin-app-layout>

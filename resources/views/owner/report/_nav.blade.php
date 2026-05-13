@@ -9,7 +9,8 @@
         'stock'      => ['label' => 'Stok',       'icon' => '📦', 'route' => route('owner.report.stock')],
         'production' => ['label' => 'Produksi',   'icon' => '🏭', 'route' => route('owner.report.production')],
         'disposal'   => ['label' => 'Disposal',   'icon' => '🗑',  'route' => route('owner.report.disposal')],
-        'monthly'    => ['label' => 'Rekap Bulanan', 'icon' => '📊', 'route' => route('owner.report.monthly')],
+        'monthly'    => ['label' => 'Rekap Bulanan & Tahunan', 'icon' => '📊', 'route' => route('owner.report.monthly')],
+
     ];
 @endphp
 

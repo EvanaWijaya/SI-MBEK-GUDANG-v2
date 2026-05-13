@@ -284,7 +284,7 @@
                         class="bg-brand-orange hover:bg-orange-700 text-white px-4 py-2 rounded-md text-center transition-colors duration-200">
                         Lihat Semua Transaksi
                     </a>
-                    <a href="{{ route('home') }}"
+                    <a href="{{ route('dashboard') }}"
                         class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-center transition-colors duration-200">
                         Kembali ke Beranda
                     </a>

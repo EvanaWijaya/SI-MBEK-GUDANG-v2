@@ -13,9 +13,7 @@ class AdminManagementController extends Controller
     // List semua admin (kecuali super_admin yang sedang login)
     public function index()
     {
-        $admins = Admin::where('role', 'admin')
-            ->where('id', '!=', auth('admin')->id())
-            ->get();
+        $admins = Admin::latest()->get();
         
         return view('admin.management.index', compact('admins'));
     }

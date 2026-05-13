@@ -12,7 +12,7 @@ class AdminManagementController extends Controller
     public function index()
     {
         // Ambil semua admin, kecuali super_admin
-        $admins = Admin::where('role', 'admin')->get();
+       $admins = Admin::latest()->get();
         
         return view('owner.management.index', compact('admins'));
     }

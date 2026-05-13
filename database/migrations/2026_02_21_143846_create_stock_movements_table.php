@@ -19,7 +19,7 @@ return new class extends Migration {
 
             $table->enum('type', ['in', 'out']);
 
-            $table->integer('quantity');
+            $table->decimal('quantity', 10, 2);
 
             $table->string('source')->nullable();
             // PO, Production, Sale, Adjustment

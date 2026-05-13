@@ -136,8 +136,6 @@ class ProductAllocationController extends Controller
                 $product->decrement('stok', $request->qty);
                 $allocation->decrement('qty', $request->qty);
 
-                $allocation->decrement('qty', $request->qty);
-
                 StockMovement::create([
                     'stockable_id' => $product->id,
                     'stockable_type' => Product::class,

@@ -187,75 +187,83 @@ class ReportController extends Controller
     }
 
     /**
-     * 📊 4. Rekap Bulanan
+     * 📊 4. Rekap Periodik (Bulanan & Tahunan)
      */
     public function monthly(Request $request)
     {
         $year = $request->year ?? now()->year;
+        $mode = $request->mode ?? 'monthly'; // Default bulanan
+        $availableYears = collect(range(now()->year - 4, now()->year))->reverse()->values();
 
-        // Stok per bulan
-        $stockSummary = StockMovement::selectRaw('
-                MONTH(movement_date) as bulan,
-                SUM(CASE WHEN type="in"  THEN quantity ELSE 0 END) as total_masuk,
-                SUM(CASE WHEN type="out" THEN quantity ELSE 0 END) as total_keluar
-            ')
-            ->whereYear('movement_date', $year)
-            ->groupBy(DB::raw('MONTH(movement_date)'))
-            ->orderBy('bulan')
-            ->get()
-            ->keyBy('bulan');
+        if ($mode === 'annual') {
+            // ==========================================
+            // LOGIKA TAHUNAN (5 Tahun Terakhir)
+            // ==========================================
+            $endYear = $year;
+            $startYear = $endYear - 4; 
 
-        // Produksi per bulan
-        $productionSummary = Production::selectRaw('
-                MONTH(production_date) as bulan,
-                COUNT(*) as total_batch,
-                SUM(qty_produksi) as total_produksi,
-                SUM(CASE WHEN status="selesai" THEN 1 ELSE 0 END) as selesai
-            ')
-            ->whereYear('production_date', $year)
-            ->groupBy(DB::raw('MONTH(production_date)'))
-            ->orderBy('bulan')
-            ->get()
-            ->keyBy('bulan');
+            $stockSummary = StockMovement::selectRaw('YEAR(movement_date) as tahun, SUM(CASE WHEN type="in" THEN quantity ELSE 0 END) as total_masuk, SUM(CASE WHEN type="out" THEN quantity ELSE 0 END) as total_keluar')
+                ->whereBetween(DB::raw('YEAR(movement_date)'), [$startYear, $endYear])->groupBy(DB::raw('YEAR(movement_date)'))->get()->keyBy('tahun');
 
-        // Disposal per bulan
-        $disposalSummary = Disposal::selectRaw('
-                MONTH(created_at) as bulan,
-                COUNT(*) as total_disposal,
-                SUM(quantity) as total_qty
-            ')
-            ->whereYear('created_at', $year)
-            ->groupBy(DB::raw('MONTH(created_at)'))
-            ->orderBy('bulan')
-            ->get()
-            ->keyBy('bulan');
+            $productionSummary = Production::selectRaw('YEAR(production_date) as tahun, COUNT(*) as total_batch, SUM(qty_produksi) as total_produksi')
+                ->whereBetween(DB::raw('YEAR(production_date)'), [$startYear, $endYear])->groupBy(DB::raw('YEAR(production_date)'))->get()->keyBy('tahun');
 
-        // Gabung ke 12 bulan
-        $bulanNames = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-        $months = collect(range(1, 12))->map(fn($m) => [
-            'bulan'          => $m,
-            'nama'           => $bulanNames[$m - 1],
-            'stok_masuk'     => $stockSummary[$m]->total_masuk     ?? 0,
-            'stok_keluar'    => $stockSummary[$m]->total_keluar    ?? 0,
-            'total_produksi' => $productionSummary[$m]->total_produksi ?? 0,
-            'total_batch'    => $productionSummary[$m]->total_batch    ?? 0,
-            'total_disposal' => $disposalSummary[$m]->total_disposal   ?? 0,
-            'qty_disposal'   => $disposalSummary[$m]->total_qty        ?? 0,
-        ]);
+            $disposalSummary = Disposal::selectRaw('YEAR(created_at) as tahun, COUNT(*) as total_disposal, SUM(quantity) as total_qty')
+                ->whereBetween(DB::raw('YEAR(created_at)'), [$startYear, $endYear])->groupBy(DB::raw('YEAR(created_at)'))->get()->keyBy('tahun');
 
-        // Annual totals
-        $totals = [
-            'stok_masuk'     => $months->sum('stok_masuk'),
-            'stok_keluar'    => $months->sum('stok_keluar'),
-            'total_produksi' => $months->sum('total_produksi'),
-            'total_batch'    => $months->sum('total_batch'),
-            'total_disposal' => $months->sum('total_disposal'),
-        ];
+            $dataList = collect(range($startYear, $endYear))->map(fn($y) => [
+                'label'          => (string)$y, // label tahun
+                'stok_masuk'     => $stockSummary[$y]->total_masuk    ?? 0,
+                'stok_keluar'    => $stockSummary[$y]->total_keluar   ?? 0,
+                'total_produksi' => $productionSummary[$y]->total_produksi ?? 0,
+                'total_batch'    => $productionSummary[$y]->total_batch    ?? 0,
+                'total_disposal' => $disposalSummary[$y]->total_disposal   ?? 0,
+            ])->reverse()->values(); // Dibalik biar tahun terbaru di atas
 
-        $availableYears = collect(range(now()->year - 3, now()->year))->reverse()->values();
+            $totals = [
+                'stok_masuk'     => $dataList->sum('stok_masuk'),
+                'stok_keluar'    => $dataList->sum('stok_keluar'),
+                'total_produksi' => $dataList->sum('total_produksi'),
+                'total_batch'    => $dataList->sum('total_batch'),
+                'total_disposal' => $dataList->sum('total_disposal'),
+            ];
 
-        return view('owner.report.monthly', compact(
-            'months', 'totals', 'year', 'availableYears'
-        ));
+            return view('admin.report.monthly', compact('mode', 'dataList', 'totals', 'year', 'availableYears', 'startYear', 'endYear'));
+
+        } else {
+            // ==========================================
+            // LOGIKA BULANAN (12 Bulan di Tahun Tersebut)
+            // ==========================================
+            $stockSummary = StockMovement::selectRaw('MONTH(movement_date) as bulan, SUM(CASE WHEN type="in" THEN quantity ELSE 0 END) as total_masuk, SUM(CASE WHEN type="out" THEN quantity ELSE 0 END) as total_keluar')
+                ->whereYear('movement_date', $year)->groupBy(DB::raw('MONTH(movement_date)'))->get()->keyBy('bulan');
+
+            $productionSummary = Production::selectRaw('MONTH(production_date) as bulan, COUNT(*) as total_batch, SUM(qty_produksi) as total_produksi')
+                ->whereYear('production_date', $year)->groupBy(DB::raw('MONTH(production_date)'))->get()->keyBy('bulan');
+
+            $disposalSummary = Disposal::selectRaw('MONTH(created_at) as bulan, COUNT(*) as total_disposal, SUM(quantity) as total_qty')
+                ->whereYear('created_at', $year)->groupBy(DB::raw('MONTH(created_at)'))->get()->keyBy('bulan');
+
+            $bulanNames = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+            
+            $dataList = collect(range(1, 12))->map(fn($m) => [
+                'index'          => $m,
+                'label'          => $bulanNames[$m - 1], // label bulan
+                'stok_masuk'     => $stockSummary[$m]->total_masuk    ?? 0,
+                'stok_keluar'    => $stockSummary[$m]->total_keluar   ?? 0,
+                'total_produksi' => $productionSummary[$m]->total_produksi ?? 0,
+                'total_batch'    => $productionSummary[$m]->total_batch    ?? 0,
+                'total_disposal' => $disposalSummary[$m]->total_disposal   ?? 0,
+            ]);
+
+            $totals = [
+                'stok_masuk'     => $dataList->sum('stok_masuk'),
+                'stok_keluar'    => $dataList->sum('stok_keluar'),
+                'total_produksi' => $dataList->sum('total_produksi'),
+                'total_batch'    => $dataList->sum('total_batch'),
+                'total_disposal' => $dataList->sum('total_disposal'),
+            ];
+
+            return view('admin.report.monthly', compact('mode', 'dataList', 'totals', 'year', 'availableYears'));
+        }
     }
 }

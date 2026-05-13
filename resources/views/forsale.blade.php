@@ -90,8 +90,17 @@
     );
 @endphp
 
-<x-home-layout>
-    <x-navbar-v2 />
+@php
+    // Logika Bunglon: Kalau login pakai app-layout (Dashboard), kalau belum pakai home-layout
+    $layoutName = auth()->check() ? 'app-layout' : 'home-layout';
+@endphp
+
+<x-dynamic-component :component="$layoutName">
+    
+    {{-- Navbar V2 (Header Orange) CUMA muncul buat pengunjung yang BELUM login --}}
+    @guest
+        <x-navbar-v2 />
+    @endguest
 
     <main class="max-w-7xl mx-auto mt-12 px-4">
         {{-- FILTER ATAS --}}
@@ -380,4 +389,4 @@
             form.submit();
         }
     </script>
-</x-home-layout>
+</x-dynamic-component>

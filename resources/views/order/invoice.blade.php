@@ -346,7 +346,7 @@
                             Belanja Lagi
                         </a>
 
-                        <a href="{{ route('home') }}"
+                        <a href="{{ route('dashboard') }}"
                             class="inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">
                             <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                 <path

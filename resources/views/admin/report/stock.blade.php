@@ -61,15 +61,15 @@
             <p class="text-xs text-gray-400 mt-1">{{ \Carbon\Carbon::parse($startDate)->format('d M') }} – {{ \Carbon\Carbon::parse($endDate)->format('d M Y') }}</p>
         </div>
         <div class="bg-white rounded-xl border border-green-100 shadow-sm p-5">
-            <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Stok Masuk</p>
-            <p class="text-3xl font-bold text-green-600 mt-1">{{ number_format($summary->total_masuk ?? 0) }}</p>
-            <p class="text-xs text-gray-400 mt-1">unit</p>
-        </div>
-        <div class="bg-white rounded-xl border border-red-100 shadow-sm p-5">
-            <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Stok Keluar</p>
-            <p class="text-3xl font-bold text-red-500 mt-1">{{ number_format($summary->total_keluar ?? 0) }}</p>
-            <p class="text-xs text-gray-400 mt-1">unit</p>
-        </div>
+    <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Stok Masuk</p>
+    <p class="text-3xl font-bold text-green-600 mt-1">{{ number_format($summary->total_masuk ?? 0, 2) }}</p>
+    <p class="text-xs text-gray-400 mt-1">unit</p>
+</div>
+<div class="bg-white rounded-xl border border-red-100 shadow-sm p-5">
+    <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Stok Keluar</p>
+    <p class="text-3xl font-bold text-red-500 mt-1">{{ number_format($summary->total_keluar ?? 0, 2) }}</p>
+    <p class="text-xs text-gray-400 mt-1">unit</p>
+</div>
     </div>
 
     {{-- ── Chart ── --}}
@@ -128,9 +128,9 @@
                                     </span>
                                 </td>
                                 <td class="px-4 py-3 text-center">
-                                    <span class="font-bold {{ $m->type === 'in' ? 'text-green-600' : 'text-red-500' }}">
-                                        {{ $m->type === 'in' ? '+' : '-' }}{{ number_format($m->quantity) }}
-                                    </span>
+                                   <span class="font-bold {{ $m->type === 'in' ? 'text-green-600' : 'text-red-500' }}">
+    {{ $m->type === 'in' ? '+' : '-' }}{{ number_format($m->quantity, 2) }}
+</span>
                                 </td>
                                 <td class="px-4 py-3">
                                     <span class="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded font-medium">

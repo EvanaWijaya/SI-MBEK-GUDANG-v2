@@ -13,7 +13,7 @@ class SupplierController extends Controller
      */
     public function index()
     {
-        $suppliers = Supplier::orderBy('nama_supplier')->get();
+        $suppliers = Supplier::latest()->get();
         return view('owner.suppliers.index', compact('suppliers'));
     }
 

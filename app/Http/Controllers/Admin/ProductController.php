@@ -15,9 +15,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::with('formula')
-            ->orderBy('nama')
-            ->get();
+        $products = Product::latest()->get();
 
         return view('admin.product.index', compact('products'));
     }
