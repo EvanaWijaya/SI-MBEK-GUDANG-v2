@@ -9,6 +9,9 @@
         <form action="{{ route('admin.materials.update', $material->id) }}" method="POST">
             @csrf
             @method('PUT')
+            
+            {{-- 🔥 Tetap kunci kategorinya sebagai pakan 🔥 --}}
+            <input type="hidden" name="kategori" value="pakan">
 
             <div class="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200">
                 {{-- Header Card --}}
@@ -24,11 +27,11 @@
                         <button type="button" x-show="editMode" @click="editMode = false" class="bg-orange-300 text-white px-4 py-1 rounded text-sm font-bold shadow hover:bg-orange-400">
                             Batal
                         </button>
-                        <button type="submit" x-show="editMode" class="bg-white text-brand-orange px-4 py-1 rounded text-sm font-bold shadow hover:bg-orange-400">
+                        <button type="submit" x-show="editMode" class="bg-white text-brand-orange px-4 py-1 rounded text-sm font-bold shadow hover:bg-gray-100">
                             Simpan Perubahan
                         </button>
 
-                        <a href="{{ route('admin.materials.index') }}" x-show="!editMode" class="bg-white text-brand-orange px-4 py-1 rounded text-sm font-bold shadow hover:bg-white-100"> 
+                        <a href="{{ route('admin.materials.index') }}" x-show="!editMode" class="bg-white text-brand-orange px-4 py-1 rounded text-sm font-bold shadow hover:bg-gray-100"> 
                             Kembali 
                         </a>
                     </div>
@@ -47,17 +50,13 @@
 
                         <div class="mb-4">
                             <p class="text-xs text-black font-bold uppercase mb-1">Kategori</p>
-                            <p x-show="!editMode" class="text-lg text-gray-800 uppercase">{{ $material->kategori }}</p>
-                            <select x-show="editMode" name="kategori" class="w-full border-gray-300 rounded text-black">
-                                <option value="pakan" {{ $material->kategori == 'pakan' ? 'selected' : '' }}>PAKAN</option>
-                                <option value="obat" {{ $material->kategori == 'obat' ? 'selected' : '' }}>OBAT</option>
-                            </select>
+                            <p class="text-lg text-gray-800 uppercase font-semibold text-orange-600">PAKAN</p>
                         </div>
 
                         <div class="mb-4">
                             <p class="text-xs text-black font-bold uppercase mb-1">Satuan</p>
                             <p x-show="!editMode" class="text-lg text-gray-800">{{ $material->satuan }}</p>
-                            <input x-show="editMode" type="text" name="satuan" value="{{ $material->satuan }}" class="w-full border-gray-300 rounded text-black">
+                            <input x-show="editMode" type="text" name="satuan" value="{{ $material->satuan }}" class="w-full border-gray-300 rounded focus:ring-orange-500 text-black">
                         </div>
                     </div>
 
@@ -71,7 +70,7 @@
                         <div class="mb-4">
                             <p class="text-xs text-black font-bold uppercase mb-1">Deskripsi / Catatan</p>
                             <p x-show="!editMode" class="text-gray-700 italic">{{ $material->deskripsi ?? '-' }}</p>
-                            <textarea x-show="editMode" name="deskripsi" class="w-full border-gray-300 rounded text-black">{{ $material->deskripsi }}</textarea>
+                            <textarea x-show="editMode" name="deskripsi" class="w-full border-gray-300 rounded focus:ring-orange-500 text-black">{{ $material->deskripsi }}</textarea>
                         </div>
                     </div>
                 </div>
