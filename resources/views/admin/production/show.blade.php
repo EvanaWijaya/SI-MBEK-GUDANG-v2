@@ -35,9 +35,9 @@
             </div>
         </div>
 
-        {{-- Flash --}}
+        {{-- Flash Messages --}}
         @if(session('success'))
-            <div class="mb-6 flex items-center gap-3 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg text-sm">
+            <div class="mb-6 flex items-center gap-3 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg text-sm font-semibold">
                 <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
                 {{ session('success') }}
             </div>
@@ -49,11 +49,14 @@
             </div>
         @endif
         @if($errors->any())
-            <div class="mb-6 flex items-start gap-3 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg text-sm">
+            <div class="mb-6 flex items-start gap-3 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg text-sm shadow-sm">
                 <svg class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-                <ul class="list-disc list-inside space-y-0.5">
-                    @foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach
-                </ul>
+                <div>
+                    <span class="font-bold block mb-0.5">Terjadi kesalahan pemrosesan data:</span>
+                    <ul class="list-disc list-inside space-y-0.5 text-xs text-red-700">
+                        @foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach
+                    </ul>
+                </div>
             </div>
         @endif
 
@@ -96,7 +99,7 @@
                         @endif
                     </div>
                     <div class="min-w-0">
-                        <p class="text-xs font-semibold text-gray-700">Quality Control</p>
+                        <p class="text-xs font-semibold text-gray-770">Quality Control</p>
                         @if($qcLayak)
                             <p class="text-xs text-green-600 font-medium">Layak ({{ $production->qc_percentage }}%)</p>
                         @elseif($qcTidakLayak)
@@ -195,14 +198,12 @@
                             @endforeach
                         </div>
                     @else
-                        {{-- Formula tidak punya material → kemungkinan formula baru tanpa bahan --}}
                         <div class="flex flex-col items-center justify-center py-6 text-center text-gray-400">
                             <svg class="w-8 h-8 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                             </svg>
                             <p class="text-xs">Formula ini belum memiliki bahan baku.</p>
-                            <a href="{{ route('admin.formula.edit', $production->formula_id) }}"
-                                class="mt-2 text-xs text-orange-500 hover:underline">
+                            <a href="{{ route('admin.formula.edit', $production->formula_id) }}" class="mt-2 text-xs text-orange-500 hover:underline">
                                 Edit formula untuk tambah bahan →
                             </a>
                         </div>
@@ -210,7 +211,7 @@
                 </div>
             </div>
 
-            {{-- ── FORM QC: tampil jika status diproses DAN belum pernah QC ── --}}
+            {{-- ── FORM 1: INPUT QUALITY CONTROL (QC) ── --}}
             @if($production->status === 'diproses' && !$qcSudahDilakukan)
             <div class="bg-white rounded-xl border border-blue-200 shadow-sm overflow-hidden">
                 <div class="px-5 py-4 bg-blue-50 border-b border-blue-200 flex items-center gap-2">
@@ -219,48 +220,50 @@
                     </svg>
                     <h3 class="text-sm font-bold text-blue-800">Langkah 2 — Input Quality Control (QC)</h3>
                 </div>
-                <form action="{{ route('admin.qc.store', $production) }}" method="POST">
+                
+                <form action="{{ route('admin.qc.store', $production) }}" method="POST" novalidate>
                     @csrf
                     <div class="px-5 py-5 space-y-5">
 
-                        {{-- Threshold --}}
+                        {{-- Input Threshold --}}
                         <div>
-                            <label class="block text-xs font-medium text-gray-500 mb-1.5">
-                                Ambang Kelulusan Non-Kritis
-                                <span class="text-gray-400">(min 70%, maks 90%)</span>
+                            <label class="block text-xs font-bold uppercase tracking-wide mb-1.5 {{ $errors->has('threshold') ? 'text-red-600' : 'text-gray-500' }}">
+                                Ambang Kelulusan Non-Kritis <span class="text-gray-400 font-normal">(min 70%, maks 90%)</span>
                             </label>
                             <div class="relative w-40">
-                                <input type="number" name="threshold" min="70" max="90"
-                                    value="{{ old('threshold', 80) }}" required
-                                    class="w-full border border-gray-300 rounded-lg pl-3 pr-7 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400">
-                                <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-gray-400">%</span>
+                                <input type="number" name="threshold" min="70" max="90" value="{{ old('threshold', 80) }}" required
+                                    class="w-full border {{ $errors->has('threshold') ? 'border-red-400 bg-red-50 text-red-900 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-400' }} rounded-lg pl-3 pr-7 py-2.5 text-sm focus:outline-none transition-all">
+                                <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400">%</span>
                             </div>
+                            @error('threshold')
+                                <p class="mt-1 text-xs text-red-500 font-semibold">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         @if($qcIndicators->count() > 0)
-
-                            {{-- Kritis --}}
+                            {{-- Indikator Kritis --}}
                             @if($qcIndicators->where('is_critical', true)->count() > 0)
                             <div>
                                 <div class="flex items-center gap-2 mb-3">
                                     <span class="w-2.5 h-2.5 rounded-full bg-red-500 flex-shrink-0"></span>
-                                    <p class="text-xs font-semibold text-gray-700">Indikator Kritis</p>
-                                    <span class="text-xs text-red-600 bg-red-50 border border-red-100 px-2 py-0.5 rounded-full">Gagal = otomatis tidak layak</span>
+                                    <p class="text-xs font-bold uppercase tracking-wide text-gray-700">Indikator Kritis</p>
+                                    <span class="text-[10px] font-bold text-red-600 bg-red-50 border border-red-100 px-2 py-0.5 rounded-full uppercase">Wajib Lulus</span>
                                 </div>
                                 <div class="space-y-2">
                                     @foreach($qcIndicators->where('is_critical', true) as $indicator)
-                                    <div class="flex items-center justify-between bg-red-50/40 border border-red-100 rounded-lg px-4 py-3">
-                                        <span class="text-sm text-gray-700">{{ $indicator->name }}</span>
+                                    @php $hasError = $errors->has("indicators.{$indicator->id}"); @endphp
+                                    <div class="flex items-center justify-between border rounded-lg px-4 py-3 transition-all {{ $hasError ? 'border-red-400 bg-red-50/60 shadow-sm' : 'bg-red-50/40 border-red-100' }}">
+                                        <span class="text-sm font-medium {{ $hasError ? 'text-red-900 font-bold' : 'text-gray-700' }}">{{ $indicator->name }}</span>
                                         <div class="flex items-center gap-5">
                                             <label class="flex items-center gap-1.5 cursor-pointer select-none">
-                                                <input type="radio" name="indicators[{{ $indicator->id }}]"
-                                                    value="lulus" class="accent-green-500" required>
-                                                <span class="text-xs font-semibold text-green-700">Lulus</span>
+                                                <input type="radio" name="indicators[{{ $indicator->id }}]" value="lulus" class="accent-green-600" required
+                                                    {{ old("indicators.{$indicator->id}") === 'lulus' ? 'checked' : '' }}>
+                                                <span class="text-xs font-bold text-green-700">Lulus</span>
                                             </label>
                                             <label class="flex items-center gap-1.5 cursor-pointer select-none">
-                                                <input type="radio" name="indicators[{{ $indicator->id }}]"
-                                                    value="gagal" class="accent-red-500">
-                                                <span class="text-xs font-semibold text-red-700">Gagal</span>
+                                                <input type="radio" name="indicators[{{ $indicator->id }}]" value="gagal" class="accent-red-600"
+                                                    {{ old("indicators.{$indicator->id}") === 'gagal' ? 'checked' : '' }}>
+                                                <span class="text-xs font-bold text-red-700">Gagal</span>
                                             </label>
                                         </div>
                                     </div>
@@ -269,28 +272,29 @@
                             </div>
                             @endif
 
-                            {{-- Non-Kritis --}}
+                            {{-- Indikator Non-Kritis --}}
                             @if($qcIndicators->where('is_critical', false)->count() > 0)
                             <div>
                                 <div class="flex items-center gap-2 mb-3">
                                     <span class="w-2.5 h-2.5 rounded-full bg-yellow-400 flex-shrink-0"></span>
-                                    <p class="text-xs font-semibold text-gray-700">Indikator Non-Kritis</p>
-                                    <span class="text-xs text-yellow-700 bg-yellow-50 border border-yellow-100 px-2 py-0.5 rounded-full">Dihitung persentase</span>
+                                    <p class="text-xs font-bold uppercase tracking-wide text-gray-700">Indikator Non-Kritis</p>
+                                    <span class="text-[10px] font-bold text-yellow-700 bg-yellow-50 border border-yellow-100 px-2 py-0.5 rounded-full uppercase">Akumulasi %</span>
                                 </div>
                                 <div class="space-y-2">
                                     @foreach($qcIndicators->where('is_critical', false) as $indicator)
-                                    <div class="flex items-center justify-between bg-yellow-50/40 border border-yellow-100 rounded-lg px-4 py-3">
-                                        <span class="text-sm text-gray-700">{{ $indicator->name }}</span>
+                                    @php $hasError = $errors->has("indicators.{$indicator->id}"); @endphp
+                                    <div class="flex items-center justify-between border rounded-lg px-4 py-3 transition-all {{ $hasError ? 'border-red-400 bg-red-50/60 shadow-sm' : 'bg-yellow-50/40 border-yellow-100' }}">
+                                        <span class="text-sm font-medium {{ $hasError ? 'text-red-900 font-bold' : 'text-gray-700' }}">{{ $indicator->name }}</span>
                                         <div class="flex items-center gap-5">
                                             <label class="flex items-center gap-1.5 cursor-pointer select-none">
-                                                <input type="radio" name="indicators[{{ $indicator->id }}]"
-                                                    value="lulus" class="accent-green-500" required>
-                                                <span class="text-xs font-semibold text-green-700">Lulus</span>
+                                                <input type="radio" name="indicators[{{ $indicator->id }}]" value="lulus" class="accent-green-600" required
+                                                    {{ old("indicators.{$indicator->id}") === 'lulus' ? 'checked' : '' }}>
+                                                <span class="text-xs font-bold text-green-700">Lulus</span>
                                             </label>
                                             <label class="flex items-center gap-1.5 cursor-pointer select-none">
-                                                <input type="radio" name="indicators[{{ $indicator->id }}]"
-                                                    value="gagal" class="accent-red-500">
-                                                <span class="text-xs font-semibold text-red-700">Gagal</span>
+                                                <input type="radio" name="indicators[{{ $indicator->id }}]" value="gagal" class="accent-red-600"
+                                                    {{ old("indicators.{$indicator->id}") === 'gagal' ? 'checked' : '' }}>
+                                                <span class="text-xs font-bold text-red-700">Gagal</span>
                                             </label>
                                         </div>
                                     </div>
@@ -298,41 +302,40 @@
                                 </div>
                             </div>
                             @endif
-
                         @else
-                        <div class="flex items-center gap-3 bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg text-sm">
-                            <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-                            Belum ada indikator QC aktif. Tambahkan indikator QC terlebih dahulu di pengaturan.
-                        </div>
+                            <div class="flex items-center gap-3 bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg text-sm">
+                                <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                                Belum ada indikator QC aktif. Tambahkan indikator QC terlebih dahulu di pengaturan.
+                            </div>
                         @endif
 
+                        {{-- Input Catatan QC --}}
                         <div>
-                            <label class="block text-xs font-medium text-gray-500 mb-1.5">Catatan QC <span class="text-gray-400">(opsional)</span></label>
-                            <textarea name="catatan" rows="2" placeholder="Catatan tambahan hasil QC..."
-                                class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 resize-none">{{ old('catatan') }}</textarea>
+                            <label class="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-1.5">Catatan QC <span class="text-gray-400 font-normal">(opsional)</span></label>
+                            <textarea name="catatan" rows="2" placeholder="Tambahkan deskripsi atau catatan temuan hasil QC lapangan..."
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-black focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 resize-none">{{ old('catatan') }}</textarea>
                         </div>
                     </div>
 
                     <div class="px-5 py-4 bg-gray-50 border-t border-gray-100 flex justify-end">
-                        <button type="submit"
-                            class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-lg text-sm shadow transition-colors">
+                        <button type="submit" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-lg text-sm shadow transition-colors">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
                             </svg>
-                            Simpan Hasil QC
+                            Simpan Hasil Rekam QC
                         </button>
                     </div>
                 </form>
             </div>
             @endif
 
-            {{-- ── HASIL QC (jika sudah QC) ── --}}
+            {{-- ── HASIL REKAM QC (Jika Sudah Dilakukan) ── --}}
             @if($qcSudahDilakukan)
             <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
                 <h3 class="text-sm font-semibold text-gray-700 mb-4">Hasil Quality Control</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div class="text-center p-4 rounded-xl {{ $qcLayak ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200' }}">
-                        <p class="text-xs text-gray-500 mb-1.5">Status QC</p>
+                        <p class="text-xs text-gray-500 mb-1.5">Status Akhir QC</p>
                         <p class="text-xl font-bold {{ $qcLayak ? 'text-green-700' : 'text-red-700' }}">
                             {{ $qcLayak ? 'LAYAK' : 'TIDAK LAYAK' }}
                         </p>
@@ -344,7 +347,7 @@
                         </p>
                     </div>
                     <div class="text-center p-4 rounded-xl bg-gray-50 border border-gray-200">
-                        <p class="text-xs text-gray-500 mb-1.5">Threshold</p>
+                        <p class="text-xs text-gray-500 mb-1.5">Ambang Batas (Threshold)</p>
                         <p class="text-xl font-bold text-gray-800">
                             {{ $production->qc_threshold !== null ? $production->qc_threshold.'%' : '-' }}
                         </p>
@@ -353,47 +356,49 @@
             </div>
             @endif
 
-           {{-- ── TOMBOL SELESAIKAN ── --}}
-@if($production->status === 'diproses' && $qcLayak)
-<div class="bg-green-50 border border-green-200 rounded-xl p-6">
-    <div class="flex items-center gap-3 mb-5">
-        <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-            <svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-        </div>
-        <div>
-            <p class="font-semibold text-green-800 text-sm">QC Lulus! Input Expired Date untuk Menyelesaikan.</p>
-            <p class="text-xs text-green-600 mt-0.5">
-                Tanggal kadaluarsa wajib diisi agar batch stok tercatat dengan benar.
-            </p>
-        </div>
-    </div>
+            {{-- ── FORM 2: SELESAIKAN & INPUT EXPIRED DATE ── --}}
+            @if($production->status === 'diproses' && $qcLayak)
+            <div class="bg-green-50 border border-green-200 rounded-xl p-6">
+                <div class="flex items-center gap-3 mb-5">
+                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-green-800 text-sm">QC Lulus! Input Expired Date untuk Menyelesaikan.</p>
+                        <p class="text-xs text-green-600 mt-0.5">
+                            Tanggal kadaluarsa wajib diisi agar batch produk tercatat dengan benar ke dalam sistem gudang.
+                        </p>
+                    </div>
+                </div>
 
-    <form action="{{ route('admin.productions.selesai', $production) }}" method="POST" class="space-y-4">
-        @csrf
-        @method('PUT')
-        
-        <div class="max-w-xs">
-            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">Tanggal Kadaluarsa (Expired)</label>
-            <input type="date" name="expired_date" required 
-                class="w-full border border-green-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-400 focus:outline-none shadow-sm">
-        </div>
+                <form action="{{ route('admin.productions.selesai', $production) }}" method="POST" novalidate class="space-y-4">
+                    @csrf @method('PUT')
+                    
+                    <div class="max-w-xs">
+                        <label class="block text-xs font-bold uppercase tracking-wide mb-1 {{ $errors->has('expired_date') ? 'text-red-600' : 'text-gray-700' }}">Tanggal Kadaluarsa (Expired)</label>
+                        <input type="date" name="expired_date" value="{{ old('expired_date') }}" required 
+                            class="w-full border {{ $errors->has('expired_date') ? 'border-red-400 bg-red-50 text-red-900 focus:ring-red-500' : 'border-green-300 focus:ring-green-400' }} rounded-lg px-3 py-2 text-sm focus:outline-none shadow-sm">
+                        @error('expired_date')
+                            <p class="mt-1 text-xs text-red-500 font-semibold">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-        <div class="pt-2">
-            <button type="submit"
-                class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-lg text-sm shadow-md transition-all active:scale-95">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                </svg>
-                Selesaikan Produksi & Tambah Stok
-            </button>
-        </div>
-    </form>
-</div>
-@endif
+                    <div class="pt-2">
+                        <button type="submit"
+                            class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-lg text-sm shadow-md transition-all active:scale-95">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Selesaikan Produksi & Tambah Stok
+                        </button>
+                    </div>
+                </form>
+            </div>
+            @endif
 
-            {{-- ── BANNER REJECTED: tampil jika status=rejected ATAU qc=tidak_layak ── --}}
+            {{-- BANNER REJECTED --}}
             @if($sudahRejected || $qcTidakLayak)
             <div class="bg-red-50 border border-red-200 rounded-xl p-5 flex items-center gap-3">
                 <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
@@ -413,7 +418,7 @@
             </div>
             @endif
 
-            {{-- ── BANNER SELESAI ── --}}
+            {{-- BANNER SELESAI --}}
             @if($sudahSelesai)
             <div class="bg-green-50 border border-green-200 rounded-xl p-5 flex items-center gap-3">
                 <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">

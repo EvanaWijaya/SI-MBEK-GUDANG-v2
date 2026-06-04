@@ -15,9 +15,10 @@
             </div>
         </div>
 
+        {{-- Kotak Notifikasi Kesalahan Global --}}
         @if($errors->any())
             <div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
-                <p class="text-sm font-semibold text-red-700 mb-2">Terdapat kesalahan:</p>
+                <p class="text-sm font-semibold text-red-700 mb-2">Terdapat kesalahan input data:</p>
                 <ul class="list-disc list-inside text-sm text-red-600 space-y-1">
                     @foreach($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -26,16 +27,15 @@
             </div>
         @endif
 
-        <form action="{{ route('admin.purchase-orders.store') }}" method="POST" id="po-form">
+        <form action="{{ route('admin.purchase-orders.store') }}" method="POST" novalidate id="po-form">
             @csrf
 
             <div class="space-y-6">
 
-                {{-- Informasi Umum --}}
+                {{-- 1. INFORMASI UMUM --}}
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
                     <h2 class="text-base font-semibold text-gray-700 mb-5 flex items-center gap-2">
-                        <span
-                            class="w-6 h-6 bg-orange-100 text-orange-600 rounded-md flex items-center justify-center text-xs font-bold">1</span>
+                        <span class="w-6 h-6 bg-orange-100 text-orange-600 rounded-md flex items-center justify-center text-xs font-bold">1</span>
                         Informasi Umum
                     </h2>
 
@@ -43,10 +43,9 @@
 
                         {{-- Supplier --}}
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Supplier <span
-                                    class="text-red-500">*</span></label>
+                            <label class="block text-sm font-medium mb-1.5 {{ $errors->has('supplier_id') ? 'text-red-600 font-bold' : 'text-gray-700' }}">Supplier <span class="text-red-500">*</span></label>
                             <select name="supplier_id" required
-                                class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition">
+                                class="w-full border {{ $errors->has('supplier_id') ? 'border-red-400 bg-red-50 focus:ring-red-500' : 'border-gray-300 focus:ring-orange-400' }} rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none transition">
                                 <option value="">-- Pilih Supplier --</option>
                                 @foreach($suppliers as $supplier)
                                     <option value="{{ $supplier->id }}" {{ old('supplier_id') == $supplier->id ? 'selected' : '' }}>
@@ -58,40 +57,33 @@
 
                         {{-- Tipe PO --}}
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Tipe PO <span
-                                    class="text-red-500">*</span></label>
+                            <label class="block text-sm font-medium mb-1.5 {{ $errors->has('type') ? 'text-red-600' : 'text-gray-700' }}">Tipe PO <span class="text-red-500">*</span></label>
                             <select name="type" id="po-type" required
-                                class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition">
+                                class="w-full border {{ $errors->has('type') ? 'border-red-400 bg-red-50 focus:ring-red-500' : 'border-gray-300 focus:ring-orange-400' }} rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none transition">
                                 <option value="">-- Pilih Tipe --</option>
-                                <option value="material" {{ old('type') === 'material' ? 'selected' : '' }}>Material
-                                    (Bahan Baku)</option>
-                                <option value="product" {{ old('type') === 'product' ? 'selected' : '' }}>Produk Jadi
-                                </option>
+                                <option value="material" {{ old('type') === 'material' ? 'selected' : '' }}>Material (Bahan Baku)</option>
+                                <option value="product" {{ old('type') === 'product' ? 'selected' : '' }}>Produk Jadi</option>
                             </select>
                         </div>
 
                         {{-- Tanggal Pesan --}}
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Tanggal Pesan <span
-                                    class="text-red-500">*</span></label>
-                            <input type="date" name="tanggal_pesan" value="{{ old('tanggal_pesan', date('Y-m-d')) }}"
-                                required
-                                class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition">
+                            <label class="block text-sm font-medium mb-1.5 {{ $errors->has('tanggal_pesan') ? 'text-red-600' : 'text-gray-700' }}">Tanggal Pesan <span class="text-red-500">*</span></label>
+                            <input type="date" name="tanggal_pesan" value="{{ old('tanggal_pesan', date('Y-m-d')) }}" required
+                                class="w-full border {{ $errors->has('tanggal_pesan') ? 'border-red-400 bg-red-50 focus:ring-red-500' : 'border-gray-300 focus:ring-orange-400' }} rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none transition">
                         </div>
 
-                        {{-- Dipesan Oleh (Admin Only) --}}
+                        {{-- Dipesan Atas Nama --}}
                         @if(auth()->guard('admin')->check())
                             <div class="col-span-1 sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-5">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Dipesan Atas Nama <span
-                                            class="text-red-500">*</span></label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Dipesan Atas Nama <span class="text-red-500">*</span></label>
                                     <div class="flex gap-4 p-2.5 bg-gray-50 rounded-lg border border-gray-200">
                                         <label class="flex items-center gap-2 cursor-pointer group">
                                             <input type="radio" name="dipesan_oleh_type" value="Admin"
-                                                class="text-orange-500 focus:ring-orange-400" checked
+                                                class="text-orange-500 focus:ring-orange-400" {{ old('dipesan_oleh_type', 'Admin') === 'Admin' ? 'checked' : '' }}
                                                 onchange="toggleOwnerSelect(false)">
-                                            <span class="text-sm text-gray-700 group-hover:text-gray-900">Admin
-                                                (Saya)</span>
+                                            <span class="text-sm text-gray-700 group-hover:text-gray-900">Admin (Saya)</span>
                                         </label>
                                         <label class="flex items-center gap-2 cursor-pointer group">
                                             <input type="radio" name="dipesan_oleh_type" value="Owner"
@@ -102,13 +94,11 @@
                                     </div>
                                 </div>
 
-                                {{-- Dropdown Pilih Owner (Muncul hanya jika radio Owner dipilih) --}}
-                                <div id="owner-select-wrap"
-                                    class="{{ old('dipesan_oleh_type') === 'Owner' ? '' : 'hidden' }}">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Pilih Nama Owner <span
-                                            class="text-red-500">*</span></label>
+                                {{-- Dropdown Pilih Owner --}}
+                                <div id="owner-select-wrap" class="{{ old('dipesan_oleh_type') === 'Owner' ? '' : 'hidden' }}">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Pilih Nama Owner <span class="text-red-500">*</span></label>
                                     <select name="dipesan_oleh_id" id="dipesan_oleh_id"
-                                        class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition">
+                                        class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-400 transition">
                                         <option value="">-- Pilih Owner --</option>
                                         @foreach(App\Models\Owner::all() as $owner)
                                             <option value="{{ $owner->id }}" {{ old('dipesan_oleh_id') == $owner->id ? 'selected' : '' }}>
@@ -125,22 +115,20 @@
                     <div class="mt-5">
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">Catatan</label>
                         <textarea name="catatan_owner" rows="3" placeholder="Tambahkan catatan opsional..."
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition resize-none">{{ old('catatan_owner') }}</textarea>
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-400 transition resize-none">{{ old('catatan_owner') }}</textarea>
                     </div>
                 </div>
 
-                {{-- Item PO --}}
+                {{-- 2. ITEM PO --}}
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
                     <div class="flex items-center justify-between mb-5">
                         <h2 class="text-base font-semibold text-gray-700 flex items-center gap-2">
-                            <span
-                                class="w-6 h-6 bg-orange-100 text-orange-600 rounded-md flex items-center justify-center text-xs font-bold">2</span>
+                            <span class="w-6 h-6 bg-orange-100 text-orange-600 rounded-md flex items-center justify-center text-xs font-bold">2</span>
                             Item Pesanan
                         </h2>
                         <button type="button" id="add-item"
                             class="inline-flex items-center gap-1.5 text-sm font-semibold text-orange-600 hover:text-orange-800 border border-orange-300 hover:border-orange-500 px-3 py-1.5 rounded-lg transition-colors">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                stroke-width="2.5">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                             </svg>
                             Tambah Item
@@ -148,7 +136,54 @@
                     </div>
 
                     <div id="items-container" class="space-y-3">
-                        {{-- Item rows will be added here by JS --}}
+                        {{-- Logika Penahan Data Lama Saat Gagal Validasi --}}
+                        @if(old('items'))
+                            @foreach(old('items') as $index => $oldItem)
+                                @php $poType = old('type'); @endphp
+                                <div class="item-row grid grid-cols-12 gap-3 items-start bg-gray-50 rounded-lg p-4 border {{ $errors->has("items.$index.*") ? 'border-red-400 bg-red-50/20' : 'border-gray-200' }}" data-index="{{ $index }}">
+                                    <div class="col-span-12 sm:col-span-5">
+                                        <label class="block text-xs font-medium mb-1 {{ $errors->has("items.$index.material_id") || $errors->has("items.$index.product_id") ? 'text-red-600 font-bold' : 'text-gray-500' }}">
+                                            {{ $poType === 'material' ? 'Bahan / Material' : 'Produk Obat' }}
+                                        </label>
+                                        <select name="items[{{ $index }}][{{ $poType === 'material' ? 'material_id' : 'product_id' }}]" required onchange="updateSatuan(this, {{ $index }}); updateDropdownOptions();"
+                                            class="item-select w-full border {{ $errors->has("items.$index.material_id") || $errors->has("items.$index.product_id") ? 'border-red-400 bg-red-50' : 'border-gray-300' }} bg-white rounded-lg px-3 py-2 text-sm focus:outline-none">
+                                            @if($poType === 'material')
+                                                <option value="">-- Pilih Material --</option>
+                                                @foreach($materials as $m)
+                                                    <option value="{{ $m->id }}" {{ (isset($oldItem['material_id']) && $oldItem['material_id'] == $m->id) ? 'selected' : '' }}>{{ $m->nama_bahan }} ({{ $m->satuan }})</option>
+                                                @endforeach
+                                            @else
+                                                <option value="">-- Pilih Obat --</option>
+                                                @foreach($products as $p)
+                                                    <option value="{{ $p->id }}" {{ (isset($oldItem['product_id']) && $oldItem['product_id'] == $p->id) ? 'selected' : '' }}>{{ $p->nama }}</option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                    </div>
+                                    <div class="col-span-4 sm:col-span-2">
+                                        <label class="block text-xs font-medium mb-1 {{ $errors->has("items.$index.jumlah") ? 'text-red-600 font-bold' : 'text-gray-500' }}">Jumlah</label>
+                                        <input type="number" name="items[{{ $index }}][jumlah]" value="{{ $oldItem['jumlah'] ?? '' }}" min="1" placeholder="0" required oninput="calcRow({{ $index }})"
+                                            class="w-full border {{ $errors->has("items.$index.jumlah") ? 'border-red-400 bg-red-50' : 'border-gray-300' }} bg-white rounded-lg px-3 py-2 text-sm">
+                                    </div>
+                                    <div class="col-span-8 sm:col-span-4">
+                                        <label class="block text-xs font-medium mb-1 {{ $errors->has("items.$index.harga_satuan") ? 'text-red-600 font-bold' : 'text-gray-500' }}">Harga Satuan (Rp)</label>
+                                        <input type="text" name="items[{{ $index }}][harga_satuan]" value="{{ isset($oldItem['harga_satuan']) ? 'Rp ' . number_format($oldItem['harga_satuan'], 0, ',', '.') : '' }}" placeholder="Rp 0" required oninput="formatRupiah(this); calcRow({{ $index }})"
+                                            class="w-full border {{ $errors->has("items.$index.harga_satuan") ? 'border-red-400 bg-red-50' : 'border-gray-300' }} bg-white rounded-lg px-3 py-2 text-sm">
+                                    </div>
+                                    <div class="col-span-12 sm:col-span-1 flex items-end sm:pt-5">
+                                        <button type="button" onclick="removeItem(this)" class="p-2 text-gray-400 hover:text-red-500">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                        </button>
+                                    </div>
+                                    <div class="col-span-12">
+                                        <div class="flex items-center justify-between text-xs text-gray-400">
+                                            <span id="satuan-label-{{ $index }}"></span>
+                                            <span>Subtotal: <strong class="text-gray-700" id="subtotal-{{ $index }}">Rp 0</strong></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        @endif
                     </div>
 
                     {{-- Total --}}
@@ -178,29 +213,25 @@
 
     @push('scripts')
         <script>
-            // ─── Data ───────────────────────────────────────────
             const materials = @json($materials->map(fn($m) => ['id' => $m->id, 'nama' => $m->nama_bahan, 'satuan' => $m->satuan]));
             const products = @json($products ?? []);
 
-            // ─── Item counter ────────────────────────────────────
-            let itemIndex = 0;
+            // Set indeks awal dinamis mendeteksi keberadaan old data
+            let itemIndex = {{ old('items') ? count(old('items')) : 0 }};
 
             document.getElementById('po-type').addEventListener('change', function () {
-                // Kosongkan item jika tipe PO diganti
                 document.getElementById('items-container').innerHTML = '';
                 itemIndex = 0;
-                addItem(); // Tambah satu baris kosong baru
+                addItem(); 
             });
 
-            // ─── Owner radio toggle ──────────────────────────────
-            document.querySelectorAll('input[name="dipesan_oleh_type"]').forEach(radio => {
-                radio.addEventListener('change', (e) => {
-                    const wrap = document.getElementById('owner-select-wrap');
-                    if (wrap) wrap.classList.toggle('hidden', e.target.value !== 'Owner');
-                });
-            });
-
-            // ─── Add first item on load ──────────────────────────
+            function triggerOwnerSelect(show) {
+                const wrap = document.getElementById('owner-select-wrap');
+                if (wrap) {
+                    if(show) wrap.classList.remove('hidden');
+                    else wrap.classList.add('hidden');
+                }
+            }
 
             document.getElementById('add-item').addEventListener('click', addItem);
 
@@ -219,39 +250,34 @@
                 row.dataset.index = idx;
 
                 let options = '';
-                let selectName = '';
+                let selectName = (poType === 'material') ? `items[${idx}][material_id]` : `items[${idx}][product_id]`;
 
                 if (poType === 'material') {
-                    selectName = `items[${idx}][material_id]`;
                     options = `<option value="">-- Pilih Material --</option>` +
                         materials.map(m => `<option value="${m.id}">${m.nama} (${m.satuan})</option>`).join('');
                 } else {
-                    selectName = `items[${idx}][product_id]`;
                     options = `<option value="">-- Pilih Obat --</option>` +
                         products.map(p => `<option value="${p.id}">${p.nama}</option>`).join('');
                 }
 
-                // 👇 UBAH BAGIAN SELECT DI SINI 👇
                 row.innerHTML = `
                     <div class="col-span-12 sm:col-span-5">
                         <label class="block text-xs font-medium text-gray-500 mb-1">
                             ${poType === 'material' ? 'Bahan / Material' : 'Produk Obat'}
                         </label>
                         <select name="${selectName}" required onchange="updateSatuan(this, ${idx}); updateDropdownOptions();"
-                            class="item-select w-full border border-gray-300 bg-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent">
+                            class="item-select w-full border border-gray-300 bg-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400">
                             ${options}
                         </select>
                     </div>
                     <div class="col-span-4 sm:col-span-2">
                         <label class="block text-xs font-medium text-gray-500 mb-1">Jumlah</label>
-                        <input type="number" name="items[${idx}][jumlah]" min="1" placeholder="0" required
-                            oninput="calcRow(${idx})"
+                        <input type="number" name="items[${idx}][jumlah]" min="1" placeholder="0" required oninput="calcRow(${idx})"
                             class="w-full border border-gray-300 bg-white rounded-lg px-3 py-2 text-sm">
                     </div>
                     <div class="col-span-8 sm:col-span-4">
                         <label class="block text-xs font-medium text-gray-500 mb-1">Harga Satuan (Rp)</label>
-                        <input type="text" name="items[${idx}][harga_satuan]" placeholder="Rp 0" required
-                            oninput="formatRupiah(this); calcRow(${idx})"
+                        <input type="text" name="items[${idx}][harga_satuan]" placeholder="Rp 0" required oninput="formatRupiah(this); calcRow(${idx})"
                             class="w-full border border-gray-300 bg-white rounded-lg px-3 py-2 text-sm">
                     </div>
                     <div class="col-span-12 sm:col-span-1 flex items-end sm:pt-5">
@@ -267,7 +293,6 @@
                     </div>
                 `;
                 container.appendChild(row);
-
                 updateDropdownOptions();
             }
 
@@ -279,19 +304,18 @@
                 }
                 btn.closest('.item-row').remove();
                 updateGrandTotal();
-
                 updateDropdownOptions();
             }
 
             function updateSatuan(select, idx) {
                 const poType = document.getElementById('po-type').value;
                 const label = document.getElementById(`satuan-label-${idx}`);
+                if (!select.value) { if (label) label.textContent = ''; return; }
 
                 if (poType === 'material') {
                     const mat = materials.find(m => m.id == select.value);
                     if (label) label.textContent = mat ? `Satuan: ${mat.satuan}` : '';
                 } else {
-                    // Jika produk obat tidak punya satuan di tabel, bisa dikosongkan atau ambil dari data produk
                     const prod = products.find(p => p.id == select.value);
                     if (label) label.textContent = prod ? `Tipe: ${prod.type}` : '';
                 }
@@ -299,20 +323,16 @@
 
             function formatRupiah(input) {
                 let angka = input.value.replace(/\D/g, '');
-
-                if (!angka) {
-                    input.value = '';
-                    return;
-                }
-
+                if (!angka) { input.value = ''; return; }
                 input.value = 'Rp ' + Number(angka).toLocaleString('id-ID');
             }
 
             function calcRow(idx) {
                 const row = document.querySelector(`[data-index="${idx}"]`);
-                const qty = parseFloat(row.querySelector(`[name="items[${idx}][jumlah]"]`).value) || 0;
-                const priceInput = row.querySelector(`[name="items[${idx}][harga_satuan]"]`).value;
-                const price =  parseFloat(priceInput.replace(/\D/g, '')) || 0;
+                if(!row) return;
+                const qty = parseFloat(row.querySelector(`[name*="[jumlah]"]`).value) || 0;
+                const priceInput = row.querySelector(`[name*="[harga_satuan]"]`).value;
+                const price = parseFloat(priceInput.replace(/\D/g, '')) || 0;
                 const subtotal = qty * price;
                 const el = document.getElementById(`subtotal-${idx}`);
                 if (el) el.textContent = 'Rp ' + subtotal.toLocaleString('id-ID');
@@ -323,64 +343,52 @@
                 let total = 0;
                 document.querySelectorAll('.item-row').forEach(row => {
                     const idx = row.dataset.index;
-                    const qty = parseFloat(row.querySelector(`[name="items[${idx}][jumlah]"]`)?.value) || 0;
-                    const priceInput = row.querySelector(`[name="items[${idx}][harga_satuan]"]`)?.value || '';
+                    const qty = parseFloat(row.querySelector(`[name*="[jumlah]"]`)?.value) || 0;
+                    const priceInput = row.querySelector(`[name*="[harga_satuan]"]`)?.value || '';
                     const price = parseFloat(priceInput.replace(/\D/g, '')) || 0;
                     total += qty * price;
                 });
                 document.getElementById('grand-total').textContent = 'Rp ' + total.toLocaleString('id-ID');
             }
 
-            // ─── Form validation before submit ──────────────────
-            document.getElementById('po-form').addEventListener('submit', (e) => {
-                const rows = document.querySelectorAll('.item-row');
-                if (rows.length === 0) {
-                    e.preventDefault();
-                    alert('Tambahkan minimal 1 item pesanan.');
-                }
-            });
-
             function updateDropdownOptions() {
-                // Ambil semua dropdown item
                 const allSelects = document.querySelectorAll('.item-select');
+                const selectedValues = Array.from(allSelects).map(select => select.value).filter(v => v !== '');
 
-                // Kumpulkan semua value (ID bahan/obat) yang lagi dipilih (selain yang kosong)
-                const selectedValues = Array.from(allSelects)
-                    .map(select => select.value)
-                    .filter(value => value !== '');
-
-                // Cek setiap dropdown satu per satu
                 allSelects.forEach(select => {
                     const currentValue = select.value;
-
-                    // Cek setiap opsi di dalam dropdown tersebut
                     Array.from(select.options).forEach(option => {
-                        if (option.value === '') return; // Lewati opsi "-- Pilih --"
-
-                        // Kalau opsi ini ada di daftar yang udah dipilih DAN bukan yang lagi dipilih di baris ini
+                        if (option.value === '') return;
                         if (selectedValues.includes(option.value) && option.value !== currentValue) {
-                            option.disabled = true; // Matikan opsi
-                            option.classList.add('text-gray-300', 'bg-gray-100'); // Biar kelihatan abu-abu
+                            option.disabled = true;
+                            option.classList.add('text-gray-300', 'bg-gray-100');
                         } else {
-                            option.disabled = false; // Nyalakan opsi
+                            option.disabled = false;
                             option.classList.remove('text-gray-300', 'bg-gray-100');
                         }
                     });
                 });
             }
-            document.getElementById('po-form').addEventListener('submit', function() {
 
-                document.querySelectorAll(
-                    'input[name*="[harga_satuan]"]'
-                ).forEach(input => {
-
-                    input.value = input.value.replace(/\D/g, '');
-
+            // Jalankan kalkulasi otomatis saat memuat ulang data lama (old data)
+            if (itemIndex > 0) {
+                window.addEventListener('DOMContentLoaded', () => {
+                    document.querySelectorAll('.item-row').forEach(row => {
+                        const idx = row.dataset.index;
+                        const select = row.querySelector('.item-select');
+                        updateSatuan(select, idx);
+                        calcRow(idx);
+                    });
+                    updateDropdownOptions();
                 });
+            }
 
+            // Bersihkan format Rp saat form dikirim ke controller
+            document.getElementById('po-form').addEventListener('submit', function() {
+                document.querySelectorAll('input[name*="[harga_satuan]"]').forEach(input => {
+                    input.value = input.value.replace(/\D/g, '');
+                });
             });
-            
-
         </script>
     @endpush
 </x-admin-app-layout>

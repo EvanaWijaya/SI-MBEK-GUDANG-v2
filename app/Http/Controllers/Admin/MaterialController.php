@@ -45,7 +45,8 @@ class MaterialController extends Controller
             'deskripsi' => $request->deskripsi,
         ]);
 
-        return view('admin.material.create');
+      return redirect()->route('admin.materials.index')
+    ->with('success', 'Material berhasil ditambahkan');
 
     }
 

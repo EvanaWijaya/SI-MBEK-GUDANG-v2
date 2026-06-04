@@ -29,7 +29,7 @@
             </div>
         @endif
 
-        <form action="{{ route('admin.formula.store') }}" method="POST" id="formulaForm">
+        <form action="{{ route('admin.formula.store') }}" method="POST" novalidate id="formulaForm">
             @csrf
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 

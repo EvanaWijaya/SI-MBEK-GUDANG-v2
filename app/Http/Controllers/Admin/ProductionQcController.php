@@ -17,27 +17,38 @@ class ProductionQcController extends Controller
      */
     public function store(Request $request, Production $production)
     {
-        $validated = $request->validate([
-            'indicators' => 'required|array',
+        // 1. 🔥 AMBIL INDIKATOR AKTIF DI AWAL 🔥
+        $indicators = QcIndicator::active()->get();
+
+        // 2. 🔥 BIKIN ATURAN VALIDASI DINAMIS 🔥
+        $rules = [
             'threshold' => 'required|integer|min:70|max:90',
             'catatan' => 'nullable|string',
+        ];
+
+        // Paksa setiap ID indikator yang aktif wajib dipilih statusnya (tidak boleh kosong)
+        foreach ($indicators as $indicator) {
+            $rules["indicators.{$indicator->id}"] = 'required|in:lulus,gagal';
+        }
+
+        // 3. 🔥 JALANKAN VALIDASI DENGAN PESAN KUSTOM BAHASA INDONESIA 🔥
+        $validated = $request->validate($rules, [
+            'threshold.required' => 'Ambang kelulusan wajib diisi.',
+            'threshold.min'      => 'Ambang kelulusan minimal 70%.',
+            'threshold.max'      => 'Ambang kelulusan maksimal 90%.',
+            'indicators.*.required' => 'Status kelulusan indikator QC wajib dipilih (Lulus/Gagal).',
         ]);
 
         $threshold = (int) $validated['threshold'];
 
-        // Ambil indikator aktif saja
-        $indicators = QcIndicator::active()->get();
-
         DB::beginTransaction();
 
         try {
-
             $failedCritical = false;
             $totalNonCritical = 0;
             $passedNonCritical = 0;
 
             foreach ($indicators as $indicator) {
-
                 // Default jika tidak dikirim dianggap gagal
                 $isPassed = ($validated['indicators'][$indicator->id] ?? 'gagal') === 'lulus';
 
@@ -58,7 +69,6 @@ class ProductionQcController extends Controller
             }
 
             // Tentukan status akhir
-          // Tentukan status akhir
             if ($failedCritical) {
                 $percentage = 0;
                 $status = 'tidak_layak';
@@ -112,10 +122,9 @@ class ProductionQcController extends Controller
                     'actor_type' => get_class($actor),
                     'type' => 'qc_checked',
                     'module' => 'production_qc',
-                    'description' => 'Melakukan QC untuk Produksi #' . $qc->production->id
+                    'description' => 'Melakukan QC untuk Prosedur Produksi #' . $qc->production->id
                 ]);
             }
-
 
             DB::commit();
 

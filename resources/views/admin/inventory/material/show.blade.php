@@ -43,12 +43,12 @@
 
                 <div class="lg:col-span-8 bg-white rounded-xl border border-gray-200 shadow-sm p-6">
                     <h3 class="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">Pengaturan Parameter ROP</h3>
-                    <form method="POST" action="{{ route('admin.materials.update', $material->id) }}" class="space-y-4">
+                    <form method="POST" novalidate action="{{ route('admin.materials.update', $material->id) }}" class="space-y-4">
                         @csrf @method('PUT')
                         <input type="hidden" name="nama_bahan" value="{{ $material->nama_bahan }}">
-    <input type="hidden" name="satuan" value="{{ $material->satuan }}">
-    <input type="hidden" name="kategori" value="{{ $material->kategori }}">
-    <input type="hidden" name="source" value="inventory">
+                        <input type="hidden" name="satuan" value="{{ $material->satuan }}">
+                        <input type="hidden" name="kategori" value="{{ $material->kategori }}">
+                        <input type="hidden" name="source" value="inventory">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
                                 <label class="block text-xs text-gray-500 mb-2">Pemakaian Rata-rata / Hari</label>
@@ -101,7 +101,7 @@
             {{-- Adjustment Form --}}
             <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
                 <h3 class="text-sm font-semibold text-gray-700 mb-5">± Adjustment Stok Manual</h3>
-                <form method="POST" action="{{ route('admin.inventory.material.adjust', $material->id) }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+                <form method="POST" novalidate action="{{ route('admin.inventory.material.adjust', $material->id) }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
                     @csrf
                     <div><label class="block text-xs text-gray-500 mb-1.5">Tipe</label><select name="type" id="adj-type" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-orange-400"><option value="in">➕ Tambah</option><option value="out">➖ Kurangi</option></select></div>
                     <div><label class="block text-xs text-gray-500 mb-1.5">Jumlah</label><input type="number" name="quantity" min="1" required class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm"></div>

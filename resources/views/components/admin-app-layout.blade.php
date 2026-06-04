@@ -121,29 +121,6 @@
                                     </x-sidebar-link>
                                 </li>
 
-                               {{-- Dropdown Tambah --}}
-                                <li class="relative" x-data="{ open: {{ request()->routeIs('admin.tambahkambing') || request()->routeIs('admin.tambahdomba') || request()->routeIs('admin.materials.create') || request()->routeIs('admin.products.create') || request()->routeIs('admin.suppliers.create') || request()->routeIs('admin.admins.create') ? 'true' : 'false' }} }">
-                                    <button @click="open = !open" class="flex items-center justify-between p-2 w-full text-base font-normal text-gray-900 rounded-lg hover:bg-gray-100 group {{ request()->routeIs('admin.tambahkambing') || request()->routeIs('admin.tambahdomba') ? 'bg-gray-100' : '' }}">
-                                        {{-- ... (Icon svg dan text Tambah biarkan sama seperti aslinya) ... --}}
-                                        <div class="flex items-center">
-                                            <svg class="w-5 h-5 text-brand-orange group-hover:text-gray-900 transition duration-75" fill="currentColor" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="m.5 3 .04.87a2 2 0 0 0-.342 1.311l.637 7A2 2 0 0 0 2.826 14H9v-1H2.826a1 1 0 0 1-.995-.91l-.637-7A1 1 0 0 1 2.19 4h11.62a1 1 0 0 1 .996 1.09L14.54 8h1.005l.256-2.819A2 2 0 0 0 13.81 3H9.828a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 6.172 1H2.5a2 2 0 0 0-2 2m5.672-1a1 1 0 0 1 .707.293L7.586 3H2.19q-.362.002-.683.12L1.5 2.98a1 1 0 0 1 1-.98z" /><path d="M13.5 9a.5.5 0 0 1 .5.5V11h1.5a.5.5 0 1 1 0 1H14v1.5a.5.5 0 1 1-1 0V12h-1.5a.5.5 0 0 1 0-1H13V9.5a.5.5 0 0 1 .5-.5" /></svg>
-                                            <span class="ml-3 text-left whitespace-nowrap">Tambah</span>
-                                        </div>
-                                        <svg class="w-4 h-4 text-gray-500 transition-transform duration-200 transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"></path></svg>
-                                    </button>
-                                    <ul x-show="open" @click.away="open = false" x-transition x-cloak class="mt-2 bg-white shadow-lg rounded-md w-full z-10 overflow-hidden">
-                                        {{-- KHUSUS SUPER ADMIN --}}
-                                        @if(auth('admin')->user()->role === 'super_admin')
-                                            <li><a href="{{ route('admin.admins.create') }}" class="block w-full pl-11 pr-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->routeIs('admin.admins.create') ? 'bg-orange-50 text-brand-orange font-medium' : '' }}">Admin Baru</a></li>
-                                        @endif
-                                        
-                                        <li><a href="{{ route('admin.tambahkambing') }}" class="block w-full pl-11 pr-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->routeIs('admin.tambahkambing') ? 'bg-orange-50 text-brand-orange font-medium' : '' }}">Kambing</a></li>
-                                        <li><a href="{{ route('admin.tambahdomba') }}" class="block w-full pl-11 pr-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->routeIs('admin.tambahdomba') ? 'bg-orange-50 text-brand-orange font-medium' : '' }}">Domba</a></li>
-                                        <li><a href="{{ route('admin.materials.create') }}" class="block w-full pl-11 pr-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->routeIs('admin.materials.create') ? 'bg-orange-50 text-brand-orange font-medium' : '' }}">Material</a></li>
-                                        <li><a href="{{ route('admin.products.create') }}" class="block w-full pl-11 pr-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->routeIs('admin.products.create') ? 'bg-orange-50 text-brand-orange font-medium' : '' }}">Produk</a></li>
-                                        <li><a href="{{ route('admin.suppliers.create') }}" class="block w-full pl-11 pr-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->routeIs('admin.suppliers.create') ? 'bg-orange-50 text-brand-orange font-medium' : '' }}">Supplier</a></li>
-                                    </ul>
-                                </li>
 
                                {{-- Dropdown Master Data --}}
                                 @php

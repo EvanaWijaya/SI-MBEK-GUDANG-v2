@@ -58,7 +58,7 @@
                 {{-- KIRI: Form Pesanan --}}
                 <div class="w-full md:w-2/3">
                     <h2 class="text-xl font-bold mb-4">ISI DATA PENERIMA</h2>
-                    <form id="checkoutForm" method="POST" enctype="multipart/form-data">
+                    <form id="checkoutForm" method="POST" novalidate enctype="multipart/form-data">
                         @csrf
                         <input type="hidden" id="produk_id" name="produk_id" value="{{ $item->id }}">
                         <input type="hidden" id="category" name="category" value="{{ $category }}">
@@ -328,6 +328,20 @@
             const submitBtn = document.getElementById('submitBtn');
             const submitText = document.getElementById('submitText');
             const loadingText = document.getElementById('loadingText');
+            ['sender_name', 'bank_origin', 'transfer_date', 'transfer_proof'].forEach(name => {
+    const field = document.querySelector(`[name="${name}"]`);
+    if (field) {
+        field.addEventListener('input', () => highlightError(name, false));
+        field.addEventListener('change', () => highlightError(name, false));
+    }
+});
+['email', 'name', 'address', 'city', 'district', 'village', 'phone'].forEach(name => {
+    const field = document.querySelector(`[name="${name}"]`);
+    if (field) {
+        field.addEventListener('input', () => highlightError(name, false));
+        field.addEventListener('change', () => highlightError(name, false));
+    }
+});
 
             function toggleLoading(isLoading) {
                 if (isLoading) {
@@ -354,39 +368,58 @@
                 });
             }
 
-            function validateManualFields() {
-                const requiredFields = ['sender_name', 'bank_origin', 'transfer_date', 'transfer_amount', 'transfer_proof'];
-                const missingFields = [];
+            function highlightError(fieldName, hasError) {
+    const field = document.querySelector(`[name="${fieldName}"]`);
+    if (!field) return;
+    if (hasError) {
+        field.classList.add('border-red-400', 'bg-red-50');
+        field.classList.remove('border-gray-300');
+    } else {
+        field.classList.remove('border-red-400', 'bg-red-50');
+        field.classList.add('border-gray-300');
+    }
+}
 
-                for (let fieldName of requiredFields) {
-                    const field = document.querySelector(`[name="${fieldName}"]`);
-                    if (!field || (!field.value && !field.files?.[0])) {
-                        missingFields.push(fieldName.replace('_', ' ').replace('proof', 'bukti'));
-                    }
-                }
+function validateManualFields() {
+    const fields = [
+        { name: 'sender_name',    label: 'Nama Pengirim' },
+        { name: 'bank_origin',    label: 'Bank Asal' },
+        { name: 'transfer_date',  label: 'Tanggal Transfer' },
+        { name: 'transfer_proof', label: 'Bukti Transfer' },
+    ];
 
-                if (missingFields.length > 0) {
-                    Swal.fire({
-                        title: 'Validasi Error!',
-                        html: `Field berikut harus diisi:<br>${missingFields.join('<br>')}`,
-                        icon: 'error'
-                    });
-                    return false;
-                }
+    const missingLabels = [];
 
-                const fileInput = document.querySelector('[name="transfer_proof"]');
-                if (fileInput.files[0] && fileInput.files[0].size > 2 * 1024 * 1024) {
-                    Swal.fire({
-                        title: 'File Terlalu Besar',
-                        text: 'Ukuran file bukti transfer maksimal 2MB',
-                        icon: 'error'
-                    });
-                    return false;
-                }
+    for (let f of fields) {
+        const field = document.querySelector(`[name="${f.name}"]`);
+        const isEmpty = !field || (f.name === 'transfer_proof' ? !field.files?.[0] : !field.value.trim());
+        highlightError(f.name, isEmpty);
+        if (isEmpty) missingLabels.push(f.label);
+    }
 
-                return true;
-            }
+    if (missingLabels.length > 0) {
+        Swal.fire({
+            title: 'Data Belum Lengkap!',
+            html: `Mohon lengkapi field berikut:<br><strong>${missingLabels.join('<br>')}</strong>`,
+            icon: 'error'
+        });
+        return false;
+    }
 
+    // Cek ukuran file
+    const fileInput = document.querySelector('[name="transfer_proof"]');
+    if (fileInput.files[0] && fileInput.files[0].size > 2 * 1024 * 1024) {
+        highlightError('transfer_proof', true);
+        Swal.fire({
+            title: 'File Terlalu Besar',
+            text: 'Ukuran file bukti transfer maksimal 2MB',
+            icon: 'error'
+        });
+        return false;
+    }
+
+    return true;
+}
             btnMidtrans.addEventListener('click', function () {
                 paymentMethodInput.value = 'midtrans';
                 manualFields.classList.add('hidden');
@@ -455,14 +488,34 @@
                 const paymentMethod = paymentMethodInput.value;
                 const formData = new FormData(form);
 
-                const requiredBasicFields = ['email', 'name', 'address', 'phone'];
-                for (let fieldName of requiredBasicFields) {
-                    const field = document.querySelector(`[name="${fieldName}"]`);
-                    if (!field || !field.value.trim()) {
-                        alert(`Field ${fieldName} harus diisi`);
-                        return;
-                    }
-                }
+                const basicFields = [
+    { name: 'email',    label: 'Email' },
+    { name: 'name',     label: 'Nama' },
+    { name: 'address',  label: 'Alamat' },
+    { name: 'city',     label: 'Kota' },
+    { name: 'district', label: 'Kecamatan' },
+    { name: 'village',  label: 'Kelurahan' },
+    { name: 'phone',    label: 'No HP' },
+];
+
+const missingBasic = [];
+for (let f of basicFields) {
+    const field = document.querySelector(`[name="${f.name}"]`);
+    if (!field) continue; // skip kalau field tidak ada di DOM (misal guest)
+    const isEmpty = !field.value.trim();
+    highlightError(f.name, isEmpty);
+    if (isEmpty) missingBasic.push(f.label);
+}
+
+if (missingBasic.length > 0) {
+    Swal.fire({
+        title: 'Data Belum Lengkap!',
+        html: `Mohon lengkapi field berikut:<br><strong>${missingBasic.join('<br>')}</strong>`,
+        icon: 'error'
+    });
+    toggleLoading(false);
+    return;
+}
 
                 toggleLoading(true);
 

@@ -36,6 +36,7 @@
     }
 
     $currentProduk = collect([...$kambings, ...$dombas, ...$products]);
+    $totalSebelumFilter = $currentProduk->count(); 
 
     // FILTER PENCARIAN (q)
     if (request()->filled('q')) {
@@ -58,12 +59,14 @@
     }
 
     // FILTER HARGA
-    if (request()->filled('harga_min')) {
-        $currentProduk = $currentProduk->where('harga', '>=', request()->harga_min);
-    }
-    if (request()->filled('harga_max')) {
-        $currentProduk = $currentProduk->where('harga', '<=', request()->harga_max);
-    }
+if (request()->filled('harga_min')) {
+    $hargaMin = (int) request()->harga_min;
+    $currentProduk = $currentProduk->filter(fn($item) => ($item->harga ?? 0) >= $hargaMin);
+}
+if (request()->filled('harga_max')) {
+    $hargaMax = (int) request()->harga_max;
+    $currentProduk = $currentProduk->filter(fn($item) => ($item->harga ?? 0) <= $hargaMax);
+}
 
     // SORTING
     $sort = request('sort', 'latest');
@@ -112,7 +115,7 @@
             {{-- SIDEBAR --}}
             <aside class="w-full lg:w-1/5">
                 <div class="bg-white rounded-xl shadow p-4 sticky top-20">
-                    <h2 class="text-lg font-bold mb-4">Etalase Toko ({{ $currentProduk->count() }})</h2>
+                    <h2 class="text-lg font-bold mb-4">Etalase Toko ({{ $totalSebelumFilter }})</h2>
                     <ul class="space-y-2 text-gray-700 text-sm">
                         {{-- Semua Produk --}}
                         <li>

@@ -49,7 +49,7 @@ class ProductController extends Controller
         if ($request->source === 'produksi' && !$request->formula_id) {
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Produk produksi wajib memiliki formula');
+                ->withErrors(['formula_id' => 'Produk produksi wajib memiliki formula.']);
         }
 
         // ⭐ Upload image (Laravel Storage)
@@ -105,7 +105,7 @@ class ProductController extends Controller
 
         if ($request->source === 'produksi' && !$request->formula_id) {
             return redirect()->back()
-                ->with('error', 'Produk produksi wajib memiliki formula');
+                ->withErrors(['formula_id' => 'Produk produksi wajib memiliki formula']);
         }
 
         $data = [

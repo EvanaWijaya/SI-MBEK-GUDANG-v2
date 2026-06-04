@@ -203,55 +203,73 @@
             <h3 class="text-sm font-semibold text-blue-700">Terima Barang & Input Stok</h3>
         </div>
 
-        <form method="POST" action="{{ route('admin.purchase-orders.receive', $po->id) }}" id="receive-form">
-            @csrf
-            <div class="p-5 overflow-x-auto">
-                <table class="w-full text-sm">
-                    <thead class="border-b border-gray-100">
-                        <tr>
-                            <th class="pb-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wide">Item</th>
-                            <th class="pb-3 text-right font-semibold text-gray-600 text-xs uppercase tracking-wide w-24">Pesan</th>
-                            <th class="pb-3 text-center font-semibold text-gray-600 text-xs uppercase tracking-wide w-32">Diterima</th>
-                            <th class="pb-3 text-center font-semibold text-gray-600 text-xs uppercase tracking-wide w-48">Expired Date</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-50">
-                        @foreach($po->items as $item)
-                            <tr>
-                                <input type="hidden" name="items[{{ $loop->index }}][id]" value="{{ $item->id }}">
-                                <td class="py-3.5 pr-4">
-                                    <p class="font-medium text-gray-800">{{ $item->material->nama_bahan ?? $item->product->nama ?? '-' }}</p>
-                                    <p class="text-xs text-gray-400">{{ $item->material->satuan ?? 'Pcs' }}</p>
-                                </td>
-                                <td class="py-3.5 text-right text-gray-600 pr-4">{{ number_format($item->jumlah) }}</td>
-                                <td class="py-3.5 text-center">
-                                    <input type="number" name="items[{{ $loop->index }}][jumlah_diterima]" 
-                                        min="0" value="{{ $item->jumlah }}" required
-                                        class="w-24 border border-gray-300 rounded-lg px-2 py-1.5 text-center text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none">
-                                </td>
-                                <td class="py-3.5 pr-4 text-center">
-                                    {{-- Input Expired Date (Wajib untuk Material & Produk Obat) --}}
-                                    <input type="date" name="items[{{ $loop->index }}][expired_date]"
-                                        @if($po->type === 'material' || ($item->product && $item->product->type === 'obat')) required @endif
-                                        class="w-full border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none bg-gray-50 focus:bg-white transition-all">
-                                    @if($po->type === 'material' || ($item->product && $item->product->type === 'obat'))
-                                    @endif
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-            <div class="px-5 pb-5 flex justify-end">
-                <button type="button" onclick="confirmReceive()"
-                    class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2.5 rounded-lg text-sm shadow transition-all active:scale-95">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                    </svg>
-                    Konfirmasi & Update Stok
-                </button>
-            </div>
-        </form>
+        <form method="POST" novalidate action="{{ route('admin.purchase-orders.receive', $po->id) }}" id="receive-form">
+    @csrf
+
+    {{-- Kotak List Error Validasi Global di Atas Tabel --}}
+    @if ($errors->any())
+        <div class="mx-5 mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg text-sm">
+            <span class="font-bold block mb-1">Terjadi kesalahan penerimaan barang:</span>
+            <ul class="list-disc pl-5">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <div class="p-5 overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead class="border-b border-gray-100">
+                <tr>
+                    <th class="pb-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wide">Item</th>
+                    <th class="pb-3 text-right font-semibold text-gray-600 text-xs uppercase tracking-wide w-24">Pesan</th>
+                    <th class="pb-3 text-center font-semibold text-gray-600 text-xs uppercase tracking-wide w-32">Diterima</th>
+                    <th class="pb-3 text-center font-semibold text-gray-600 text-xs uppercase tracking-wide w-48">Expired Date</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50">
+                @foreach($po->items as $item)
+                    <tr>
+                        <input type="hidden" name="items[{{ $loop->index }}][id]" value="{{ $item->id }}">
+                        
+                        <td class="py-3.5 pr-4">
+                            <p class="font-medium text-gray-800">{{ $item->material->nama_bahan ?? $item->product->nama ?? '-' }}</p>
+                            <p class="text-xs text-gray-400">{{ $item->material->satuan ?? 'Pcs' }}</p>
+                        </td>
+                        
+                        <td class="py-3.5 text-right text-gray-600 pr-4">{{ number_format($item->jumlah) }}</td>
+                        
+                        {{-- Kolom Jumlah Diterima --}}
+                        <td class="py-3.5 text-center">
+                            <input type="number" name="items[{{ $loop->index }}][jumlah_diterima]" 
+                                min="0" 
+                                value="{{ old("items.{$loop->index}.jumlah_diterima", $item->jumlah) }}" 
+                                class="w-24 border {{ $errors->has("items.{$loop->index}.jumlah_diterima") ? 'border-red-400 bg-red-50 text-red-900 focus:ring-red-500 focus:border-red-400' : 'border-gray-300 focus:ring-blue-400' }} rounded-lg px-2 py-1.5 text-center text-sm focus:outline-none">
+                        </td>
+                        
+                        {{-- Kolom Expired Date --}}
+                        <td class="py-3.5 pr-4 text-center">
+                            <input type="date" name="items[{{ $loop->index }}][expired_date]"
+                                value="{{ old("items.{$loop->index}.expired_date") }}"
+                                class="w-full border {{ $errors->has("items.{$loop->index}.expired_date") ? 'border-red-400 bg-red-50 text-red-900 focus:ring-red-500 focus:border-red-400' : 'border-gray-300 focus:ring-blue-400' }} rounded-lg px-2 py-1.5 text-sm focus:outline-none bg-gray-50 focus:bg-white transition-all">
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="px-5 pb-5 flex justify-end">
+        <button type="button" onclick="confirmReceive()"
+            class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2.5 rounded-lg text-sm shadow transition-all active:scale-95">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
+            Konfirmasi & Update Stok
+        </button>
+    </div>
+</form>
     </div>
 @endif
 
@@ -279,31 +297,24 @@
     </div>
 
     @push('scripts')
-    <script>
-        function confirmReceive() {
-        const form = document.getElementById('receive-form');
-
-            if (!form.reportValidity()) {
-                // Kalau ada yang required tapi kosong, browser otomatis ngasih tau.
-                // SweetAlert dibatalin jalan.
-                return; 
+   <script>
+    function confirmReceive() {
+        
+        Swal.fire({
+            title: 'Konfirmasi Penerimaan Barang?',
+            text: 'Stok akan diperbarui sesuai jumlah yang diterima.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#16a34a',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Terima Barang!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('receive-form').submit();
             }
-
-            Swal.fire({
-                title: 'Konfirmasi Penerimaan Barang?',
-                text: 'Stok akan diperbarui sesuai jumlah yang diterima.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#16a34a',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Ya, Terima Barang!',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    document.getElementById('receive-form').submit();
-                }
-            });
-        }
-    </script>
-    @endpush
+        });
+    }
+</script>
+@endpush
 </x-admin-app-layout>

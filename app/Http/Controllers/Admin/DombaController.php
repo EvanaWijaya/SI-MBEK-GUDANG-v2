@@ -62,17 +62,10 @@ class DombaController extends Controller
         $filePath = null;
 
         if ($request->hasFile('image')) {
-            $file = $request->file('image');
-
-            $fileName = 'domba_' . time() . '_' . $file->getClientOriginalName();
-
-            $image = Image::read($file)
-                ->resize($file->getWidth() * 0.5, $file->getHeight() * 0.5);
-
-            $filePath = 'domba/' . $fileName;
-
-            Storage::disk('public')->put($filePath, (string) $image->encode());
-        }
+    $file = $request->file('image');
+    $fileName = 'domba_' . time() . '_' . $file->getClientOriginalName();
+    $filePath = $file->storeAs('domba', $fileName, 'public');
+}
 
         Domba::create([
             'user_id' => $request->user_id,

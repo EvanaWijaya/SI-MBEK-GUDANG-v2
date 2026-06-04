@@ -23,7 +23,7 @@
         @endif
 
         <div class="w-full mx-auto">
-            <form action="{{ route('admin.tambahkambing.save') }}" method="POST" enctype="multipart/form-data"
+            <form action="{{ route('admin.tambahkambing.save') }}" method="POST" novalidate enctype="multipart/form-data"
                 class="bg-white shadow-lg rounded-lg p-8 mb-6 border border-gray-300">
                 @csrf
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">

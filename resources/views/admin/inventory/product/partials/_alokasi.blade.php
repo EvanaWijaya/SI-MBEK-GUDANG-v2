@@ -82,7 +82,7 @@
                 {{-- Set alokasi --}}
                 <div>
                     <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Set Qty Alokasi</p>
-                    <form method="POST" action="{{ route('admin.product.allocations.set', $product->id) }}"
+                    <form method="POST" novalidate action="{{ route('admin.product.allocations.set', $product->id) }}"
                         class="flex gap-2">
                         @csrf
                         <input type="hidden" name="type" value="jual">
@@ -114,7 +114,7 @@
                 {{-- Set alokasi --}}
                 <div>
                     <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Set Qty Alokasi</p>
-                    <form method="POST" action="{{ route('admin.product.allocations.set', $product->id) }}"
+                    <form method="POST" novalidate action="{{ route('admin.product.allocations.set', $product->id) }}"
                         class="flex gap-2">
                         @csrf
                         <input type="hidden" name="type" value="internal">
@@ -134,7 +134,7 @@
                 <div>
                     <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Catat Pemakaian</p>
                     @if($qInternal > 0)
-                        <form method="POST" action="{{ route('admin.product.allocations.use-internal', $product->id) }}"
+                        <form method="POST" novalidate action="{{ route('admin.product.allocations.use-internal', $product->id) }}"
                             class="flex gap-2">
                             @csrf
                             <input type="number" name="qty" min="1" max="{{ $qInternal }}" required
@@ -165,7 +165,7 @@
         </h3>
         <p class="text-xs text-gray-400 mb-5">Tambah atau kurangi stok secara manual. Pengurangan menggunakan metode FIFO.</p>
 
-        <form method="POST" action="{{ route('admin.inventory.product.adjust', $product->id) }}"
+        <form method="POST" novalidate action="{{ route('admin.inventory.product.adjust', $product->id) }}"
              class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
             @csrf
             <div>

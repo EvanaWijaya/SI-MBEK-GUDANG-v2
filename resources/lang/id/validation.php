@@ -4,8 +4,10 @@ return [
     'unique' => ':attribute sudah digunakan.',
     'confirmed' => ':attribute tidak cocok.',
     'required' => ':attribute wajib diisi.',
+    'required_if' => ':attribute wajib diisi.',
     'email' => ':attribute harus berupa alamat email yang valid.',
     'mimes' => ':attribute harus berupa file dengan format: :values.',
+    
     'min' => [
         'string' => ':attribute harus terdiri dari minimal :min karakter.',
         'numeric' => ':attribute minimal bernilai :min.',
@@ -28,5 +30,15 @@ return [
         'current_password' => 'kata sandi saat ini',
         'image' => 'gambar',
         'faksin_status' => 'status vaksin',
+        'formula_id' => 'formula',
+        'kode'       => 'kode produk',
+    'nama'       => 'nama produk',
+    'source'     => 'sumber produk',
+    'type'       => 'tipe produk',
+    'harga'      => 'harga jual',
+        'items.*.material_id' => 'bahan baku',
+    'items.*.product_id'  => 'produk',
+    'items.*.jumlah'      => 'jumlah',
+    'items.*.harga'       => 'harga',
     ],
 ];

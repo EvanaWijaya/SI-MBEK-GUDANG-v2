@@ -209,7 +209,7 @@ class PurchaseOrderController extends Controller
             'items' => 'required|array',
             'items.*.id' => 'required|exists:purchase_order_items,id',
             'items.*.jumlah_diterima' => 'required|integer|min:1',
-            'items.*.expired_date' => 'nullable|date',
+            'items.*.expired_date' => 'required|date',
         ]);
 
         foreach ($request->items as $data) {

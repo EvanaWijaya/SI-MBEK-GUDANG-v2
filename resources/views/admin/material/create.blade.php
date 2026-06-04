@@ -4,28 +4,64 @@
     </x-slot>
 
     <div class="container mx-auto mt-10 px-4">
-        <form action="{{ route('admin.materials.store') }}" method="POST" class="bg-white shadow-md rounded-lg p-8 border border-gray-200">
+        
+        {{-- Kotak Pesan Error Global di Bagian Atas --}}
+        @if ($errors->any())
+            <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative">
+                <span class="font-bold block mb-1">Terjadi kesalahan input data:</span>
+                <ul class="list-disc pl-5 text-sm">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <form action="{{ route('admin.materials.store') }}" method="POST" novalidate class="bg-white shadow-md rounded-xl p-8 border border-gray-200">
             @csrf
             
-            {{-- 🔥 Kategori Otomatis diset "pakan" secara tersembunyi 🔥 --}}
+            {{-- Kategori Otomatis diset "pakan" secara tersembunyi --}}
             <input type="hidden" name="kategori" value="pakan">
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {{-- Kolom Kiri --}}
                 <div>
-                    <label class="block font-bold mb-2">Nama Bahan</label>
-                    <input type="text" name="nama_bahan" class="w-full border-gray-300 rounded focus:ring-orange-500" placeholder="Contoh: Jagung Giling" required>
+                    {{-- Input Nama Bahan --}}
+                    <label class="block font-bold mb-2 {{ $errors->has('nama_bahan') ? 'text-red-600' : 'text-gray-700' }}">Nama Bahan</label>
+                    <input type="text" name="nama_bahan" value="{{ old('nama_bahan') }}" 
+                        class="w-full border {{ $errors->has('nama_bahan') ? 'border-red-400 bg-red-50 text-red-900 focus:ring-red-500 focus:border-red-400' : 'border-gray-300 focus:ring-orange-500 focus:border-brand-orange' }} rounded-lg p-2.5 text-sm transition-all" 
+                        placeholder="Contoh: Jagung Giling" required>
+                    @error('nama_bahan')
+                        <p class="mt-1 text-xs text-red-500 font-semibold">{{ $message }}</p>
+                    @enderror
                     
-                    <label class="block font-bold mt-4 mb-2">Satuan</label>
-                    <input type="text" name="satuan" class="w-full border-gray-300 rounded focus:ring-orange-500" placeholder="kg, karung, liter" required>
+                    {{-- Input Satuan --}}
+                    <label class="block font-bold mt-4 mb-2 {{ $errors->has('satuan') ? 'text-red-600' : 'text-gray-700' }}">Satuan</label>
+                    <input type="text" name="satuan" value="{{ old('satuan') }}" 
+                        class="w-full border {{ $errors->has('satuan') ? 'border-red-400 bg-red-50 text-red-900 focus:ring-red-500 focus:border-red-400' : 'border-gray-300 focus:ring-orange-500 focus:border-brand-orange' }} rounded-lg p-2.5 text-sm transition-all" 
+                        placeholder="kg, karung, liter" required>
+                    @error('satuan')
+                        <p class="mt-1 text-xs text-red-500 font-semibold">{{ $message }}</p>
+                    @enderror
                 </div>
 
+                {{-- Kolom Kanan --}}
                 <div>
-                    <label class="block font-bold mb-2">Deskripsi</label>
-                    <textarea name="deskripsi" class="w-full border-gray-300 rounded focus:ring-orange-500" rows="4" placeholder="Keterangan bahan..."></textarea>
+                    {{-- Input Deskripsi --}}
+                    <label class="block font-bold mb-2 {{ $errors->has('deskripsi') ? 'text-red-600' : 'text-gray-700' }}">Deskripsi</label>
+                    <textarea name="deskripsi" 
+                        class="w-full border {{ $errors->has('deskripsi') ? 'border-red-400 bg-red-50 text-red-900 focus:ring-red-500 focus:border-red-400' : 'border-gray-300 focus:ring-orange-500 focus:border-brand-orange' }} rounded-lg p-2.5 text-sm transition-all resize-none" 
+                        rows="5" placeholder="Keterangan bahan...">{{ old('deskripsi') }}</textarea>
+                    @error('deskripsi')
+                        <p class="mt-1 text-xs text-red-500 font-semibold">{{ $message }}</p>
+                    @enderror
                 </div>
             </div>
-            <div class="mt-8">
-                <button type="submit" class="bg-brand-orange text-white px-6 py-2 rounded font-bold hover:bg-orange-700 transition-colors">Simpan Material Pakan</button>
+            
+            {{-- Tombol Aksi Bawah --}}
+            <div class="mt-8 pt-4 border-t border-gray-100 flex items-center">
+                <button type="submit" class="bg-brand-orange text-white px-6 py-2.5 rounded-lg font-bold hover:bg-orange-700 shadow transition-colors">Simpan Material Pakan</button>
+                <a href="{{ route('admin.materials.index') }}" class="ml-4 text-gray-600 hover:text-gray-900 font-medium transition-colors">Batal</a>
             </div>
         </form>
     </div>
