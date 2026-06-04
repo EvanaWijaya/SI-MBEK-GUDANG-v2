@@ -85,3 +85,4 @@ class AdminManagementController extends Controller
        return redirect()->route('admin.admins.index')->with('success', 'Admin berhasil dihapus!');
     }
 }
+

@@ -42,8 +42,6 @@ class OrderController extends Controller
         $kambings = Kambing::where('for_sale', 'yes')->get();
         $dombas = Domba::where('for_sale', 'yes')->get();
 
-        // Tampilkan produk yang punya alokasi jual > 0
-        // (admin sudah mengalokasikan stok untuk dijual)
         $products = Product::whereHas('allocations', function ($q) {
             $q->where('type', 'jual')->where('qty', '>', 0);
         })

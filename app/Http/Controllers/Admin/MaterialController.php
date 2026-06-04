@@ -46,7 +46,7 @@ class MaterialController extends Controller
         ]);
 
         return view('admin.material.create');
-       
+
     }
 
     /**
@@ -83,8 +83,8 @@ class MaterialController extends Controller
         ]);
 
         if ($request->source === 'inventory') {
-    return back()->with('success', 'Parameter ROP berhasil diperbarui!');
-}
+            return back()->with('success', 'Parameter ROP berhasil diperbarui!');
+        }
         return redirect()->route('admin.materials.index')
             ->with('success', 'Material berhasil diperbarui');
     }
@@ -96,17 +96,17 @@ class MaterialController extends Controller
     {
         // Cegah hapus jika masih ada stok
         if ($material->stok > 0) {
-           return redirect()->back()->with('error', 'Material tidak bisa dihapus karena masih memiliki stok');
+            return redirect()->back()->with('error', 'Material tidak bisa dihapus karena masih memiliki stok');
         }
 
         $material->delete();
 
-       return redirect()->route('admin.materials.index')
+        return redirect()->route('admin.materials.index')
             ->with('success', 'Material berhasil dihapus');
     }
     public function create()
-{
-    return view('admin.material.create');
-}
+    {
+        return view('admin.material.create');
+    }
 
 }

@@ -362,7 +362,7 @@ public function create()
 
     foreach ($formulas as $formula) {
         // Produk yang punya formula_id ini
-        $formulaProducts[$formula->id] = \App\Models\Product::where('formula_id', $formula->id)
+        $formulaProducts[$formula->id] = Product::where('formula_id', $formula->id)
             ->select('id', 'kode', 'nama')
             ->get()
             ->toArray();
@@ -401,3 +401,4 @@ public function show(Production $production)
 }
 
 }
+
