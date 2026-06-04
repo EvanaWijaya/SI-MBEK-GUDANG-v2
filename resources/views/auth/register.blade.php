@@ -13,7 +13,7 @@
                 <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-4">Daftar</h2>
 
                 <!-- Form Start -->
-                <form method="POST" action="{{ route('register') }}" autocomplete="off">
+                <form method="POST" novalidate action="{{ route('register') }}" autocomplete="off">
                     @csrf
 
                     <div class="space-y-3 text-xs">
