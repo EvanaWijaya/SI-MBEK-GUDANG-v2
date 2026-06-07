@@ -9,7 +9,7 @@ use App\Http\Controllers\Owner\KambingController;
 use App\Http\Controllers\Owner\DombaController;
 use App\Http\Controllers\Owner\PenjualanController;
 use App\Http\Controllers\Owner\SupplierController;
-use App\Http\Controllers\Owner\PurchaseOrderController;
+use App\Http\Controllers\Admin\PurchaseOrderController;
 use App\Http\Controllers\Owner\MaterialInventoryController;
 use App\Http\Controllers\Owner\ProductInventoryController;
 use App\Http\Controllers\Owner\MaterialController;
@@ -55,15 +55,13 @@ Route::prefix('owner')->name('owner.')->group(function () {
         // ============================================
         Route::middleware('must.change.password')->group(function () {
 
-         //Supplier
+            //Supplier
             Route::resource('suppliers', SupplierController::class);
 
             // Order Bahan Baku
             Route::prefix('purchase-orders')
                 ->name('purchase-orders.')
                 ->group(function () {
-
-                    // Tambahkan route yang kurang ini:
                     Route::get('/', [PurchaseOrderController::class, 'index'])
                         ->name('index');
 
@@ -96,53 +94,44 @@ Route::prefix('owner')->name('owner.')->group(function () {
                 [MaterialInventoryController::class, 'sync']
             )->name('inventory.material.sync');
 
-            //MaterialInventory
-            Route::resource(
-                'inventory/material',
-                MaterialInventoryController::class
-            )->only(['index', 'show']);
-
             Route::resource(
                 'inventory/product',
                 ProductInventoryController::class
             )->only(['index', 'show']);
 
             //Material Master
-Route::get('/materials', [MaterialController::class, 'index'])->name('materials.index');
-Route::get('/materials/create', [MaterialController::class, 'create'])->name('materials.create'); // Tambahkan baris ini
-Route::post('/materials', [MaterialController::class, 'store'])->name('materials.store');
-Route::get('/materials/{material}', [MaterialController::class, 'show'])->name('materials.show');
-Route::put('/materials/{material}', [MaterialController::class, 'update'])->name('materials.update');
-Route::delete('/materials/{material}', [MaterialController::class, 'destroy'])->name('materials.destroy');
+            Route::get('/materials', [MaterialController::class, 'index'])->name('materials.index');
+            Route::get('/materials/create', [MaterialController::class, 'create'])->name('materials.create'); // Tambahkan baris ini
+            Route::post('/materials', [MaterialController::class, 'store'])->name('materials.store');
+            Route::get('/materials/{material}', [MaterialController::class, 'show'])->name('materials.show');
+            Route::put('/materials/{material}', [MaterialController::class, 'update'])->name('materials.update');
+            Route::delete('/materials/{material}', [MaterialController::class, 'destroy'])->name('materials.destroy');
 
-//Product Master
-Route::get('/products', [ProductController::class, 'index'])->name('products.index');
-Route::get('/products/create', [ProductController::class, 'create'])->name('products.create'); // Tambahkan baris ini
-Route::post('/products', [ProductController::class, 'store'])->name('products.store');
-Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
-Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
-Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+            //Product Master
+            Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+            Route::get('/products/create', [ProductController::class, 'create'])->name('products.create'); // Tambahkan baris ini
+            Route::post('/products', [ProductController::class, 'store'])->name('products.store');
+            Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
+            Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
+            Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
 
- Route::get('/productions', [ProductionController::class, 'index'])->name('productions.index');
-Route::get('/productions/{production}', [ProductionController::class, 'show'])->name('productions.show');
+            // Product Inventory (Gunakan ->names() untuk menghindari bentrok dengan Master Data)
+            Route::resource('inventory/product', ProductInventoryController::class)
+                ->names([
+                    'index' => 'inventory.product.index',
+                    'show' => 'inventory.product.show',
+                ])
+                ->only(['index', 'show']);
 
-// Product Inventory (Gunakan ->names() untuk menghindari bentrok dengan Master Data)
-Route::resource('inventory/product', ProductInventoryController::class)
-    ->names([
-        'index' => 'inventory.product.index',
-        'show' => 'inventory.product.show',
-    ])
-    ->only(['index', 'show']);
-    
             Route::post(
                 'inventory/product/{product}/sync',
                 [ProductInventoryController::class, 'sync']
             )->name('inventory.product.sync');
 
-Route::post('inventory/product/{product}/update-rop', [ProductInventoryController::class, 'updateRop'])
-    ->name('inventory.product.update-rop');
+            Route::post('inventory/product/{product}/update-rop', [ProductInventoryController::class, 'updateRop'])
+                ->name('inventory.product.update-rop');
 
-     //Laporan
+            //Laporan
             Route::prefix('report')
                 ->name('report.')
                 ->group(function () {
@@ -161,14 +150,14 @@ Route::post('inventory/product/{product}/update-rop', [ProductInventoryControlle
                 });
 
 
-    //Warehouse
+            //Warehouse
             Route::get('/warehouse', [WarehouseDashboardController::class, 'index'])
-    ->name('warehouse.dashboard');
+                ->name('warehouse.dashboard');
 
-Route::get('/warehouse/activity-log', [WarehouseDashboardController::class, 'activityLog'])
-    ->name('warehouse.activity-log');
+            Route::get('/warehouse/activity-log', [WarehouseDashboardController::class, 'activityLog'])
+                ->name('warehouse.activity-log');
 
-      // Dashboard
+            // Dashboard
             Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
             // Profile Management

@@ -104,7 +104,7 @@ class ProductAllocationController extends Controller
 
                 $remainingQty = $request->qty;
 
-                /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\ProductStock> $batches */
+                /** @var \Illuminate\Database\Eloquent\Collection<int, ProductStock> $batches */
                 $batches = ProductStock::where('product_id', $product->id)
                     ->where('qty', '>', 0)
                     ->where(function ($q) {

@@ -77,7 +77,7 @@ class ProductionController extends Controller
                 $remainingQty = $kebutuhan;
 
                 // Ambil batch paling lama dulu (FIFO)
-                /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\MaterialStock> $batches */
+                /** @var \Illuminate\Database\Eloquent\Collection<int, MaterialStock> $batches */
                 $batches = MaterialStock::where('material_id', $material->id)
                     ->where('qty', '>', 0)
                     ->where(function ($q) {
@@ -348,10 +348,7 @@ public function index()
     return view('admin.production.index', compact('productions'));
 }
 
-/**
- * Form buat produksi baru
- * Route: GET /admin/productions/create  →  admin.productions.create
- */
+//Form buat produksi baru//
 public function create()
 {
     $formulas = Formula::where('is_active', true)->get();

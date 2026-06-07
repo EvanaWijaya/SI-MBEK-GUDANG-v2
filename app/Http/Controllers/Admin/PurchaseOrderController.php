@@ -53,6 +53,7 @@ class PurchaseOrderController extends Controller
             'supplier_id' => 'required|exists:suppliers,id',
             'type' => 'required|in:material,product',
             'tanggal_pesan' => 'required|date',
+            'dipesan_oleh_id' => 'required_if:dipesan_oleh_type,Owner|exists:owners,id',
 
             'items' => 'required|array|min:1',
 
@@ -76,11 +77,18 @@ class PurchaseOrderController extends Controller
             }
 
             if ($guardPencatat === 'admin' && $request->filled('dipesan_oleh_type')) {
+
                 if ($request->dipesan_oleh_type === 'Owner') {
-                    $pemesan = Owner::findOrFail($request->dipesan_oleh_id);
+                    $pemesan = Owner::find($request->dipesan_oleh_id);
+
+                    if (!$pemesan) {
+                        abort(422, 'Owner tidak valid');
+                    }
+
                 } else {
                     $pemesan = $pencatat;
                 }
+
             } else {
                 $pemesan = $pencatat;
             }
@@ -91,7 +99,7 @@ class PurchaseOrderController extends Controller
                 'kode_po' => $kode_po,
                 'supplier_id' => $request->supplier_id,
                 'type' => $request->type,
-                'source' => $request->source,
+                'source' => 'nullable|string',
                 'tanggal_pesan' => $request->tanggal_pesan,
                 'status' => 'draft',
                 'dipesan_oleh_id' => $pemesan->id,
@@ -116,8 +124,10 @@ class PurchaseOrderController extends Controller
         });
 
         $route = Auth::guard('admin')->check()
-    ? 'admin.purchase-orders.index'
-    : 'owner.purchase-orders.index';
+            ? 'admin.purchase-orders.index'
+            : (Auth::guard('owner')->check()
+                ? 'owner.purchase-orders.index'
+                : abort(401));
 
         $actor = $this->getCurrentActor();
 
@@ -280,7 +290,7 @@ class PurchaseOrderController extends Controller
                         'note' => 'PO ' . $purchaseOrder->kode_po .
                             ($purchaseOrder->catatan ? ' | ' . $purchaseOrder->catatan : ''),
                         'movement_date' => now(),
-                       'catatan' => $purchaseOrder->catatan,
+                        'catatan' => $purchaseOrder->catatan,
                     ]);
                 }
 
@@ -306,10 +316,10 @@ class PurchaseOrderController extends Controller
 
                     \App\Models\ProductStock::create([
                         'product_id' => $product->id,
-                        'qty' => $jumlahDiterima, 
+                        'qty' => $jumlahDiterima,
                         'received_date' => now(),
                         'expired_date' => $data['expired_date'] ?? null,
-                        'source' => 'purchase', 
+                        'source' => 'purchase',
                         'created_by' => auth('admin')->id(), // Pakai admin
                     ]);
 
@@ -323,7 +333,7 @@ class PurchaseOrderController extends Controller
                         'source' => 'PO',
                         'reference_id' => $purchaseOrder->id,
                         'movement_date' => now(),
-                       'catatan' => $purchaseOrder->catatan,
+                        'catatan' => $purchaseOrder->catatan,
                     ]);
                 }
             }

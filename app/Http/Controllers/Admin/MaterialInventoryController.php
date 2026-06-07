@@ -70,7 +70,7 @@ class MaterialInventoryController extends Controller
 
                 $remaining = $request->quantity;
 
-                /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\MaterialStock> $batches */
+                /** @var \Illuminate\Database\Eloquent\Collection<int, MaterialStock> $batches */
                 $batches = MaterialStock::where('material_id', $material->id)
                     ->where('qty', '>', 0)
                     ->orderBy('received_date', 'asc')

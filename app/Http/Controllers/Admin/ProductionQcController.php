@@ -73,7 +73,7 @@ class ProductionQcController extends Controller
                 $percentage = 0;
                 $status = 'tidak_layak';
             } else {
-                // Hitung persentase dan bulatkan DULU sebelum dibandingkan
+                // Hitung persentase dan bulatkan dulu sebelum dibandingkan
                 $rawPercentage = $totalNonCritical > 0
                     ? ($passedNonCritical / $totalNonCritical) * 100
                     : 100;
