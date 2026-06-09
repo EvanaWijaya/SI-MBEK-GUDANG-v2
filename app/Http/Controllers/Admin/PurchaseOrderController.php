@@ -53,7 +53,7 @@ class PurchaseOrderController extends Controller
             'supplier_id' => 'required|exists:suppliers,id',
             'type' => 'required|in:material,product',
             'tanggal_pesan' => 'required|date',
-            'dipesan_oleh_id' => 'required_if:dipesan_oleh_type,Owner|exists:owners,id',
+            'dipesan_oleh_type' => 'required|in:Admin,Owner',
 
             'items' => 'required|array|min:1',
 
@@ -76,20 +76,23 @@ class PurchaseOrderController extends Controller
                 abort(401, 'Unauthorized');
             }
 
-            if ($guardPencatat === 'admin' && $request->filled('dipesan_oleh_type')) {
+            if ($guardPencatat === 'admin') {
 
                 if ($request->dipesan_oleh_type === 'Owner') {
-                    $pemesan = Owner::find($request->dipesan_oleh_id);
+
+                    $pemesan = Owner::first();
 
                     if (!$pemesan) {
-                        abort(422, 'Owner tidak valid');
+                        abort(422, 'Data owner tidak ditemukan');
                     }
 
                 } else {
+
                     $pemesan = $pencatat;
                 }
 
             } else {
+
                 $pemesan = $pencatat;
             }
 
