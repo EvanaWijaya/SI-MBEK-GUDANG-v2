@@ -449,7 +449,7 @@
                             </thead>
                             <tbody>
                                 @forelse($orders as $order)
-                                    <tr class="{{ ($order->status === 'settlement' || $order->status === 'capture') && $order->domba ? 'disabled-product' : '' }}"
+                                    <tr class="{{ ($order->status === 'settlement' || $order->status === 'capture') && $order->dombas ? 'disabled-product' : '' }}"
                                         id="order-row-{{ $order->id }}">
                                         <td>{{ $order->order_id }}</td>
                                         <td>

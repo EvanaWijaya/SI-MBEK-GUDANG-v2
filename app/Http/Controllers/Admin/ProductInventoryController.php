@@ -170,11 +170,11 @@ class ProductInventoryController extends Controller
     public function updateRop(Request $request, Product $product)
     {
         $request->validate([
-            'rop' => 'required|integer|min:0'
+            'reorder_point' => 'required|integer|min:0'
         ]);
 
         $product->update([
-            'reorder_point' => $request->rop
+            'reorder_point' => $request->reorder_point
         ]);
 
         return redirect()

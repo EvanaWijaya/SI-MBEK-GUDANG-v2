@@ -257,8 +257,8 @@
                                 <tr class="hover:bg-orange-50">
                                     <td class="p-3 font-medium text-gray-700">{{ $u->name }}</td>
                                     <td class="p-3 text-center">{{ $u->kambings_count }}</td>
-                                    <td class="p-3 text-center">{{ $u->domba_count }}</td>
-                                    <td class="p-3 text-center font-semibold text-brand-orange">{{ $u->kambings_count + $u->domba_count }}</td>
+                                    <td class="p-3 text-center">{{ $u->dombas_count }}</td>
+                                    <td class="p-3 text-center font-semibold text-brand-orange">{{ $u->kambings_count + $u->dombas_count }}</td>
                                 </tr>
                             @endforeach
                         </tbody>

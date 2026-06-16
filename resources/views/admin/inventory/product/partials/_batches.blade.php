@@ -10,14 +10,14 @@
             <h3 class="text-sm font-semibold text-gray-700">Daftar Batch Stok</h3>
             <div class="flex items-center gap-3 text-xs text-gray-400">
                 <span>
-                    <span class="font-semibold text-gray-700">{{ $batches->where('qty', '>', 0)->count() }}</span>
+                    <span class="font-semibold text-gray-700">{{ $batches->where('quantity', '>', 0)->count() }}</span>
                     aktif dari {{ $batches->count() }} batch
                 </span>
                 @php
-                    $expiredCount  = $batches->filter(fn($b) => $b->qty > 0 && $b->expired_date && \Carbon\Carbon::parse($b->expired_date)->isPast())->count();
-$expiringSoon = $batches->filter(fn($b) => $b->qty > 0 && $b->expired_date
-    && \Carbon\Carbon::parse($b->expired_date)->isFuture()
-    && round(\Carbon\Carbon::now()->diffInDays($b->expired_date)) <= 30)->count(); // Tambahkan round()
+                    $expiredCount  = $batches->filter(fn($b) => $b->quantity > 0 && $b->expiration_date && \Carbon\Carbon::parse($b->expiration_date)->isPast())->count();
+$expiringSoon = $batches->filter(fn($b) => $b->qty > 0 && $b->expiration_date
+    && \Carbon\Carbon::parse($b->expiration_date)->isFuture()
+    && round(\Carbon\Carbon::now()->diffInDays($b->expiration_date)) <= 30)->count(); // Tambahkan round()
                 @endphp
                 @if($expiredCount > 0)
                     <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700">
@@ -56,17 +56,17 @@ $expiringSoon = $batches->filter(fn($b) => $b->qty > 0 && $b->expired_date
                     <tbody class="divide-y divide-gray-50">
                         @foreach($batches as $i => $batch)
                             @php
-                                $bEmpty = $batch->qty <= 0;
-                                $bExp   = $batch->expired_date && \Carbon\Carbon::parse($batch->expired_date)->isPast();
-                                $bSoon  = !$bExp && $batch->expired_date
-                                    && \Carbon\Carbon::parse($batch->expired_date)->isFuture()
-                                    && \Carbon\Carbon::now()->diffInDays($batch->expired_date) <= 30;
+                                $bEmpty = $batch->quantity <= 0;
+                                $bExp   = $batch->expiration_date && \Carbon\Carbon::parse($batch->expiration_date)->isPast();
+                                $bSoon  = !$bExp && $batch->expiration_date
+                                    && \Carbon\Carbon::parse($batch->expiration_date)->isFuture()
+                                    && \Carbon\Carbon::now()->diffInDays($batch->expiration_date) <= 30;
                             @endphp
                             <tr class="hover:bg-gray-50 transition-colors {{ $bExp ? 'bg-red-50/30' : '' }} {{ $bEmpty ? 'opacity-50' : '' }}">
                                 <td class="px-5 py-3.5 text-xs text-gray-400">{{ $i + 1 }}</td>
 
                                 <td class="px-5 py-3.5 text-right font-bold text-gray-800">
-                                    {{ number_format($batch->qty) }}
+                                    {{ number_format($batch->quantity) }}
                                 </td>
 
                                 <td class="px-5 py-3.5 text-center text-xs text-gray-500">
@@ -74,13 +74,13 @@ $expiringSoon = $batches->filter(fn($b) => $b->qty > 0 && $b->expired_date
                                 </td>
 
                                 <td class="px-5 py-3.5 text-center">
-                                    @if($batch->expired_date)
+                                    @if($batch->expiration_date)
                                         <span class="text-xs font-medium {{ $bExp ? 'text-red-600' : ($bSoon ? 'text-yellow-600' : 'text-gray-600') }}">
-                                            {{ \Carbon\Carbon::parse($batch->expired_date)->format('d M Y') }}
+                                            {{ \Carbon\Carbon::parse($batch->expiration_date)->format('d M Y') }}
                                         </span>
                                         @if($bSoon)
                                             <span class="block text-xs text-yellow-500">
-                                                {{ round(\Carbon\Carbon::now()->diffInDays($batch->expired_date)) }} hari lagi
+                                                {{ round(\Carbon\Carbon::now()->diffInDays($batch->expiration_date)) }} hari lagi
                                             </span>
                                         @endif
                                     @else
@@ -136,7 +136,7 @@ $expiringSoon = $batches->filter(fn($b) => $b->qty > 0 && $b->expired_date
                             <td colspan="2" class="px-5 py-3 text-right text-xs font-semibold text-gray-600">
                                 Total:
                                 <span class="ml-1 {{ $belowRop ? 'text-red-600' : 'text-green-700' }}">
-                                    {{ number_format($batches->sum('qty')) }} unit
+                                    {{ number_format($batches->sum('quantity')) }} unit
                                 </span>
                             </td>
                             <td colspan="4"></td>
@@ -192,16 +192,16 @@ $expiringSoon = $batches->filter(fn($b) => $b->qty > 0 && $b->expired_date
                                     @php
                                         $sMap = [
                                             'production'         => ['bg-orange-100 text-orange-700', 'Produksi'],
-                                            'jual'               => ['bg-blue-100 text-blue-700',     'Penjualan'],
+                                            'sale'               => ['bg-blue-100 text-blue-700',     'Penjualan'],
                                             'pemakaian_internal' => ['bg-purple-100 text-purple-700', 'Internal'],
                                             'manual_adjustment'  => ['bg-gray-100 text-gray-600',     'Adjustment'],
-                                            'PO'                 => ['bg-indigo-100 text-indigo-700', 'Purchase Order'],
+                                            'purchase'           => ['bg-indigo-100 text-indigo-700', 'Purchase Order'],
                                         ];
                                         [$sc, $sl] = $sMap[$mov->source] ?? ['bg-gray-100 text-gray-500', ucfirst($mov->source ?? '—')];
                                     @endphp
                                     <span class="inline-flex px-2 py-0.5 rounded-md text-xs font-medium {{ $sc }}">{{ $sl }}</span>
                                 </td>
-                                <td class="px-5 py-3.5 text-xs text-gray-400">{{ $mov->catatan ?? '—' }}</td>
+                                <td class="px-5 py-3.5 text-xs text-gray-400">{{ $mov->notes ?? '—' }}</td>
                             </tr>
                         @endforeach
                     </tbody>

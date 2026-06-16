@@ -98,7 +98,7 @@
         }
     </style>
 
-    <div class="min-h-screen flex flex-col bg-gray-50" x-data="{ open: false, domba: null }">
+    <div class="min-h-screen flex flex-col bg-gray-50" x-data="{ open: false, dombas: null }">
         <main class="max-w-5xl mx-auto py-8 w-full">
             @if (session('success'))
                 <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-6">
@@ -117,11 +117,11 @@
                             </svg>
                         </a>
                         <h3 class="text-lg font-medium text-white">
-                            Detail Domba ID: {{ $domba->id }}
+                            Detail Domba ID: {{ $dombas->id }}
                         </h3>
                     </div>
                     <div class="flex gap-2 w-full md:w-auto justify-end">
-                        <a href="{{ route('admin.domba.monitoring', $domba->id) }}"
+                        <a href="{{ route('admin.domba.monitoring', $dombas->id) }}"
                             class="bg-white text-brand-orange px-4 py-2 rounded-md shadow hover:bg-gray-100 flex items-center">
                             <svg class="w-5 h-5 mr-1" aria-hidden="true" fill="none" viewBox="0 0 24 24">
                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
@@ -132,7 +132,7 @@
                         </a>
                         <button
                             class="bg-white text-brand-orange px-4 py-2 rounded-md shadow hover:bg-gray-100 flex items-center"
-                            @click="open = true; domba = {{ $domba }}">
+                            @click="open = true; domba = {{ $dombas }}">
                             <svg class="w-5 h-5 mr-1" aria-hidden="true" fill="none" viewBox="0 0 24 24">
                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                                     stroke-width="2"
@@ -154,28 +154,28 @@
                                     <div class="flex items-start">
                                         <span class="text-gray-600 font-medium w-1/3">Nama</span>
                                         <span class="text-gray-600">:</span>
-                                        <span class="text-gray-800 font-medium ml-2">{{ $domba->name }}</span>
+                                        <span class="text-gray-800 font-medium ml-2">{{ $dombas->name }}</span>
                                     </div>
                                     <div class="flex items-start">
                                         <span class="text-gray-600 font-medium w-1/3">Pemilik</span>
                                         <span class="text-gray-600">:</span>
                                         <span class="text-gray-800 font-medium ml-2">
-                                            {{ $domba->user ? $domba->user->name : '-' }}
+                                            {{ $dombas->user ? $dombas->user->name : '-' }}
                                         </span>
                                     </div>
                                     <div class="flex items-start">
                                         <span class="text-gray-600 font-medium w-1/3">Tanggal Lahir</span>
                                         <span class="text-gray-600">:</span>
                                         <span class="text-gray-800 font-medium ml-2">
-                                            {{ \Carbon\Carbon::parse($domba->tanggal_lahir)->format('d M Y') }}
+                                            {{ \Carbon\Carbon::parse($dombas->tanggal_lahir)->format('d M Y') }}
                                         </span>
                                     </div>
-                                    @if ($domba->umurAwal())
+                                    @if ($dombas->umurAwal())
                                         <div class="flex items-start">
                                             <span class="text-gray-600 font-medium w-1/3">Umur Awal</span>
                                             <span class="text-gray-600">:</span>
                                             <span class="text-gray-800 font-medium ml-2">
-                                                {{ $domba->umurAwal() }}
+                                                {{ $dombas->umurAwal() }}
                                             </span>
                                         </div>
                                     @endif
@@ -183,21 +183,21 @@
                                         <span class="text-gray-600 font-medium w-1/3">Umur Sekarang</span>
                                         <span class="text-gray-600">:</span>
                                         <span class="text-gray-800 font-medium ml-2">
-                                            {{ $domba->hitungUmur() }}
+                                            {{ $dombas->hitungUmur() }}
                                         </span>
                                     </div>
                                     <div class="flex items-start">
                                         <span class="text-gray-600 font-medium w-1/3">Jenis</span>
                                         <span class="text-gray-600">:</span>
                                         <span class="text-gray-800 font-medium ml-2">
-                                            {{ $domba->type_domba }}
+                                            {{ $dombas->type_domba }}
                                         </span>
                                     </div>
                                     <div class="flex items-start">
                                         <span class="text-gray-600 font-medium w-1/3">Jenis Kelamin</span>
                                         <span class="text-gray-600">:</span>
                                         <span class="text-gray-800 font-medium ml-2">
-                                            {{ $domba->jenis_kelamin }}
+                                            {{ $dombas->jenis_kelamin }}
                                         </span>
                                     </div>
                                 </div>
@@ -211,18 +211,18 @@
                                         <span class="text-gray-600 font-medium w-1/3">Berat Awal</span>
                                         <span class="text-gray-600">:</span>
                                         <span class="text-gray-800 font-medium ml-2">
-                                            {{ $domba->weight }} kg
+                                            {{ $dombas->weight }} kg
                                         </span>
                                     </div>
                                     <div class="flex items-start">
                                         <span class="text-gray-600 font-medium w-1/3">Berat Sekarang</span>
                                         <span class="text-gray-600">:</span>
                                         <span class="text-gray-800 font-medium ml-2">
-                                            {{ $domba->weight_now }} kg
+                                            {{ $dombas->weight_now }} kg
                                         </span>
                                     </div>
                                     @php
-                                        $selisih = $domba->weight_now - $domba->weight;
+                                        $selisih = $dombas->weight_now - $dombas->weight;
                                     @endphp
                                     <div class="flex items-start">
                                         <span class="text-gray-600 font-medium w-1/3">Perkembangan</span>
@@ -242,10 +242,11 @@
                                 <h4 class="text-xl font-bold text-gray-800 mb-4 pb-2 border-b border-gray-200">Foto
                                     Domba</h4>
                                 <div class="flex justify-center">
-                                    @if ($domba->image)
-                                        <img src="{{ asset('storage/' . $domba->image) }}" loading="lazy" alt="gambar domba"
+                                    @if ($dombas->image)
+                                        <img src="{{ asset('storage/' . $dombas->image) }}" loading="lazy"
+                                            alt="gambar domba"
                                             class="w-full max-w-xs h-64 object-cover rounded-lg shadow-md cursor-pointer"
-                                            onclick="showImagePopup('{{ asset('storage/' . $domba->image) }}')" />
+                                            onclick="showImagePopup('{{ asset('storage/' . $dombas->image) }}')" />
                                     @else
                                         <img src="{{ asset('uploads/default.png') }}" loading="lazy" alt="gambar domba"
                                             class="w-full max-w-xs h-64 object-cover rounded-lg shadow-md" />
@@ -261,33 +262,33 @@
                                         <span class="text-gray-600 font-medium w-1/3">Status Vaksin</span>
                                         <span class="text-gray-600">:</span>
                                         <span class="text-gray-800 font-medium ml-2">
-                                            {{ $domba->faksin_status }}
+                                            {{ $dombas->faksin_status }}
                                         </span>
                                     </div>
                                     <div class="flex items-start">
                                         <span class="text-gray-600 font-medium w-1/3">Status Kesehatan</span>
                                         <span class="text-gray-600">:</span>
                                         <span class="text-gray-800 font-medium ml-2">
-                                            {{ $domba->healt_status }}
+                                            {{ $dombas->healt_status }}
                                         </span>
                                     </div>
                                     <div class="flex items-start">
                                         <span class="text-gray-600 font-medium w-1/3">Status Dijual</span>
                                         <span class="text-gray-600">:</span>
                                         <span class="ml-2">
-                                            @if ($domba->for_sale === 'yes')
+                                            @if ($dombas->for_sale === 'yes')
                                                 <span class="status-badge status-yes">Ya</span>
                                             @else
                                                 <span class="status-badge status-no">Tidak</span>
                                             @endif
                                         </span>
                                     </div>
-                                    @if ($domba->for_sale === 'yes')
+                                    @if ($dombas->for_sale === 'yes')
                                         <div class="flex items-start">
                                             <span class="text-gray-600 font-medium w-1/3">Harga</span>
                                             <span class="text-gray-600">:</span>
                                             <span class="text-xl font-bold text-brand-orange ml-2">
-                                                Rp {{ number_format($domba->harga, 0, ',', '.') }}
+                                                Rp {{ number_format($dombas->harga, 0, ',', '.') }}
                                             </span>
                                         </div>
                                     @endif
@@ -295,14 +296,14 @@
                                         <span class="text-gray-600 font-medium w-1/3">Tanggal Dibuat</span>
                                         <span class="text-gray-600">:</span>
                                         <span class="text-gray-800 font-medium ml-2">
-                                            {{ $domba->created_at->format('d M Y') }}
+                                            {{ $dombas->created_at->format('d M Y') }}
                                         </span>
                                     </div>
                                     <div class="flex items-start">
                                         <span class="text-gray-600 font-medium w-1/3">Terakhir Diperbarui</span>
                                         <span class="text-gray-600">:</span>
                                         <span class="text-gray-800 font-medium ml-2">
-                                            {{ $domba->updated_at->format('d M Y') }}
+                                            {{ $dombas->updated_at->format('d M Y') }}
                                         </span>
                                     </div>
                                 </div>
@@ -323,7 +324,7 @@
                     <h2 class="text-xl font-bold text-white">Edit Domba</h2>
                 </div>
                 <div class="p-6">
-                    <form method="POST" action="{{ route('admin.dombas.update', ['domba' => $domba->id]) }}"
+                    <form method="POST" action="{{ route('admin.dombas.update', ['dombas' => $dombas->id]) }}"
                         enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
@@ -394,8 +395,8 @@
                                             class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:ring-orange-400 focus:border-orange-400 focus:outline-none focus:shadow-outline"
                                             required>
                                             <option value="">-- Pilih Status --</option>
-                                            <option value="Aktif" {{ $domba->faksin_status != 'Tidak Aktif' ? 'selected' : '' }}>Aktif</option>
-                                            <option value="Tidak Aktif" {{ $domba->faksin_status == 'Tidak Aktif' ? 'selected' : '' }}>Tidak Aktif</option>
+                                            <option value="Aktif" {{ $dombas->faksin_status != 'Tidak Aktif' ? 'selected' : '' }}>Aktif</option>
+                                            <option value="Tidak Aktif" {{ $dombas->faksin_status == 'Tidak Aktif' ? 'selected' : '' }}>Tidak Aktif</option>
                                         </select>
                                     </div>
 
@@ -406,9 +407,9 @@
                                         <select id="jenis_vaksin"
                                             class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:ring-orange-400 focus:border-orange-400 focus:outline-none focus:shadow-outline">
                                             <option value="">-- Pilih Jenis Vaksin --</option>
-                                            <option value="Vaksin PMK" {{ $domba->faksin_status == 'Vaksin PMK' ? 'selected' : '' }}>Vaksin PMK</option>
-                                            <option value="Vaksin Antraks" {{ $domba->faksin_status == 'Vaksin Antraks' ? 'selected' : '' }}>Vaksin Antraks</option>
-                                            <option value="Vaksin Brucellosis" {{ $domba->faksin_status == 'Vaksin Brucellosis' ? 'selected' : '' }}>Vaksin Brucellosis</option>
+                                            <option value="Vaksin PMK" {{ $dombas->faksin_status == 'Vaksin PMK' ? 'selected' : '' }}>Vaksin PMK</option>
+                                            <option value="Vaksin Antraks" {{ $dombas->faksin_status == 'Vaksin Antraks' ? 'selected' : '' }}>Vaksin Antraks</option>
+                                            <option value="Vaksin Brucellosis" {{ $dombas->faksin_status == 'Vaksin Brucellosis' ? 'selected' : '' }}>Vaksin Brucellosis</option>
                                         </select>
                                     </div>
 
@@ -451,20 +452,20 @@
                                         class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:ring-orange-400 focus:border-orange-400 focus:outline-none focus:shadow-outline"
                                         onchange="toggleOtherHealthStatus(this)" required>
                                         <option value="">-- Pilih Status --</option>
-                                        <option value="Sehat" {{ $domba->healt_status == 'Sehat' ? 'selected' : '' }}>
+                                        <option value="Sehat" {{ $dombas->healt_status == 'Sehat' ? 'selected' : '' }}>
                                             Sehat</option>
-                                        <option value="Tidak Sehat" {{ $domba->healt_status == 'Tidak Sehat' ? 'selected' : '' }}>Tidak Sehat</option>
-                                        <option value="Lainnya" {{ $domba->healt_status != 'Sehat' && $domba->healt_status != 'Tidak Sehat' ? 'selected' : '' }}>Lainnya</option>
+                                        <option value="Tidak Sehat" {{ $dombas->healt_status == 'Tidak Sehat' ? 'selected' : '' }}>Tidak Sehat</option>
+                                        <option value="Lainnya" {{ $dombas->healt_status != 'Sehat' && $dombas->healt_status != 'Tidak Sehat' ? 'selected' : '' }}>Lainnya</option>
                                     </select>
 
                                     <!-- Input teks custom -->
                                     <input type="text" id="health_status_custom" placeholder="Masukkan status kesehatan"
-                                        value="{{ $domba->healt_status != 'Sehat' && $domba->healt_status != 'Tidak Sehat' ? $domba->healt_status : '' }}"
+                                        value="{{ $dombas->healt_status != 'Sehat' && $dombas->healt_status != 'Tidak Sehat' ? $dombas->healt_status : '' }}"
                                         class="mt-2 hidden shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:ring-orange-400 focus:border-orange-400 focus:outline-none focus:shadow-outline" />
 
                                     <!-- Hidden input yang dikirim ke server -->
                                     <input type="hidden" name="healt_status" id="health_status_final"
-                                        value="{{ $domba->healt_status }}">
+                                        value="{{ $dombas->healt_status }}">
                                 </div>
                                 <script>
                                     const healthSelect = document.getElementById('health_status_select');

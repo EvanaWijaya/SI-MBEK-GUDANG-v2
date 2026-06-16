@@ -52,12 +52,12 @@
             <span class="font-bold text-purple-600">{{ number_format($qInternal) }}</span>
         </div>
         <div class="w-px h-4 bg-gray-200"></div>
-        @php $sisaBebas = max(0, $product->stok - $qJual - $qInternal); @endphp
+        @php $sisaBebas = max(0, $product->stock - $qJual - $qInternal); @endphp
         <div class="flex items-center gap-2">
             <span class="text-gray-400 text-xs">Sisa Bebas</span>
             <span class="font-bold {{ $sisaBebas === 0 ? 'text-red-600' : 'text-green-600' }}">{{ number_format($sisaBebas) }}</span>
         </div>
-        @if(($qJual + $qInternal) > $product->stok)
+        @if(($qJual + $qInternal) > $product->stock)
             <span class="ml-auto inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">
                 <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
                 Alokasi melebihi stok!
@@ -85,8 +85,8 @@
                     <form method="POST" novalidate action="{{ route('admin.product.allocations.set', $product->id) }}"
                         class="flex gap-2">
                         @csrf
-                        <input type="hidden" name="type" value="jual">
-                        <input type="number" name="qty" min="0" required value="{{ $qJual }}"
+                        <input type="hidden" name="type" value="sale">
+                        <input type="number" name="quantity" min="0" required value="{{ $qJual }}"
                             placeholder="0"
                             class="flex-1 border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
                         <button type="submit"
@@ -118,7 +118,7 @@
                         class="flex gap-2">
                         @csrf
                         <input type="hidden" name="type" value="internal">
-                        <input type="number" name="qty" min="0" required value="{{ $qInternal }}"
+                        <input type="number" name="quantity" min="0" required value="{{ $qInternal }}"
                             placeholder="0"
                             class="flex-1 border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400">
                         <button type="submit"
@@ -137,7 +137,7 @@
                         <form method="POST" novalidate action="{{ route('admin.product.allocations.use-internal', $product->id) }}"
                             class="flex gap-2">
                             @csrf
-                            <input type="number" name="qty" min="1" max="{{ $qInternal }}" required
+                            <input type="number" name="quantity" min="1" max="{{ $qInternal }}" required
                                 placeholder="Qty dipakai (maks. {{ $qInternal }})"
                                 class="flex-1 border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400">
                             <button type="submit"
@@ -178,14 +178,14 @@
             </div>
             <div>
                 <label class="block text-xs font-medium text-gray-600 mb-1.5">Jumlah <span class="text-red-500">*</span></label>
-                <input type="number" name="qty" min="1" required placeholder="0"
+                <input type="number" name="quantity" min="1" required placeholder="0"
                     class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400">
             </div>
             <div id="adj-expired-wrap">
     <label class="block text-xs text-gray-500 mb-1.5">
         Expired Date <span id="exp-required-star" class="text-red-500">*</span>
     </label>
-    <input type="date" name="expired_date" id="adj-expired-input" 
+    <input type="date" name="expiration_date" id="adj-expired-input" 
         class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-orange-400">
 </div>
             <div>

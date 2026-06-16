@@ -73,12 +73,12 @@
                         <td class="px-6 py-4">{{ $user->kambings->count() }}</td>
                         <td class="px-6 py-4">
                             <select class="form-select rounded-md">
-                                @foreach ($user->domba ?? [] as $db)
+                                @foreach ($user->dombas ?? [] as $db)
                                     <option value="{{ $db->id }}">{{ $db->id }}</option>
                                 @endforeach
                             </select>
                         </td>
-                        <td class="px-6 py-4">{{ $user->domba->count() }}</td>
+                        <td class="px-6 py-4">{{ $user->dombas->count() }}</td>
                         <td class="px-6 py-4">{{ $user->alamat }}</td>
                         <td class="px-6 py-4">
                             <button type="button" onclick="openModal('deleteModal-{{ $user->id }}')"

@@ -9,7 +9,7 @@
 
     {{-- Normalisasi daftar bulan --}}
     @php
-        $monthList = \App\Models\DombaHistory::where('Domba_id', $domba->id)
+        $monthList = \App\Models\DombaHistory::where('Domba_id', $dombas->id)
             ->pluck('bulan')
             ->map(fn($b) => \Carbon\Carbon::parse(strlen($b) === 7 ? $b.'-01' : $b)->format('Y-m'))
             ->unique()
@@ -24,14 +24,14 @@
                 {{-- Filter Bulan & Judul --}}
                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 gap-4 border-b pb-4">
                     <div class="flex items-center gap-3">
-                        <a href="{{ route('admin.domba.show', ['domba' => $domba->id]) }}" class="inline-flex items-center px-3 py-1.5 bg-gray-100 border border-gray-300 rounded-lg font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-200 transition">
+                        <a href="{{ route('admin.domba.show', ['dombas' => $dombas->id]) }}" class="inline-flex items-center px-3 py-1.5 bg-gray-100 border border-gray-300 rounded-lg font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-200 transition">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                             </svg>
                             Kembali
                         </a>
                         <h3 class="text-lg font-semibold text-gray-700">
-                            Monitoring: <span class="text-brand-orange">{{ $domba->name }}</span> <span class="text-gray-400">(ID: {{ $domba->id }})</span>
+                            Monitoring: <span class="text-brand-orange">{{ $dombas->name }}</span> <span class="text-gray-400">(ID: {{ $dombas->id }})</span>
                         </h3>
                     </div>
                     <form method="get" class="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200">

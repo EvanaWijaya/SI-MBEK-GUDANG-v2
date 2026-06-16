@@ -149,10 +149,10 @@ class ProfileController extends Controller
      */
     public function penitip(Request $request, $type = null)
     {
-        $query = User::query()->withCount(['kambing', 'domba']);
+        $query = User::query()->withCount(['kambings', 'dombas']);
 
         if ($type) {
-            $relation = $type === 'kambing' ? 'kambing' : 'domba';
+            $relation = $type === 'kambings' ? 'kambings' : 'dombas';
             $query->has($relation);
         }
 
