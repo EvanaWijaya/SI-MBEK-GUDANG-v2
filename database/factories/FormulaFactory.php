@@ -13,9 +13,9 @@ class FormulaFactory extends Factory
     public function definition(): array
     {
         return [
-            'kode_formula' => 'FRM-' . strtoupper($this->faker->bothify('###??')),
-            'nama_formula' => 'Formula ' . $this->faker->word(),
-            'deskripsi' => $this->faker->sentence(),
+            'formula_code' => 'FRM-' . strtoupper($this->faker->bothify('###??')),
+            'formula_name' => 'Formula ' . $this->faker->word(),
+            'description' => $this->faker->sentence(),
             'created_by' => Admin::factory(),
             'is_active' => true,
         ];
@@ -26,7 +26,7 @@ class FormulaFactory extends Factory
      */
     public function inactive(): static
     {
-        return $this->state(fn () => [
+        return $this->state(fn() => [
             'is_active' => false,
         ]);
     }

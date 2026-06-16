@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Material;
 use App\Models\Product;
 use App\Models\Supplier;
-use App\Models\User;
 use App\Models\PurchaseOrder;
 use App\Models\Order;
 use App\Models\ActivityLog;
@@ -14,47 +13,109 @@ use Illuminate\Support\Facades\DB;
 
 class WarehouseDashboardController extends Controller
 {
+    /**
+     * Display warehouse dashboard
+     */
     public function index()
     {
-        // ── 1. Summary ──────────────────────────────────────────
+        /*
+        |--------------------------------------------------------------------------
+        | Dashboard Summary
+        |--------------------------------------------------------------------------
+        */
+
         $summary = [
-            'total_material'      => Material::count(),
-            'material_below_rop'  => Material::belowRop()->count(),
-            'total_product'       => Product::count(),
-            'product_below_rop'   => Product::whereColumn('stok', '<=', 'rop')->count(),
-            'total_supplier'      => Supplier::count(),
-            'total_buyer'         => Order::distinct('user_id')->count('user_id'),
+            'total_material' => Material::count(),
+
+            'material_below_rop' => Material::belowReorderPoint()->count(),
+
+            'total_product' => Product::count(),
+
+            'product_below_rop' => Product::whereColumn(
+                'stock',
+                '<=',
+                'reorder_point'
+            )->count(),
+
+            'total_supplier' => Supplier::count(),
+
+            'total_buyer' => Order::distinct('user_id')
+                ->count('user_id'),
         ];
 
-        // ── 2. ROP Warnings ─────────────────────────────────────
-        $materialsLow = Material::belowRop()
-            ->select('id', 'nama_bahan', 'kategori', 'stok', 'pemakaian_rata_rata', 'lead_time', 'safety_stock')
+        /*
+        |--------------------------------------------------------------------------
+        | Reorder Point Warnings
+        |--------------------------------------------------------------------------
+        */
+
+        $materialsLow = Material::belowReorderPoint()
+            ->select([
+                'id',
+                'material_name',
+                'category',
+                'stock',
+                'average_usage',
+                'lead_time',
+                'safety_stock',
+            ])
             ->get();
 
-        $productsLow = Product::whereColumn('stok', '<=', 'rop')
-            ->select('id', 'kode', 'nama', 'stok', 'rop', 'type')
+        $productsLow = Product::whereColumn(
+            'stock',
+            '<=',
+            'reorder_point'
+        )
+            ->select(
+                'id',
+                'product_code',
+                'product_name',
+                'stock',
+                'reorder_point',
+                'category'
+            )
             ->get();
 
-        // ── 3. Supplier Distribution ─────────────────────────────
-        $supplierDistribution = PurchaseOrder::selectRaw('supplier_id, COUNT(*) as total')
+        /*
+        |--------------------------------------------------------------------------
+        | Supplier Distribution
+        |--------------------------------------------------------------------------
+        */
+
+        $supplierDistribution = PurchaseOrder::selectRaw(
+            'supplier_id, COUNT(*) as total'
+        )
             ->groupBy('supplier_id')
-            ->with('supplier:id,nama_supplier')
+            ->with('supplier:id,supplier_name')
             ->get();
 
- // ── 4. Distribusi Pembeli Berdasarkan Kota ───────────────
-$buyerDistribution = Order::whereIn('orders.status', ['success', 'settlement'])
-    ->join('users', 'orders.user_id', '=', 'users.id')
-    ->select(
-        'users.kota',
-        DB::raw('COUNT(orders.id) as total')
-    )
-    ->groupBy('users.kota')
-    ->orderByDesc('total')
-    ->take(6)
-    ->get();
+        /*
+        |--------------------------------------------------------------------------
+        | Buyer Distribution By City
+        |--------------------------------------------------------------------------
+        */
 
-        // ── 5. Recent Activities (dashboard, 7 latest) ───────────
-       $recentActivities = ActivityLog::whereIn('type', [
+        $buyerDistribution = Order::whereIn(
+            'orders.status',
+            ['success', 'settlement']
+        )
+            ->join('users', 'orders.user_id', '=', 'users.id')
+            ->select(
+                'users.kota',
+                DB::raw('COUNT(orders.id) as total')
+            )
+            ->groupBy('users.kota')
+            ->orderByDesc('total')
+            ->take(6)
+            ->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Recent Activities
+        |--------------------------------------------------------------------------
+        */
+
+        $recentActivities = ActivityLog::whereIn('type', [
             'po_created',
             'po_approved',
             'po_received',
@@ -63,13 +124,26 @@ $buyerDistribution = Order::whereIn('orders.status', ['success', 'settlement'])
             'allocation_created',
             'disposal_created',
             'order_create',
-            'order_update'
+            'order_update',
         ])
             ->latest()
             ->take(7)
             ->get();
 
+        /*
+        |--------------------------------------------------------------------------
+        | Purchase Order Summary
+        |--------------------------------------------------------------------------
+        */
+
+        $poSummary = PurchaseOrder::selectRaw(
+            'status, COUNT(*) as total'
+        )
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
         if (app()->environment('testing')) {
+
             return response()->json([
                 'summary' => $summary,
                 'materialsLow' => $materialsLow,
@@ -77,62 +151,81 @@ $buyerDistribution = Order::whereIn('orders.status', ['success', 'settlement'])
                 'supplierDistribution' => $supplierDistribution,
                 'buyerDistribution' => $buyerDistribution,
                 'recentActivities' => $recentActivities,
+                'poSummary' => $poSummary,
             ]);
         }
 
-        // ── 7. PO status summary ─────────────────────────────────
-        $poSummary = PurchaseOrder::selectRaw('status, COUNT(*) as total')
-            ->groupBy('status')
-            ->pluck('total', 'status');
-
-        if (app()->environment('testing')) {
-    return response()->json(compact(
-        'summary',
-        'materialsLow',
-        'productsLow',
-        'supplierDistribution',
-        'buyerDistribution',
-        'recentActivities'
-        ));
-        
-}
-
-        // 🔥 GUA UBAH JADI ARRAY LANGSUNG BIAR ANTI ERROR
         return view('admin.warehouse.dashboard', [
-            'summary'              => $summary,
-            'materialsLow'         => $materialsLow,
-            'productsLow'          => $productsLow,
+            'summary' => $summary,
+            'materialsLow' => $materialsLow,
+            'productsLow' => $productsLow,
             'supplierDistribution' => $supplierDistribution,
-            'buyerDistribution'    => $buyerDistribution,
-            'recentActivities'     => $recentActivities,
-            'poSummary'            => $poSummary,
+            'buyerDistribution' => $buyerDistribution,
+            'recentActivities' => $recentActivities,
+            'poSummary' => $poSummary,
         ]);
     }
+
+    /**
+     * Display activity log list
+     */
     public function activityLog(Request $request)
     {
-        $query = ActivityLog::with('actor')->latest();
+        $query = ActivityLog::with('actor')
+            ->latest();
 
         if ($request->filled('type')) {
             $query->where('type', $request->type);
         }
+
         if ($request->filled('module')) {
             $query->where('module', $request->module);
         }
+
         if ($request->filled('search')) {
-            $query->where('description', 'like', '%' . $request->search . '%');
+            $query->where(
+                'description',
+                'like',
+                '%' . $request->search . '%'
+            );
         }
+
         if ($request->filled('dari')) {
-            $query->whereDate('created_at', '>=', $request->dari);
+            $query->whereDate(
+                'created_at',
+                '>=',
+                $request->dari
+            );
         }
+
         if ($request->filled('sampai')) {
-            $query->whereDate('created_at', '<=', $request->sampai);
+            $query->whereDate(
+                'created_at',
+                '<=',
+                $request->sampai
+            );
         }
 
-        $logs = $query->paginate(25)->withQueryString();
+        $logs = $query
+            ->paginate(25)
+            ->withQueryString();
 
-        $types   = ActivityLog::distinct()->pluck('type')->sort()->values();
-        $modules = ActivityLog::distinct()->pluck('module')->filter()->sort()->values();
+        $types = ActivityLog::query()
+            ->distinct()
+            ->pluck('type')
+            ->sort()
+            ->values();
 
-        return view('warehouse.activity-log', compact('logs', 'types', 'modules'));
+        $modules = ActivityLog::query()
+            ->distinct()
+            ->pluck('module')
+            ->filter()
+            ->sort()
+            ->values();
+
+        return view(
+            'warehouse.activity-log',
+            compact('logs', 'types', 'modules')
+        );
     }
 }

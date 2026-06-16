@@ -76,11 +76,11 @@
                         {{-- Tanggal Pesan --}}
                         <div>
                             <label
-                                class="block text-sm font-medium mb-1.5 {{ $errors->has('tanggal_pesan') ? 'text-red-600' : 'text-gray-700' }}">Tanggal
+                                class="block text-sm font-medium mb-1.5 {{ $errors->has('order_date') ? 'text-red-600' : 'text-gray-700' }}">Tanggal
                                 Pesan <span class="text-red-500">*</span></label>
-                            <input type="date" name="tanggal_pesan" value="{{ old('tanggal_pesan', date('Y-m-d')) }}"
+                            <input type="date" name="order_date" value="{{ old('order_date', date('Y-m-d')) }}"
                                 required
-                                class="w-full border {{ $errors->has('tanggal_pesan') ? 'border-red-400 bg-red-50 focus:ring-red-500' : 'border-gray-300 focus:ring-orange-400' }} rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none transition">
+                                class="w-full border {{ $errors->has('order_date') ? 'border-red-400 bg-red-50 focus:ring-red-500' : 'border-gray-300 focus:ring-orange-400' }} rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none transition">
                         </div>
 
                         {{-- Dipesan Atas Nama --}}
@@ -91,14 +91,14 @@
                                             class="text-red-500">*</span></label>
                                     <div class="flex gap-4 p-2.5 bg-gray-50 rounded-lg border border-gray-200">
                                         <label class="flex items-center gap-2 cursor-pointer group">
-                                            <input type="radio" name="dipesan_oleh_type" value="Admin"
-                                                class="text-orange-500 focus:ring-orange-400" {{ old('dipesan_oleh_type', 'Admin') === 'Admin' ? 'checked' : '' }}>
+                                            <input type="radio" name="ordered_by_type" value="Admin"
+                                                class="text-orange-500 focus:ring-orange-400" {{ old('ordered_by_type', 'Admin') === 'Admin' ? 'checked' : '' }}>
                                             <span class="text-sm text-gray-700 group-hover:text-gray-900">Admin
                                                 (Saya)</span>
                                         </label>
                                         <label class="flex items-center gap-2 cursor-pointer group">
-                                            <input type="radio" name="dipesan_oleh_type" value="Owner"
-                                                class="text-orange-500 focus:ring-orange-400" {{ old('dipesan_oleh_type') === 'Owner' ? 'checked' : '' }}>
+                                            <input type="radio" name="ordered_by_type" value="Owner"
+                                                class="text-orange-500 focus:ring-orange-400" {{ old('ordered_by_type') === 'Owner' ? 'checked' : '' }}>
                                             <span class="text-sm text-gray-700 group-hover:text-gray-900">Owner</span>
                                         </label>
                                     </div>
@@ -110,8 +110,8 @@
                     {{-- Catatan --}}
                     <div class="mt-5">
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">Catatan</label>
-                        <textarea name="catatan_owner" rows="3" placeholder="Tambahkan catatan opsional..."
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-400 transition resize-none">{{ old('catatan_owner') }}</textarea>
+                        <textarea name="notes_owner" rows="3" placeholder="Tambahkan catatan opsional..."
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-400 transition resize-none">{{ old('notes_owner') }}</textarea>
                     </div>
                 </div>
 
@@ -400,7 +400,7 @@
             document.addEventListener('DOMContentLoaded', function () {
 
                 const radios = document.querySelectorAll(
-                    'input[name="dipesan_oleh_type"]'
+                    'input[name="ordered_by_type"]'
                 );
 
                 radios.forEach(radio => {

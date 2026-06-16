@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class ProductAllocation extends Model
 {
@@ -12,8 +13,8 @@ class ProductAllocation extends Model
 
     protected $fillable = [
         'product_id',
-        'type',        // jual | internal
-        'qty',
+        'type', // sale | internal
+        'quantity',
         'created_by',
     ];
 
@@ -21,21 +22,27 @@ class ProductAllocation extends Model
      | RELATIONS
      ======================= */
 
-    // Alokasi ini milik produk apa
+    /**
+     * Related product
+     */
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
     }
 
-    // Admin yang mengatur alokasi
+    /**
+     * Admin who created the allocation
+     */
     public function admin(): BelongsTo
     {
         return $this->belongsTo(Admin::class, 'created_by');
     }
 
-    public function stockMovements()
+    /**
+     * Stock movements
+     */
+    public function stockMovements(): MorphMany
     {
         return $this->morphMany(StockMovement::class, 'stockable');
     }
-
 }

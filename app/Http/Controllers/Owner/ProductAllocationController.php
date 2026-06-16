@@ -19,22 +19,22 @@ class ProductAllocationController extends Controller
     public function storeOrUpdate(Request $request, Product $product)
     {
         $validated = $request->validate([
-            'type' => 'required|in:jual,internal',
-            'qty' => 'required|integer|min:0',
+            'type' => 'required|in:sale,internal',
+            'quantity' => 'required|integer|min:0',
         ]);
 
         try {
             // Ambil alokasi lain (selain type yang sedang diubah)
             $allocatedOther = $product->allocations()
                 ->where('type', '!=', $request->type)
-                ->sum('qty');
+                ->sum('quantity');
 
-            $totalAfter = $allocatedOther + $request->qty;
+            $totalAfter = $allocatedOther + $request->quantity;
 
             // ❗ VALIDASI TOTAL ALOKASI
-            if ($totalAfter > $product->stok) {
+            if ($totalAfter > $product->stock) {
                 return back()->withErrors([
-                    'qty' => 'Total alokasi melebihi stok produk',
+                    'quantity' => 'Total alokasi melebihi stok produk',
                 ]);
             }
 
@@ -44,7 +44,7 @@ class ProductAllocationController extends Controller
                     'type' => $request->type,
                 ],
                 [
-                    'qty' => $request->qty,
+                    'quantity' => $request->quantity,
                     'created_by' => auth('owner')->id(),
                 ]
             );
@@ -79,7 +79,7 @@ class ProductAllocationController extends Controller
     public function useInternal(Request $request, Product $product)
     {
         $request->validate([
-            'qty' => 'required|integer|min:1',
+            'quantity' => 'required|integer|min:1',
         ]);
 
         try {
@@ -94,22 +94,22 @@ class ProductAllocationController extends Controller
                     throw new \Exception('Alokasi internal belum tersedia');
                 }
 
-                if ($request->qty > $allocation->qty) {
+                if ($request->quantity > $allocation->quantity) {
                     throw new \Exception('Qty melebihi alokasi internal');
                 }
 
-                if ($request->qty > $product->stok) {
+                if ($request->quantity > $product->stok) {
                     throw new \Exception('Stok produk tidak mencukupi');
                 }
 
-                $remainingQty = $request->qty;
+                $remainingQty = $request->quantity;
 
-                /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\ProductStock> $batches */
+                /** @var \Illuminate\Database\Eloquent\Collection<int, ProductStock> $batches */
                 $batches = ProductStock::where('product_id', $product->id)
-                    ->where('qty', '>', 0)
+                    ->where('quantity', '>', 0)
                     ->where(function ($q) {
-                        $q->whereNull('expired_date')
-                            ->orWhere('expired_date', '>=', now());
+                        $q->whereNull('expiration_date')
+                            ->orWhere('expiration_date', '>=', now());
                     })
                     ->orderBy('received_date', 'asc') // FIFO
                     ->lockForUpdate()
@@ -120,12 +120,12 @@ class ProductAllocationController extends Controller
                     if ($remainingQty <= 0)
                         break;
 
-                    if ($batch->qty >= $remainingQty) {
-                        $batch->decrement('qty', $remainingQty);
+                    if ($batch->quantity >= $remainingQty) {
+                        $batch->decrement('quantity', $remainingQty);
                         $remainingQty = 0;
                     } else {
-                        $remainingQty -= $batch->qty;
-                        $batch->update(['qty' => 0]);
+                        $remainingQty -= $batch->quantity;
+                        $batch->update(['quantity' => 0]);
                     }
                 }
 
@@ -133,16 +133,16 @@ class ProductAllocationController extends Controller
                     throw new \Exception('Batch produk tidak mencukupi');
                 }
 
-                $product->decrement('stok', $request->qty);
-                $allocation->decrement('qty', $request->qty);
+                $product->decrement('stock', $request->quantity);
+                $allocation->decrement('quantity', $request->quantity);
 
-                $allocation->decrement('qty', $request->qty);
+                $allocation->decrement('quantity', $request->quantity);
 
                 StockMovement::create([
                     'stockable_id' => $product->id,
                     'stockable_type' => Product::class,
                     'type' => 'out',
-                    'quantity' => $request->qty,
+                    'quantity' => $request->quantity,
                     'source' => 'pemakaian_internal',
                     'reference_id' => null,
                     'movement_date' => now(),
@@ -163,7 +163,7 @@ class ProductAllocationController extends Controller
 
         } catch (\Throwable $e) {
             return back()->withErrors([
-                'qty' => $e->getMessage(),
+                'quantity' => $e->getMessage(),
             ]);
         }
     }
@@ -177,14 +177,14 @@ class ProductAllocationController extends Controller
     public function sell(Request $request, Product $product)
     {
         $request->validate([
-            'qty' => 'required|integer|min:1',
+            'quantity' => 'required|integer|min:1',
         ]);
 
         try {
             DB::transaction(function () use ($product, $request) {
 
                 $allocation = $product->allocations()
-                    ->where('type', 'jual')
+                    ->where('type', 'sale')
                     ->lockForUpdate()
                     ->first();
 
@@ -192,22 +192,22 @@ class ProductAllocationController extends Controller
                     throw new \Exception('Alokasi jual belum tersedia');
                 }
 
-                if ($request->qty > $allocation->qty) {
+                if ($request->quantity > $allocation->quantity) {
                     throw new \Exception('Qty melebihi alokasi jual');
                 }
 
-                if ($request->qty > $product->stok) {
+                if ($request->quantity > $product->stock) {
                     throw new \Exception('Stok produk tidak mencukupi');
                 }
 
-                $product->decrement('stok', $request->qty);
-                $allocation->decrement('qty', $request->qty);
+                $product->decrement('stock', $request->quantity);
+                $allocation->decrement('quantity', $request->quantity);
 
                 StockMovement::create([
                     'stockable_id' => $product->id,
                     'stockable_type' => Product::class,
                     'type' => 'out',
-                    'quantity' => $request->qty,
+                    'quantity' => $request->quantity,
                     'source' => 'jual',
                     'reference_id' => null,
                     'movement_date' => now(),
@@ -228,7 +228,7 @@ class ProductAllocationController extends Controller
 
         } catch (\Throwable $e) {
             return back()->withErrors([
-                'qty' => $e->getMessage(),
+                'quantity' => $e->getMessage(),
             ]);
         }
     }

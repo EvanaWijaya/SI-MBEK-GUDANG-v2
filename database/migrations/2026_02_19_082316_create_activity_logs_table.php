@@ -14,9 +14,9 @@ return new class extends Migration {
             $table->id();
 
             $table->morphs('actor');
-            // ini otomatis buat:
-            // actor_id (bigint)
-            // actor_type (string)
+            // Automatically creates:
+            // actor_id
+            // actor_type
 
             $table->string('type');
             $table->string('module');
@@ -24,7 +24,6 @@ return new class extends Migration {
 
             $table->timestamps();
         });
-
     }
 
     /**

@@ -42,22 +42,22 @@ class ActivityLogFactory extends Factory
     }
 
     /**
-     * Actor adalah Owner
+     * Owner is Actor
      */
     public function byOwner(): self
     {
         return $this->state(function () {
-            $owner = Owner::factory()->create();
+            $owner = Owner::query()->firstOrFail();
 
             return [
                 'actor_id' => $owner->id,
-                'actor_type' => get_class($owner),
+                'actor_type' => Owner::class,
             ];
         });
     }
 
     /**
-     * Actor adalah Admin
+     * Admin is Actor
      */
     public function byAdmin(): self
     {

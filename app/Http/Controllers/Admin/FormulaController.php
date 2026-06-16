@@ -32,9 +32,9 @@ class FormulaController extends Controller
 
         $lastFormula = Formula::latest('id')->first();
         $nextNumber = $lastFormula ? ($lastFormula->id + 1) : 1;
-        $kodeFormula = 'FRM-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+        $formulaCode = 'FRM-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
 
-        return view('admin.formula.create', compact('materials', 'kodeFormula'));
+        return view('admin.formula.create', compact('materials', 'formulaCode'));
     }
 
     /**
@@ -43,7 +43,7 @@ class FormulaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama_formula' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'materials' => 'required|array|min:1',
             'materials.*.material_id' => 'required|exists:materials,id',
             'materials.*.persentase' => 'required|numeric|min:0.01|max:100',
@@ -53,7 +53,7 @@ class FormulaController extends Controller
         $totalPersentase = collect($request->materials)
             ->sum('persentase');
 
-        if ($totalPersentase != 100) {
+        if (round($totalPersentase, 2) != 100) {
             return back()->withInput()->withErrors([
                 'persentase' => 'Total persentase bahan harus 100%',
             ]);
@@ -67,12 +67,12 @@ class FormulaController extends Controller
 
             $nextNumber = $lastFormula ? ($lastFormula->id + 1) : 1;
 
-            $kodeFormula = 'FRM-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+            $formulaCode = 'FRM-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
 
             $formula = Formula::create([
-                'kode_formula' => $kodeFormula,
-                'nama_formula' => $request->nama_formula,
-                'deskripsi' => $request->deskripsi,
+                'code' => $formulaCode,
+                'name' => $request->name,
+                'description' => $request->description,
                 'created_by' => auth('admin')->id(),
                 'is_active' => true,
             ]);
@@ -115,7 +115,7 @@ class FormulaController extends Controller
     public function update(Request $request, Formula $formula)
     {
         $request->validate([
-            'nama_formula' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'materials' => 'required|array|min:1',
             'materials.*.material_id' => 'required|exists:materials,id',
             'materials.*.persentase' => 'required|numeric|min:0.01|max:100',
@@ -133,8 +133,8 @@ class FormulaController extends Controller
         DB::transaction(function () use ($request, $formula) {
 
             $formula->update([
-                'nama_formula' => $request->nama_formula,
-                'deskripsi' => $request->deskripsi,
+                'name' => $request->name,
+                'description' => $request->description,
             ]);
 
             // Sync ulang pivot

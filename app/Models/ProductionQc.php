@@ -13,9 +13,9 @@ class ProductionQc extends Model
     protected $fillable = [
         'production_id',
         'status',
-        'score_non_kritis',
+        'non_critical_score',
         'threshold',
-        'catatan',
+        'notes',
         'created_by',
     ];
 
@@ -30,10 +30,16 @@ class ProductionQc extends Model
     }
 
     /* =====================
-     |  HELPER
+     | HELPERS
      ===================== */
-    public function isLayak(): bool
+
+    public function isPassed(): bool
     {
-        return $this->status === 'layak';
+        return $this->status === 'passed';
+    }
+
+    public function isFailed(): bool
+    {
+        return $this->status === 'failed';
     }
 }

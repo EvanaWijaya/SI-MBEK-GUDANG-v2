@@ -34,34 +34,34 @@ class DashboardController extends Controller
         $userPercentageChange = $userLastMonth > 0 ? (($userThisMonth - $userLastMonth) / $userLastMonth) * 100 : ($userThisMonth > 0 ? 100 : 0);
 
         // === OVERVIEW TOP USERS ===
-        $users = User::withCount(['kambings', 'domba'])
+        $users = User::withCount(['kambings', 'dombas'])
             ->orderBy('kambings_count', 'desc')
-            ->orderBy('domba_count', 'desc')
+            ->orderBy('dombas_count', 'desc')
             ->take(7)
             ->get();
 
         // === PENITIP TERBARU ===
         $usersa = User::where(function ($q) {
-            $q->has('kambings')->orHas('domba');
+            $q->has('kambings')->orHas('dombas');
         })
             ->with([
                 'kambings' => fn($q) => $q->orderBy('created_at', 'desc'),
-                'domba' => fn($q) => $q->orderBy('created_at', 'desc'),
+                'dombas' => fn($q) => $q->orderBy('created_at', 'desc'),
             ])
             ->get()
             ->sortByDesc(function ($user) {
                 $lastKambing = $user->kambings->first();
-                $lastDomba = $user->domba->first();
+                $lastDomba = $user->dombas->first();
                 return max($lastKambing?->created_at, $lastDomba?->created_at);
             })
             ->take(5);
 
         // === PENGGUNA YANG PUNYA DOMBA ===
-        $usersWithDomba = User::has('domba')->get();
+        $usersWithDomba = User::has('dombas')->get();
 
         // === USER PEMILIK (yang punya kambing atau domba) ===
         $usersWithOwnership = User::whereHas('kambings')
-            ->orWhereHas('domba')
+            ->orWhereHas('dombas')
             ->distinct()
             ->count();
 

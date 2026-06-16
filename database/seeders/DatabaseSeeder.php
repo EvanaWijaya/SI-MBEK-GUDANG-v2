@@ -25,13 +25,11 @@ class DatabaseSeeder extends Seeder
         $this->call([
             SiteSettingSeeder::class,
             SupplierSeeder::class,
-            MaterialSeeder::class,
-            OwnerSeeder::class,
         ]);
 
         // 3. Role / user level
         $this->call([
-            SuperAdminSeeder::class,
+            OwnerSeeder::class,
             AdminSeeder::class,
         ]);
 
@@ -39,7 +37,9 @@ class DatabaseSeeder extends Seeder
         $this->call([
             DombaSeeder::class,
             KambingSeeder::class,
+            FormulaSeeder::class,
             ProductSeeder::class,
+            MaterialSeeder::class,
         ]);
 
         // 5. History (TERAKHIR)
@@ -51,6 +51,7 @@ class DatabaseSeeder extends Seeder
 
         //6. Indikator QC
         $this->call([
+            ProductionSeeder::class,
             QcIndicatorSeeder::class,
             ProductionQcSeeder::class,
             OrderSeeder::class,

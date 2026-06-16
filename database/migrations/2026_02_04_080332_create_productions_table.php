@@ -10,18 +10,18 @@ return new class extends Migration {
         Schema::create('productions', function (Blueprint $table) {
             $table->id();
 
-            // Formula yang diproduksi
+            // Formula used for production
             $table->foreignId('formula_id')
                 ->constrained()
                 ->cascadeOnDelete();
 
-            // Produk jadi
+            // Finished product
             $table->foreignId('product_id')
                 ->constrained('products')
                 ->cascadeOnDelete();
 
-            // Jumlah produksi (kg)
-            $table->integer('qty_produksi');
+            // Production quantity (kg)
+            $table->integer('production_quantity');
 
             /**
              * ======================
@@ -29,41 +29,38 @@ return new class extends Migration {
              * ======================
              */
 
-            // Status hasil QC
             $table->enum('qc_status', [
                 'pending',
-                'layak',
-                'tidak_layak',
+                'passed',
+                'failed',
             ])->default('pending');
 
-            // Persentase indikator non-kritis yang lolos
             $table->decimal('qc_percentage', 5, 2)
                 ->nullable()
-                ->comment('Persentase kelulusan indikator non-kritis');
+                ->comment('Percentage of passed non-critical indicators');
 
-            // Ambang kelayakan QC (default 80%)
             $table->decimal('qc_threshold', 5, 2)
                 ->default(80)
-                ->comment('Minimal persentase kelayakan QC');
+                ->comment('Minimum QC passing percentage');
 
-            // Tanggal produksi nyata
+            // Actual production date
             $table->date('production_date');
 
-            // Expired date
-            $table->date('expired_date')->nullable();
+            // Expiration date
+            $table->date('expiration_date')->nullable();
 
             /**
              * ======================
-             * STATUS PRODUKSI
+             * PRODUCTION STATUS
              * ======================
              */
             $table->enum('status', [
-                'diproses',
-                'selesai',
+                'progress',
+                'completed',
                 'rejected',
-            ])->default('diproses');
+            ])->default('progress');
 
-            // Dicatat oleh admin
+            // Recorded by admin
             $table->foreignId('created_by')
                 ->constrained('admins');
 

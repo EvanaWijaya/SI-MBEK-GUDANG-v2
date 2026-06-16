@@ -9,16 +9,17 @@ use Illuminate\Http\Request;
 class SupplierController extends Controller
 {
     /**
-     * 📋 List supplier
+     * Display supplier list
      */
     public function index()
     {
         $suppliers = Supplier::latest()->get();
+
         return view('owner.suppliers.index', compact('suppliers'));
     }
 
     /**
-     * ➕ Form tambah supplier
+     * Show create supplier form
      */
     public function create()
     {
@@ -26,20 +27,20 @@ class SupplierController extends Controller
     }
 
     /**
-     * 💾 Simpan supplier baru
+     * Store new supplier
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'nama_supplier' => 'required|string|max:255',
-            'kontak'        => 'nullable|string|max:100',
-            'alamat'        => 'nullable|string',
-            'kota'          => 'nullable|string|max:100',
-            'provinsi'      => 'nullable|string|max:100',
-            'catatan'       => 'nullable|string',
+        $validated = $request->validate([
+            'supplier_name' => 'required|string|max:255',
+            'contact' => 'nullable|string|max:100',
+            'address' => 'nullable|string',
+            'city' => 'nullable|string|max:100',
+            'province' => 'nullable|string|max:100',
+            'notes' => 'nullable|string',
         ]);
 
-        Supplier::create($request->all());
+        Supplier::create($validated);
 
         return redirect()
             ->route('owner.suppliers.index')
@@ -47,7 +48,7 @@ class SupplierController extends Controller
     }
 
     /**
-     * ✏ Form edit
+     * Show edit supplier form
      */
     public function edit(Supplier $supplier)
     {
@@ -55,20 +56,20 @@ class SupplierController extends Controller
     }
 
     /**
-     * 🔄 Update supplier
+     * Update supplier data
      */
     public function update(Request $request, Supplier $supplier)
     {
-        $request->validate([
-            'nama_supplier' => 'required|string|max:255',
-            'kontak'        => 'nullable|string|max:100',
-            'alamat'        => 'nullable|string',
-            'kota'          => 'nullable|string|max:100',
-            'provinsi'      => 'nullable|string|max:100',
-            'catatan'       => 'nullable|string',
+        $validated = $request->validate([
+            'supplier_name' => 'required|string|max:255',
+            'contact' => 'nullable|string|max:100',
+            'address' => 'nullable|string',
+            'city' => 'nullable|string|max:100',
+            'province' => 'nullable|string|max:100',
+            'notes' => 'nullable|string',
         ]);
 
-        $supplier->update($request->all());
+        $supplier->update($validated);
 
         return redirect()
             ->route('owner.suppliers.index')
@@ -76,18 +77,33 @@ class SupplierController extends Controller
     }
 
     /**
-     * ❌ Hapus supplier
+     * Display supplier details
+     */
+    public function show(Supplier $supplier)
+    {
+        $supplier->load('purchaseOrders');
+
+        return view('owner.suppliers.show', compact('supplier'));
+    }
+
+    /**
+     * Delete supplier
      */
     public function destroy(Supplier $supplier)
     {
+        if ($supplier->purchaseOrders()->exists()) {
+            return redirect()
+                ->back()
+                ->with(
+                    'error',
+                    'Supplier tidak dapat dihapus karena masih memiliki purchase order'
+                );
+        }
+
         $supplier->delete();
 
         return redirect()
             ->route('owner.suppliers.index')
             ->with('success', 'Supplier berhasil dihapus');
     }
-    public function show(Supplier $supplier)
-{
-    return view('owner.suppliers.show', compact('supplier'));
-}
 }

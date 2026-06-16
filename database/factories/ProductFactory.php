@@ -15,15 +15,15 @@ class ProductFactory extends Factory
     public function definition(): array
     {
         return [
-            'kode' => 'PRD-' . strtoupper(Str::random(6)),
-            'nama' => $this->faker->words(2, true),
-            'harga' => $this->faker->numberBetween(10000, 150000),
-            'stok' => 0,
-            'rop' => $this->faker->numberBetween(5, 20),
+            'product_code' => 'PRD-' . strtoupper(Str::random(6)),
+            'product_name' => $this->faker->words(2, true),
+            'selling_price' => $this->faker->numberBetween(10000, 150000),
+            'stock' => 0,
+            'reorder_point' => $this->faker->numberBetween(5, 20),
 
             // default jadi pakan produksi
-            'type' => 'pakan',
-            'source' => 'produksi',
+            'category' => 'pakan',
+            'source' => 'production',
 
             'formula_id' => Formula::factory(),
             'created_by' => Admin::factory(),
@@ -38,8 +38,8 @@ class ProductFactory extends Factory
     public function pakan(): static
     {
         return $this->state(fn() => [
-            'type' => 'pakan',
-            'source' => 'produksi',
+            'category' => 'pakan',
+            'source' => 'production',
             'formula_id' => Formula::factory(),
         ]);
     }
@@ -52,9 +52,9 @@ class ProductFactory extends Factory
     public function obat(): static
     {
         return $this->state(fn() => [
-            'type' => 'obat',
-            'source' => 'pembelian',
-            'formula_id' => null, // obat biasanya tidak pakai formula
+            'category' => 'obat',
+            'source' => 'purchase',
+            'formula_id' => null,
         ]);
     }
 }

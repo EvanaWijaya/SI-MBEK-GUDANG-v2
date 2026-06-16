@@ -13,15 +13,15 @@ class Formula extends Model
     use HasFactory;
 
     protected $fillable = [
-        'kode_formula',
-        'nama_formula',
-        'deskripsi',
+        'formula_code',
+        'formula_name',
+        'description',
         'created_by',
         'is_active',
     ];
 
     /**
-     * Admin pembuat formula
+     * Admin who created the formula
      */
     public function creator(): BelongsTo
     {
@@ -29,7 +29,7 @@ class Formula extends Model
     }
 
     /**
-     * Detail bahan baku dalam formula
+     * Formula material details
      */
     public function formulaMaterials(): HasMany
     {
@@ -37,17 +37,20 @@ class Formula extends Model
     }
 
     /**
-     * Relasi langsung ke material (many-to-many)
+     * Direct many-to-many relationship with materials
      */
     public function materials(): BelongsToMany
     {
         return $this->belongsToMany(
             Material::class,
             'formula_materials'
-        )->withPivot('persentase')
+        )->withPivot('percentage')
             ->withTimestamps();
     }
 
+    /**
+     * Productions using this formula
+     */
     public function productions(): HasMany
     {
         return $this->hasMany(Production::class);

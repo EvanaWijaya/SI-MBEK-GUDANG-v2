@@ -14,16 +14,16 @@ use Illuminate\Support\Facades\DB;
 class ReportController extends Controller
 {
     /**
-     * 📦 1. Laporan Stok Masuk & Keluar
+     * Generate Stock Movement Report
+     * (Incoming and Outgoing Stock)
      */
     public function stock(Request $request)
     {
         $startDate = $request->start_date ?? now()->startOfMonth()->toDateString();
-        $endDate   = $request->end_date   ?? now()->toDateString();
+        $endDate = $request->end_date ?? now()->toDateString();
 
-        // 🔥 FIX 1: TAMBAHKAN JAM BIAR TRANSAKSI HARI INI KEBACA
         $start = $startDate . ' 00:00:00';
-        $end   = $endDate . ' 23:59:59';
+        $end = $endDate . ' 23:59:59';
 
         $query = StockMovement::with('stockable')
             ->whereBetween('movement_date', [$start, $end]);
@@ -47,7 +47,7 @@ class ReportController extends Controller
             ')
             ->first();
 
-        // Chart data — per hari
+        // Daily chart data for stock movements
         $chartData = StockMovement::whereBetween('movement_date', [$start, $end])
             ->when($request->filled('source'), fn($q) => $q->where('source', $request->source))
             ->selectRaw('
@@ -62,22 +62,25 @@ class ReportController extends Controller
         $sources = StockMovement::distinct()->pluck('source')->sort()->values();
 
         return view('admin.report.stock', compact(
-            'movements', 'summary', 'chartData', 'sources',
-            'startDate', 'endDate'
+            'movements',
+            'summary',
+            'chartData',
+            'sources',
+            'startDate',
+            'endDate'
         ));
     }
 
     /**
-     * 🏭 2. Laporan Produksi
+     * Generate Production Report
      */
     public function production(Request $request)
     {
         $startDate = $request->start_date ?? now()->startOfMonth()->toDateString();
-        $endDate   = $request->end_date   ?? now()->toDateString();
+        $endDate = $request->end_date ?? now()->toDateString();
 
-        // 🔥 FIX 1: TAMBAHKAN JAM BIAR TRANSAKSI HARI INI KEBACA
         $start = $startDate . ' 00:00:00';
-        $end   = $endDate . ' 23:59:59';
+        $end = $endDate . ' 23:59:59';
 
         $query = Production::with(['product', 'formula', 'admin'])
             ->whereBetween('production_date', [$start, $end]);
@@ -99,46 +102,50 @@ class ReportController extends Controller
             ->when($request->filled('status'), fn($q) => $q->where('status', $request->status))
             ->selectRaw('
                 COUNT(*) as total_batch,
-                SUM(qty_produksi) as total_qty,
-                SUM(CASE WHEN status="selesai" THEN 1 ELSE 0 END) as selesai,
-                SUM(CASE WHEN status="diproses" THEN 1 ELSE 0 END) as diproses,
-                SUM(CASE WHEN qc_status="layak" THEN 1 ELSE 0 END) as lulus_qc,        -- 🔥 FIX 2: UBAH LULUS JADI LAYAK
-                SUM(CASE WHEN qc_status="tidak_layak" THEN 1 ELSE 0 END) as gagal_qc   -- 🔥 FIX 2: UBAH GAGAL JADI TIDAK_LAYAK
+                SUM(production_quantity) as total_qty,
+                SUM(CASE WHEN status="completed" THEN 1 ELSE 0 END) as completed,
+                SUM(CASE WHEN status="progress" THEN 1 ELSE 0 END) as progress,
+                SUM(CASE WHEN qc_status="passed" THEN 1 ELSE 0 END) as lulus_qc,        
+                SUM(CASE WHEN qc_status="failed" THEN 1 ELSE 0 END) as gagal_qc   -- 
             ')
             ->first();
 
-        // Chart — produksi per hari
+        // Daily chart data for production activities
         $chartData = Production::whereBetween('production_date', [$start, $end])
             ->selectRaw('
                 DATE(production_date) as tgl,
-                SUM(qty_produksi) as qty,
-                SUM(CASE WHEN qc_status="layak" THEN 1 ELSE 0 END) as lulus,          -- 🔥 FIX 2: UBAH LULUS JADI LAYAK
-                SUM(CASE WHEN qc_status="tidak_layak" THEN 1 ELSE 0 END) as gagal     -- 🔥 FIX 2: UBAH GAGAL JADI TIDAK_LAYAK
+                SUM(production_quantity) as quantity,
+                SUM(CASE WHEN qc_status="passed" THEN 1 ELSE 0 END) as lulus,         
+                SUM(CASE WHEN qc_status="failed" THEN 1 ELSE 0 END) as gagal     
             ')
             ->groupBy('tgl')
             ->orderBy('tgl')
             ->get();
 
-        $products = Product::orderBy('nama')->get(['id', 'nama', 'type']);
+        $products = Product::orderBy('product_name')->get(['id', 'product_name', 'category']);
 
         return view('admin.report.production', compact(
-            'productions', 'summary', 'chartData', 'products',
-            'startDate', 'endDate'
+            'productions',
+            'summary',
+            'chartData',
+            'products',
+            'startDate',
+            'endDate'
         ));
     }
 
     /**
-     * 🗑 3. Laporan Disposal
+     * Generate Disposal Report
      */
     public function disposal(Request $request)
     {
         $startDate = $request->start_date ?? now()->startOfMonth()->toDateString();
-        $endDate   = $request->end_date   ?? now()->toDateString();
+        $endDate = $request->end_date ?? now()->toDateString();
 
         $query = Disposal::with(['disposable', 'admin'])
             ->whereBetween('created_at', [
                 $startDate . ' 00:00:00',
-                $endDate   . ' 23:59:59',
+                $endDate . ' 23:59:59',
             ]);
 
         if ($request->filled('reason')) {
@@ -149,9 +156,9 @@ class ReportController extends Controller
 
         // Summary
         $summary = Disposal::whereBetween('created_at', [
-                $startDate . ' 00:00:00',
-                $endDate   . ' 23:59:59',
-            ])
+            $startDate . ' 00:00:00',
+            $endDate . ' 23:59:59',
+        ])
             ->when($request->filled('reason'), fn($q) => $q->where('reason', $request->reason))
             ->selectRaw('
                 COUNT(*) as total_disposal,
@@ -159,35 +166,41 @@ class ReportController extends Controller
             ')
             ->first();
 
-        // Chart — disposal per hari
+        // Daily chart data for disposal activities
         $chartData = Disposal::whereBetween('created_at', [
-                $startDate . ' 00:00:00',
-                $endDate   . ' 23:59:59',
-            ])
-            ->selectRaw('DATE(created_at) as tgl, COUNT(*) as jumlah, SUM(quantity) as qty')
+            $startDate . ' 00:00:00',
+            $endDate . ' 23:59:59',
+        ])
+            ->selectRaw('DATE(created_at) as tgl, COUNT(*) as jumlah, SUM(quantity) as quantity')
             ->groupBy('tgl')
             ->orderBy('tgl')
             ->get();
 
         // Reason breakdown
         $reasonBreakdown = Disposal::whereBetween('created_at', [
-                $startDate . ' 00:00:00',
-                $endDate   . ' 23:59:59',
-            ])
-            ->selectRaw('reason, COUNT(*) as jumlah, SUM(quantity) as qty')
+            $startDate . ' 00:00:00',
+            $endDate . ' 23:59:59',
+        ])
+            ->selectRaw('reason, COUNT(*) as jumlah, SUM(quantity) as quantity')
             ->groupBy('reason')
             ->get();
 
         $reasons = Disposal::distinct()->pluck('reason')->filter()->sort()->values();
 
         return view('admin.report.disposal', compact(
-            'disposals', 'summary', 'chartData', 'reasonBreakdown', 'reasons',
-            'startDate', 'endDate'
+            'disposals',
+            'summary',
+            'chartData',
+            'reasonBreakdown',
+            'reasons',
+            'startDate',
+            'endDate'
         ));
     }
 
     /**
-     * 📊 4. Rekap Periodik (Bulanan & Tahunan)
+     * Generate Periodic Summary Report
+     * (Monthly and Annual)
      */
     public function monthly(Request $request)
     {
@@ -197,34 +210,34 @@ class ReportController extends Controller
 
         if ($mode === 'annual') {
             // ==========================================
-            // LOGIKA TAHUNAN (5 Tahun Terakhir)
+            // ANNUAL LOGIC (Last 5 Years)
             // ==========================================
             $endYear = $year;
-            $startYear = $endYear - 4; 
+            $startYear = $endYear - 4;
 
             $stockSummary = StockMovement::selectRaw('YEAR(movement_date) as tahun, SUM(CASE WHEN type="in" THEN quantity ELSE 0 END) as total_masuk, SUM(CASE WHEN type="out" THEN quantity ELSE 0 END) as total_keluar')
                 ->whereBetween(DB::raw('YEAR(movement_date)'), [$startYear, $endYear])->groupBy(DB::raw('YEAR(movement_date)'))->get()->keyBy('tahun');
 
-            $productionSummary = Production::selectRaw('YEAR(production_date) as tahun, COUNT(*) as total_batch, SUM(qty_produksi) as total_produksi')
+            $productionSummary = Production::selectRaw('YEAR(production_date) as tahun, COUNT(*) as total_batch, SUM(production_quantity) as total_produksi')
                 ->whereBetween(DB::raw('YEAR(production_date)'), [$startYear, $endYear])->groupBy(DB::raw('YEAR(production_date)'))->get()->keyBy('tahun');
 
             $disposalSummary = Disposal::selectRaw('YEAR(created_at) as tahun, COUNT(*) as total_disposal, SUM(quantity) as total_qty')
                 ->whereBetween(DB::raw('YEAR(created_at)'), [$startYear, $endYear])->groupBy(DB::raw('YEAR(created_at)'))->get()->keyBy('tahun');
 
             $dataList = collect(range($startYear, $endYear))->map(fn($y) => [
-                'label'          => (string)$y, // label tahun
-                'stok_masuk'     => $stockSummary[$y]->total_masuk    ?? 0,
-                'stok_keluar'    => $stockSummary[$y]->total_keluar   ?? 0,
+                'label' => (string) $y, // label tahun
+                'stok_masuk' => $stockSummary[$y]->total_masuk ?? 0,
+                'stok_keluar' => $stockSummary[$y]->total_keluar ?? 0,
                 'total_produksi' => $productionSummary[$y]->total_produksi ?? 0,
-                'total_batch'    => $productionSummary[$y]->total_batch    ?? 0,
-                'total_disposal' => $disposalSummary[$y]->total_disposal   ?? 0,
+                'total_batch' => $productionSummary[$y]->total_batch ?? 0,
+                'total_disposal' => $disposalSummary[$y]->total_disposal ?? 0,
             ])->reverse()->values(); // Dibalik biar tahun terbaru di atas
 
             $totals = [
-                'stok_masuk'     => $dataList->sum('stok_masuk'),
-                'stok_keluar'    => $dataList->sum('stok_keluar'),
+                'stok_masuk' => $dataList->sum('stok_masuk'),
+                'stok_keluar' => $dataList->sum('stok_keluar'),
                 'total_produksi' => $dataList->sum('total_produksi'),
-                'total_batch'    => $dataList->sum('total_batch'),
+                'total_batch' => $dataList->sum('total_batch'),
                 'total_disposal' => $dataList->sum('total_disposal'),
             ];
 
@@ -232,34 +245,34 @@ class ReportController extends Controller
 
         } else {
             // ==========================================
-            // LOGIKA BULANAN (12 Bulan di Tahun Tersebut)
+            // MONTHLY LOGIC (12 Months in the Year)
             // ==========================================
             $stockSummary = StockMovement::selectRaw('MONTH(movement_date) as bulan, SUM(CASE WHEN type="in" THEN quantity ELSE 0 END) as total_masuk, SUM(CASE WHEN type="out" THEN quantity ELSE 0 END) as total_keluar')
                 ->whereYear('movement_date', $year)->groupBy(DB::raw('MONTH(movement_date)'))->get()->keyBy('bulan');
 
-            $productionSummary = Production::selectRaw('MONTH(production_date) as bulan, COUNT(*) as total_batch, SUM(qty_produksi) as total_produksi')
+            $productionSummary = Production::selectRaw('MONTH(production_date) as bulan, COUNT(*) as total_batch, SUM(production_quantity) as total_produksi')
                 ->whereYear('production_date', $year)->groupBy(DB::raw('MONTH(production_date)'))->get()->keyBy('bulan');
 
             $disposalSummary = Disposal::selectRaw('MONTH(created_at) as bulan, COUNT(*) as total_disposal, SUM(quantity) as total_qty')
                 ->whereYear('created_at', $year)->groupBy(DB::raw('MONTH(created_at)'))->get()->keyBy('bulan');
 
-            $bulanNames = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-            
+            $bulanNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
             $dataList = collect(range(1, 12))->map(fn($m) => [
-                'index'          => $m,
-                'label'          => $bulanNames[$m - 1], // label bulan
-                'stok_masuk'     => $stockSummary[$m]->total_masuk    ?? 0,
-                'stok_keluar'    => $stockSummary[$m]->total_keluar   ?? 0,
+                'index' => $m,
+                'label' => $bulanNames[$m - 1], // label bulan
+                'stok_masuk' => $stockSummary[$m]->total_masuk ?? 0,
+                'stok_keluar' => $stockSummary[$m]->total_keluar ?? 0,
                 'total_produksi' => $productionSummary[$m]->total_produksi ?? 0,
-                'total_batch'    => $productionSummary[$m]->total_batch    ?? 0,
-                'total_disposal' => $disposalSummary[$m]->total_disposal   ?? 0,
+                'total_batch' => $productionSummary[$m]->total_batch ?? 0,
+                'total_disposal' => $disposalSummary[$m]->total_disposal ?? 0,
             ]);
 
             $totals = [
-                'stok_masuk'     => $dataList->sum('stok_masuk'),
-                'stok_keluar'    => $dataList->sum('stok_keluar'),
+                'stok_masuk' => $dataList->sum('stok_masuk'),
+                'stok_keluar' => $dataList->sum('stok_keluar'),
                 'total_produksi' => $dataList->sum('total_produksi'),
-                'total_batch'    => $dataList->sum('total_batch'),
+                'total_batch' => $dataList->sum('total_batch'),
                 'total_disposal' => $dataList->sum('total_disposal'),
             ];
 

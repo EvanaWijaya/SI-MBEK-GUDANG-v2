@@ -32,7 +32,7 @@ class StockMovementFactory extends Factory
 
             'reference_id' => $this->faker->optional()->numberBetween(1, 50),
 
-            'catatan' => $this->faker->optional()->sentence(),
+            'notes' => $this->faker->optional()->sentence(),
 
             'movement_date' => $this->faker->dateTimeBetween('-1 month', 'now'),
         ];

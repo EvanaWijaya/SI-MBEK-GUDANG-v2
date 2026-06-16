@@ -100,16 +100,16 @@
 
                     {{-- Input Quantity Produksi --}}
                     <div>
-                        <label class="{{ $errors->has('qty_produksi') ? $labelError : $labelOk }}">
+                        <label class="{{ $errors->has('production_quantity') ? $labelError : $labelOk }}">
                             Jumlah Produksi <span class="text-red-500">*</span>
                         </label>
                         <div class="relative">
-                           <input type="number" name="qty_produksi" id="qtyProduksi" min="1" step="1" required
-                                value="{{ old('qty_produksi') }}" placeholder="0"
-                                class="pl-3 pr-10 {{ $inputBase }} {{ $errors->has('qty_produksi') ? $inputError : $inputOk }}">
+                           <input type="number" name="production_quantity" id="qtyProduksi" min="1" step="1" required
+                                value="{{ old('production_quantity') }}" placeholder="0"
+                                class="pl-3 pr-10 {{ $inputBase }} {{ $errors->has('production_quantity') ? $inputError : $inputOk }}">
                             <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400">kg</span>
                         </div>
-                        @error('qty_produksi')
+                        @error('production_quantity')
                             <p class="mt-1 text-xs text-red-500 font-semibold">{{ $message }}</p>
                         @enderror
                         <p class="mt-1 text-xs text-gray-400">Stok bahan baku akan dikurangi otomatis sesuai komposisi formula (FIFO)</p>

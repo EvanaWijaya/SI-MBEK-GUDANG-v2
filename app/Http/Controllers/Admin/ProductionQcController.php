@@ -13,29 +13,29 @@ use Illuminate\Support\Facades\DB;
 class ProductionQcController extends Controller
 {
     /**
-     * Simpan hasil QC produksi
+     * Store production QC result
      */
     public function store(Request $request, Production $production)
     {
-        // 1. 🔥 AMBIL INDIKATOR AKTIF DI AWAL 🔥
+        // Retrieve active QC indicators
         $indicators = QcIndicator::active()->get();
 
-        // 2. 🔥 BIKIN ATURAN VALIDASI DINAMIS 🔥
+        // Build dynamic validation rules
         $rules = [
             'threshold' => 'required|integer|min:70|max:90',
-            'catatan' => 'nullable|string',
+            'notes' => 'nullable|string',
         ];
 
-        // Paksa setiap ID indikator yang aktif wajib dipilih statusnya (tidak boleh kosong)
+        // Require result selection for every active indicator
         foreach ($indicators as $indicator) {
-            $rules["indicators.{$indicator->id}"] = 'required|in:lulus,gagal';
+            $rules["indicators.{$indicator->id}"] = 'required|in:passed,failed';
         }
 
-        // 3. 🔥 JALANKAN VALIDASI DENGAN PESAN KUSTOM BAHASA INDONESIA 🔥
+        // Execute request validation
         $validated = $request->validate($rules, [
             'threshold.required' => 'Ambang kelulusan wajib diisi.',
-            'threshold.min'      => 'Ambang kelulusan minimal 70%.',
-            'threshold.max'      => 'Ambang kelulusan maksimal 90%.',
+            'threshold.min' => 'Ambang kelulusan minimal 70%.',
+            'threshold.max' => 'Ambang kelulusan maksimal 90%.',
             'indicators.*.required' => 'Status kelulusan indikator QC wajib dipilih (Lulus/Gagal).',
         ]);
 
@@ -50,15 +50,15 @@ class ProductionQcController extends Controller
 
             foreach ($indicators as $indicator) {
                 // Default jika tidak dikirim dianggap gagal
-                $isPassed = ($validated['indicators'][$indicator->id] ?? 'gagal') === 'lulus';
+                $isPassed = ($validated['indicators'][$indicator->id] ?? 'failed') === 'passed';
 
-                // 🔴 Jika indikator kritis gagal → langsung tidak layak
+                // Critical indicator failure immediately fails QC
                 if ($indicator->is_critical && !$isPassed) {
                     $failedCritical = true;
                     break;
                 }
 
-                // 🟡 Hitung non-kritis
+                // Calculate non-critical score
                 if (!$indicator->is_critical) {
                     $totalNonCritical++;
 
@@ -68,49 +68,48 @@ class ProductionQcController extends Controller
                 }
             }
 
-            // Tentukan status akhir
+            // Determine final QC status
             if ($failedCritical) {
                 $percentage = 0;
-                $status = 'tidak_layak';
+                $status = 'failed';
             } else {
-                // Hitung persentase dan bulatkan dulu sebelum dibandingkan
+                // Calculate and round percentage score
                 $rawPercentage = $totalNonCritical > 0
                     ? ($passedNonCritical / $totalNonCritical) * 100
                     : 100;
-                
+
                 $percentage = round($rawPercentage, 2);
 
-                // Bandingkan angka bulat dengan angka bulat untuk keamanan
-                $status = (floatval($percentage) >= floatval($threshold)) 
-                    ? 'layak' 
-                    : 'tidak_layak';
+                $status = (floatval($percentage) >= floatval($threshold))
+                    ? 'passed'
+                    : 'failed';
             }
 
-            // ✅ Simpan log QC (tambahkan score_non_kritis agar tidak error DB)
+            // Store QC record
             $qc = ProductionQc::create([
                 'production_id' => $production->id,
                 'created_by' => auth('admin')->id(),
                 'status' => $status,
                 'percentage' => $percentage,
-                'score_non_kritis' => $percentage, // WAJIB isi untuk DB
+                'non_critical_score' => $percentage, // WAJIB isi untuk DB
                 'threshold' => $threshold,
-                'catatan' => $validated['catatan'] ?? null,
+                'notes' => $validated['notes'] ?? null,
             ]);
 
-            // ✅ Update ringkasan di tabel productions
+            // Update production QC summary
             $production->update([
                 'qc_status' => $status,
                 'qc_percentage' => $percentage,
                 'qc_threshold' => $threshold,
-                'status'        => $status === 'layak' ? 'diproses' : 'rejected'
+                'status' => $status === 'passed' ? 'progress' : 'rejected'
             ]);
 
-            // 🔥 AUTO DISPOSAL JIKA QC GAGAL DITAMBAHKAN DI SINI
-            if ($status === 'tidak_layak') {
+            // Automatically create disposal for failed QC
+            if ($status === 'failed') {
                 $production->disposals()->create([
-                    'quantity' => $production->qty_produksi,
-                    'reason' => 'gagal_qc', // pastikan alasan ini sesuai dengan filter di laporan
-                    'notes' => 'Otomatis dibuang karena tidak lolos Quality Control (Skor: '.$percentage.'%).',
+                    'quantity' => $production->production_quantity,
+                    'reason' => 'qc_failed', // pastikan alasan ini sesuai dengan filter di laporan
+                    'notes' => 'Otomatis dibuang karena tidak lolos Quality Control (Skor: ' . $percentage . '%).',
                     'created_by' => auth('admin')->id(),
                 ]);
             }
@@ -129,7 +128,7 @@ class ProductionQcController extends Controller
             DB::commit();
 
             return back()->with(
-                $status === 'layak' ? 'success' : 'warning',
+                $status === 'passed' ? 'success' : 'warning',
                 "QC selesai. Status: " . strtoupper($status)
             );
 

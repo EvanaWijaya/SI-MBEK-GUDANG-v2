@@ -128,23 +128,23 @@
                     <tbody class="divide-y divide-gray-50" id="formula-tbody">
                         @forelse($formulas as $index => $formula)
                         <tr class="hover:bg-gray-50 transition-colors"
-                            data-name="{{ strtolower($formula->kode_formula . ' ' . $formula->nama_formula) }}"
+                            data-name="{{ strtolower($formula->formula_code . ' ' . $formula->formula_name) }}"
                             data-status="{{ $formula->is_active ? 'aktif' : 'nonaktif' }}">
 
                             <td class="px-5 py-4 text-xs text-gray-400">{{ $index + 1 }}</td>
 
                             <td class="px-5 py-4">
                                 <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-mono font-semibold bg-gray-100 text-gray-700">
-                                    {{ $formula->kode_formula }}
+                                    {{ $formula->formula_code }}
                                 </span>
                             </td>
 
                             <td class="px-5 py-4">
-                                <p class="font-semibold text-gray-800">{{ $formula->nama_formula }}</p>
+                                <p class="font-semibold text-gray-800">{{ $formula->formula_name }}</p>
                             </td>
 
                             <td class="px-5 py-4 max-w-[200px]">
-                                <p class="text-xs text-gray-400 truncate">{{ $formula->deskripsi ?? '-' }}</p>
+                                <p class="text-xs text-gray-400 truncate">{{ $formula->description ?? '-' }}</p>
                             </td>
 
                             <td class="px-5 py-4">
@@ -152,7 +152,7 @@
                                     <div class="flex flex-wrap gap-1">
                                         @foreach($formula->materials->take(3) as $material)
                                             <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-blue-50 text-blue-700">
-                                                {{ $material->nama_bahan }} ({{ $material->pivot->persentase }}%)
+                                                {{ $material->material_name }} ({{ $material->pivot->persentase }}%)
                                             </span>
                                         @endforeach
                                         @if($formula->materials->count() > 3)

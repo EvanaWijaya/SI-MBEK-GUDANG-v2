@@ -14,15 +14,30 @@ return new class extends Migration {
                 ->constrained()
                 ->cascadeOnDelete();
 
-            $table->foreignId('material_id')->nullable()->constrained()->cascadeOnDelete();
-            $table->foreignId('product_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->foreignId('material_id')
+                ->nullable()
+                ->constrained()
+                ->cascadeOnDelete();
 
+            $table->foreignId('product_id')
+                ->nullable()
+                ->constrained()
+                ->cascadeOnDelete();
 
-            $table->integer('jumlah');
-            $table->integer('jumlah_diterima')->nullable();
-            $table->integer('selisih')->default(0);
-            $table->decimal('harga_satuan', 12, 2)->nullable();
-            $table->decimal('subtotal', 14, 2)->nullable();
+            $table->integer('quantity');
+
+            $table->integer('received_quantity')
+                ->nullable();
+
+            $table->integer('difference')
+                ->default(0);
+
+            $table->decimal('unit_price', 12, 2)
+                ->nullable();
+
+            $table->decimal('subtotal', 14, 2)
+                ->nullable();
+
             $table->timestamps();
         });
     }
@@ -32,4 +47,3 @@ return new class extends Migration {
         Schema::dropIfExists('purchase_order_items');
     }
 };
-

@@ -34,34 +34,34 @@ class DashboardController extends Controller
         $userPercentageChange = $userLastMonth > 0 ? (($userThisMonth - $userLastMonth) / $userLastMonth) * 100 : ($userThisMonth > 0 ? 100 : 0);
 
         // === OVERVIEW TOP USERS ===
-        $users = User::withCount(['kambings', 'domba'])
+        $users = User::withCount(['kambings', 'dombas'])
             ->orderBy('kambings_count', 'desc')
-            ->orderBy('domba_count', 'desc')
+            ->orderBy('dombas_count', 'desc')
             ->take(7)
             ->get();
 
         // === PENITIP TERBARU ===
         $usersa = User::where(function ($q) {
-            $q->has('kambings')->orHas('domba');
+            $q->has('kambings')->orHas('dombas');
         })
             ->with([
                 'kambings' => fn($q) => $q->orderBy('created_at', 'desc'),
-                'domba' => fn($q) => $q->orderBy('created_at', 'desc'),
+                'dombas' => fn($q) => $q->orderBy('created_at', 'desc'),
             ])
             ->get()
             ->sortByDesc(function ($user) {
                 $lastKambing = $user->kambings->first();
-                $lastDomba = $user->domba->first();
+                $lastDomba = $user->dombas->first();
                 return max($lastKambing?->created_at, $lastDomba?->created_at);
             })
             ->take(5);
 
         // === PENGGUNA YANG PUNYA DOMBA ===
-        $usersWithDomba = User::has('domba')->get();
+        $usersWithDomba = User::has('dombas')->get();
 
         // === USER PEMILIK (yang punya kambing atau domba) ===
         $usersWithOwnership = User::whereHas('kambings')
-            ->orWhereHas('domba')
+            ->orWhereHas('dombas')
             ->distinct()
             ->count();
 
@@ -121,13 +121,13 @@ class DashboardController extends Controller
             'product_types' => $allForSale->pluck('product_type')->toArray()
         ];
 
-        return view('owner.dashboard', compact('kambingCount', 'kambingThisMonth', 'kambingLastMonth', 'kambingPercentageChange', 'dombaCount', 'dombaThisMonth', 'dombaLastMonth', 'dombaPercentageChange', 'userCount', 'userThisMonth', 'userLastMonth', 'userPercentageChange', 'users', 'usersa', 'usersWithDomba', 'ownerPercentage', 'kambingAvgWeight', 'dombaAvgWeight', 'kambingAvgPrice', 'dombaAvgPrice', 'weeklyLabels', 'weeklyKambingCounts', 'weeklyDombaCounts', 'forSaleChartData'));
+        return view('admin.dashboard', compact('kambingCount', 'kambingThisMonth', 'kambingLastMonth', 'kambingPercentageChange', 'dombaCount', 'dombaThisMonth', 'dombaLastMonth', 'dombaPercentageChange', 'userCount', 'userThisMonth', 'userLastMonth', 'userPercentageChange', 'users', 'usersa', 'usersWithDomba', 'ownerPercentage', 'kambingAvgWeight', 'dombaAvgWeight', 'kambingAvgPrice', 'dombaAvgPrice', 'weeklyLabels', 'weeklyKambingCounts', 'weeklyDombaCounts', 'forSaleChartData'));
     }
 
     public function perjanjian()
     {
         $users = User::withCount('kambings')->orderBy('kambings_count', 'desc')->take(7)->get();
-        return view('owner.perjanjian', compact('users'));
+        return view('admin.perjanjian', compact('users'));
     }
     public function penjualan(Request $request)
     {
@@ -232,7 +232,7 @@ class DashboardController extends Controller
             'revenues' => $revenues
         ];
 
-        return view('owner.penjualan', compact(
+        return view('admin.penjualan', compact(
             'orders',
             'totalPenjualan',
             'totalPendapatan',
@@ -254,7 +254,7 @@ class DashboardController extends Controller
         ]);
 
         Perjanjian::create($request->all());
-        // return redirect()->route('owner.perjanjian');
+        // return redirect()->route('admin.perjanjian');
     }
     public function updateNotes(Request $request, $orderId)
     {
@@ -265,7 +265,7 @@ class DashboardController extends Controller
                 'notes' => 'required|string|max:1000',
             ]);
 
-            $order->owner_notes = $request->notes;
+            $order->admin_notes = $request->notes;
             $order->save();
 
             return response()->json([
@@ -303,7 +303,7 @@ class DashboardController extends Controller
 
             $order->status = $status;
             if ($notes) {
-                $order->owner_notes = $notes;
+                $order->admin_notes = $notes;
             }
             $order->save();
 

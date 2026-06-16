@@ -10,31 +10,31 @@ return new class extends Migration {
         Schema::create('production_qcs', function (Blueprint $table) {
             $table->id();
 
-            // Relasi ke produksi (1 produksi = 1 QC)
+            // Relationship to production (1 production = 1 QC)
             $table->foreignId('production_id')
                 ->constrained()
                 ->cascadeOnDelete()
                 ->unique();
 
-            // Status akhir QC
-            $table->enum('status', ['layak', 'tidak_layak']);
+            // Final QC status
+            $table->enum('status', ['passed', 'failed']);
 
-            // Persentase kelayakan non-kritis
-            $table->decimal('score_non_kritis', 5, 2)
-                ->comment('Persentase indikator non-kritis yang terpenuhi');
+            // Percentage of fulfilled non-critical indicators
+            $table->decimal('non_critical_score', 5, 2)
+                ->comment('Percentage of passed non-critical indicators');
 
-            // Ambang kelayakan (default 80%, bisa diubah admin)
+            // Passing threshold (default 80%, configurable by admin)
             $table->decimal('threshold', 5, 2)
                 ->default(80);
 
-            // Catatan tambahan QC
-            $table->text('catatan')->nullable();
+            // Additional QC notes
+            $table->text('notes')->nullable();
 
-            // Admin yang melakukan QC
+            // Admin who performed QC
             $table->foreignId('created_by')
                 ->constrained('admins');
 
-            $table->timestamps(); // created_at = waktu QC
+            $table->timestamps(); // created_at = QC timestamp
         });
     }
 

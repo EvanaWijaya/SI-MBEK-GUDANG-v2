@@ -5,12 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Material;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class MaterialController extends Controller
 {
     /**
-     * 📋 List semua material (master data)
+     * Display material list.
      */
     public function index()
     {
@@ -20,38 +19,46 @@ class MaterialController extends Controller
     }
 
     /**
-     * ➕ Tambah material baru
+     * Show create material form.
+     */
+    public function create()
+    {
+        return view('admin.material.create');
+    }
+
+    /**
+     * Store a new material.
      */
     public function store(Request $request)
     {
         $request->validate([
-            'nama_bahan' => 'required|string|max:255|unique:materials,nama_bahan',
-            'kategori' => 'required|in:pakan,obat',
-            'satuan' => 'required|string|max:50',
-            'pemakaian_rata_rata' => 'nullable|numeric|min:0',
+            'name' => 'required|string|max:255|unique:materials,name',
+            'category' => 'required|in:feed,medicine',
+            'unit' => 'required|string|max:50',
+            'average_usage' => 'nullable|numeric|min:0',
             'lead_time' => 'nullable|integer|min:0',
             'safety_stock' => 'nullable|integer|min:0',
-            'deskripsi' => 'nullable|string',
+            'description' => 'nullable|string',
         ]);
 
-        $material = Material::create([
-            'nama_bahan' => $request->nama_bahan,
-            'kategori' => $request->kategori,
-            'satuan' => $request->satuan,
-            'stok' => 0, // default awal
-            'pemakaian_rata_rata' => $request->pemakaian_rata_rata ?? 0,
+        Material::create([
+            'name' => $request->name,
+            'category' => $request->category,
+            'unit' => $request->unit,
+            'stock' => 0,
+            'average_usage' => $request->average_usage ?? 0,
             'lead_time' => $request->lead_time ?? 0,
             'safety_stock' => $request->safety_stock ?? 5,
-            'deskripsi' => $request->deskripsi,
+            'description' => $request->description,
         ]);
 
-      return redirect()->route('admin.materials.index')
-    ->with('success', 'Material berhasil ditambahkan');
-
+        return redirect()
+            ->route('admin.materials.index')
+            ->with('success', 'Material berhasil ditambahkan');
     }
 
     /**
-     * 🔍 Detail material
+     * Display material details.
      */
     public function show(Material $material)
     {
@@ -59,55 +66,67 @@ class MaterialController extends Controller
     }
 
     /**
-     * ✏ Update material
+     * Update material data.
      */
     public function update(Request $request, Material $material)
     {
         $request->validate([
-            'nama_bahan' => 'required|string|max:255|unique:materials,nama_bahan,' . $material->id,
-            'kategori' => 'required|in:pakan,obat',
-            'satuan' => 'required|string|max:50',
-            'pemakaian_rata_rata' => 'nullable|numeric|min:0',
+            'name' => 'required|string|max:255|unique:materials,name,' . $material->id,
+            'category' => 'required|in:feed,medicine',
+            'unit' => 'required|string|max:50',
+            'average_usage' => 'nullable|numeric|min:0',
             'lead_time' => 'nullable|integer|min:0',
             'safety_stock' => 'nullable|integer|min:0',
-            'deskripsi' => 'nullable|string',
+            'description' => 'nullable|string',
         ]);
 
         $material->update([
-            'nama_bahan' => $request->nama_bahan,
-            'kategori' => $request->kategori,
-            'satuan' => $request->satuan,
-            'pemakaian_rata_rata' => $request->pemakaian_rata_rata ?? 0,
+            'name' => $request->name,
+            'category' => $request->category,
+            'unit' => $request->unit,
+            'average_usage' => $request->average_usage ?? 0,
             'lead_time' => $request->lead_time ?? 0,
             'safety_stock' => $request->safety_stock ?? 5,
-            'deskripsi' => $request->deskripsi,
+            'description' => $request->description,
         ]);
 
         if ($request->source === 'inventory') {
-            return back()->with('success', 'Parameter ROP berhasil diperbarui!');
+            return back()->with(
+                'success',
+                'Parameter ROP berhasil diperbarui!'
+            );
         }
-        return redirect()->route('admin.materials.index')
+
+        return redirect()
+            ->route('admin.materials.index')
             ->with('success', 'Material berhasil diperbarui');
     }
 
     /**
-     * ❌ Hapus material
+     * Delete material.
      */
     public function destroy(Material $material)
     {
-        // Cegah hapus jika masih ada stok
-        if ($material->stok > 0) {
-            return redirect()->back()->with('error', 'Material tidak bisa dihapus karena masih memiliki stok');
+        // Prevent deletion when stock still exists
+        if ($material->stock > 0) {
+            return back()->with(
+                'error',
+                'Material tidak bisa dihapus karena masih memiliki stok'
+            );
+        }
+
+        // Prevent deletion when used in formulas
+        if ($material->formulaMaterials()->exists()) {
+            return back()->with(
+                'error',
+                'Material tidak bisa dihapus karena masih digunakan dalam formula'
+            );
         }
 
         $material->delete();
 
-        return redirect()->route('admin.materials.index')
+        return redirect()
+            ->route('admin.materials.index')
             ->with('success', 'Material berhasil dihapus');
     }
-    public function create()
-    {
-        return view('admin.material.create');
-    }
-
 }

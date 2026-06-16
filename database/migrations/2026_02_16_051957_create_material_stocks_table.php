@@ -17,25 +17,24 @@ return new class extends Migration {
                 ->constrained()
                 ->cascadeOnDelete();
 
-            // jumlah batch masuk
-            $table->integer('qty');
+            // Quantity received in the batch
+            $table->integer('quantity');
 
-            // tanggal barang diterima
+            // Date the material was received
             $table->date('received_date');
 
-            // tanggal expired
-            $table->date('expired_date')->nullable();
+            // Material expiration date
+            $table->date('expiration_date')->nullable();
 
-            // harga per unit (optional tapi bagus untuk laporan)
+            // Unit price (optional, useful for reporting)
             $table->decimal('price_per_unit', 12, 2)->nullable();
 
-            // admin yang input
+            // Admin who recorded the stock
             $table->foreignId('created_by')
                 ->constrained('admins');
 
             $table->timestamps();
         });
-
     }
 
     /**

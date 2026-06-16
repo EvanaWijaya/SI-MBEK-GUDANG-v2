@@ -13,11 +13,11 @@ class FormulaMaterial extends Model
     protected $fillable = [
         'formula_id',
         'material_id',
-        'persentase',
+        'percentage',
     ];
 
     /**
-     * Relasi ke formula
+     * Related formula
      */
     public function formula(): BelongsTo
     {
@@ -25,7 +25,7 @@ class FormulaMaterial extends Model
     }
 
     /**
-     * Relasi ke material
+     * Related material
      */
     public function material(): BelongsTo
     {

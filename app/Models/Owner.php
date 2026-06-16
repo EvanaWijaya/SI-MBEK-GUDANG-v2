@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Notifications\OwnerResetPasswordNotification;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
@@ -32,24 +31,30 @@ class Owner extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'must_change_password' => 'boolean',
     ];
 
     /**
-     * Override method untuk kirim notifikasi reset password
+     * Send password reset notification
      */
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new OwnerResetPasswordNotification($token));
     }
 
-    public function purchaseOrders(): MorphMany
+    /**
+     * Purchase orders ordered by owner
+     */
+    public function orderedPurchaseOrders(): MorphMany
     {
-        return $this->morphMany(PurchaseOrder::class, 'dipesan_oleh');
+        return $this->morphMany(PurchaseOrder::class, 'ordered_by');
     }
 
-    public function activities()
+    /**
+     * Activity logs
+     */
+    public function activities(): MorphMany
     {
         return $this->morphMany(ActivityLog::class, 'actor');
     }
-
 }

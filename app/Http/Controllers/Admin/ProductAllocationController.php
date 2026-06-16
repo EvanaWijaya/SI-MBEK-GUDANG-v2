@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Product;
-use App\Models\ProductStock;
-use App\Models\ProductAllocation;
 use App\Models\ActivityLog;
+use App\Models\Product;
+use App\Models\ProductAllocation;
+use App\Models\ProductStock;
 use App\Models\StockMovement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -14,27 +14,26 @@ use Illuminate\Support\Facades\DB;
 class ProductAllocationController extends Controller
 {
     /**
-     * 1️⃣ Simpan / update alokasi stok
+     * Save or update stock allocation
      */
     public function storeOrUpdate(Request $request, Product $product)
     {
-        $validated = $request->validate([
-            'type' => 'required|in:jual,internal',
-            'qty' => 'required|integer|min:0',
+        $request->validate([
+            'type' => 'required|in:sale,internal',
+            'quantity' => 'required|integer|min:0',
         ]);
 
         try {
-            // Ambil alokasi lain (selain type yang sedang diubah)
+
             $allocatedOther = $product->allocations()
                 ->where('type', '!=', $request->type)
-                ->sum('qty');
+                ->sum('quantity');
 
-            $totalAfter = $allocatedOther + $request->qty;
+            $totalAfter = $allocatedOther + $request->quantity;
 
-            // ❗ VALIDASI TOTAL ALOKASI
-            if ($totalAfter > $product->stok) {
+            if ($totalAfter > $product->stock) {
                 return back()->withErrors([
-                    'qty' => 'Total alokasi melebihi stok produk',
+                    'quantity' => 'Total alokasi melebihi stok produk',
                 ]);
             }
 
@@ -44,45 +43,43 @@ class ProductAllocationController extends Controller
                     'type' => $request->type,
                 ],
                 [
-                    'qty' => $request->qty,
+                    'quantity' => $request->quantity,
                     'created_by' => auth('admin')->id(),
                 ]
             );
 
-            $actor = $this->getCurrentActor();
-            if ($actor) {
-                ActivityLog::create([
-                    'actor_id' => $actor->id,
-                    'actor_type' => get_class($actor),
-                    'type' => 'allocation_created',
-                    'module' => 'product_allocation',
-                    'description' => 'Membuat alokasi produk #' . $allocation->id
-                ]);
-            }
+            ActivityLog::create([
+                'actor_id' => auth('admin')->id(),
+                'actor_type' => \App\Models\Admin::class,
+                'type' => 'allocation_created',
+                'module' => 'product_allocation',
+                'description' => 'Membuat alokasi produk #' . $allocation->id,
+            ]);
 
-
-            DB::commit();
-
-            return back()->with('success', 'Alokasi stok berhasil disimpan');
+            return back()->with(
+                'success',
+                'Alokasi stok berhasil disimpan'
+            );
 
         } catch (\Throwable $e) {
-            DB::rollBack();
-            throw $e;
+
+            return back()->withErrors([
+                'quantity' => $e->getMessage(),
+            ]);
         }
     }
 
     /**
-     * 2️⃣ Pemakaian internal
-     * - kurangi stok produk
-     * - kurangi alokasi internal
+     * Process internal product usage
      */
     public function useInternal(Request $request, Product $product)
     {
         $request->validate([
-            'qty' => 'required|integer|min:1',
+            'quantity' => 'required|integer|min:1',
         ]);
 
         try {
+
             DB::transaction(function () use ($product, $request) {
 
                 $allocation = $product->allocations()
@@ -91,142 +88,261 @@ class ProductAllocationController extends Controller
                     ->first();
 
                 if (!$allocation) {
-                    throw new \Exception('Alokasi internal belum tersedia');
+                    throw new \Exception(
+                        'Alokasi internal belum tersedia'
+                    );
                 }
 
-                if ($request->qty > $allocation->qty) {
-                    throw new \Exception('Qty melebihi alokasi internal');
+                if ($request->quantity > $allocation->quantity) {
+                    throw new \Exception(
+                        'Qty melebihi alokasi internal'
+                    );
                 }
 
-                if ($request->qty > $product->stok) {
-                    throw new \Exception('Stok produk tidak mencukupi');
+                if ($request->quantity > $product->stock) {
+                    throw new \Exception(
+                        'Stok produk tidak mencukupi'
+                    );
                 }
 
-                $remainingQty = $request->qty;
+                $remainingQty = $request->quantity;
 
-                /** @var \Illuminate\Database\Eloquent\Collection<int, ProductStock> $batches */
-                $batches = ProductStock::where('product_id', $product->id)
-                    ->where('qty', '>', 0)
-                    ->where(function ($q) {
-                        $q->whereNull('expired_date')
-                            ->orWhere('expired_date', '>=', now());
+                $batches = ProductStock::where(
+                    'product_id',
+                    $product->id
+                )
+                    ->where('quantity', '>', 0)
+                    ->where(function ($query) {
+                        $query->whereNull('expiration_date')
+                            ->orWhere(
+                                'expiration_date',
+                                '>=',
+                                now()
+                            );
                     })
-                    ->orderBy('received_date', 'asc') // FIFO
+                    ->orderBy('received_date', 'asc')
                     ->lockForUpdate()
                     ->get();
 
                 foreach ($batches as $batch) {
 
-                    if ($remainingQty <= 0)
+                    if ($remainingQty <= 0) {
                         break;
+                    }
 
-                    if ($batch->qty >= $remainingQty) {
-                        $batch->decrement('qty', $remainingQty);
+                    if ($batch->quantity >= $remainingQty) {
+
+                        $batch->decrement(
+                            'quantity',
+                            $remainingQty
+                        );
+
                         $remainingQty = 0;
+
                     } else {
-                        $remainingQty -= $batch->qty;
-                        $batch->update(['qty' => 0]);
+
+                        $remainingQty -= $batch->quantity;
+
+                        $batch->update([
+                            'quantity' => 0
+                        ]);
                     }
                 }
 
                 if ($remainingQty > 0) {
-                    throw new \Exception('Batch produk tidak mencukupi');
+                    throw new \Exception(
+                        'Batch produk tidak mencukupi'
+                    );
                 }
 
-                $product->decrement('stok', $request->qty);
-                $allocation->decrement('qty', $request->qty);
+                $product->decrement(
+                    'stock',
+                    $request->quantity
+                );
+
+                $allocation->decrement(
+                    'quantity',
+                    $request->quantity
+                );
 
                 StockMovement::create([
                     'stockable_id' => $product->id,
                     'stockable_type' => Product::class,
                     'type' => 'out',
-                    'quantity' => $request->qty,
-                    'source' => 'pemakaian_internal',
+                    'quantity' => $request->quantity,
+                    'source' => 'internal_usage',
                     'reference_id' => null,
+                    'notes' => 'Pemakaian internal produk',
                     'movement_date' => now(),
+                ]);
+
+                ActivityLog::create([
+                    'actor_id' => auth('admin')->id(),
+                    'actor_type' => \App\Models\Admin::class,
+                    'type' => 'internal_usage',
+                    'module' => 'product_allocation',
+                    'description' => 'Pemakaian internal produk #' . $product->id,
                 ]);
             });
 
-            // 🔔 ROP CHECK
             $product->refresh();
 
-            if ($product->isBelowRop()) {
+            if ($product->isBelowReorderPoint()) {
+
                 return back()->with([
                     'success' => 'Pemakaian internal berhasil',
                     'warning' => '⚠️ Stok produk sudah mencapai batas minimum (ROP)',
                 ]);
             }
 
-            return back()->with('success', 'Pemakaian internal berhasil dicatat');
+            return back()->with(
+                'success',
+                'Pemakaian internal berhasil dicatat'
+            );
 
         } catch (\Throwable $e) {
+
             return back()->withErrors([
-                'qty' => $e->getMessage(),
+                'quantity' => $e->getMessage(),
             ]);
         }
     }
 
-
     /**
-     * 3️⃣ Penjualan produk
-     * - kurangi stok produk
-     * - kurangi alokasi jual
+     * Process product sale
      */
     public function sell(Request $request, Product $product)
     {
         $request->validate([
-            'qty' => 'required|integer|min:1',
+            'quantity' => 'required|integer|min:1',
         ]);
 
         try {
+
             DB::transaction(function () use ($product, $request) {
 
                 $allocation = $product->allocations()
-                    ->where('type', 'jual')
+                    ->where('type', 'sale')
                     ->lockForUpdate()
                     ->first();
 
                 if (!$allocation) {
-                    throw new \Exception('Alokasi jual belum tersedia');
+                    throw new \Exception(
+                        'Alokasi jual belum tersedia'
+                    );
                 }
 
-                if ($request->qty > $allocation->qty) {
-                    throw new \Exception('Qty melebihi alokasi jual');
+                if ($request->quantity > $allocation->quantity) {
+                    throw new \Exception(
+                        'Qty melebihi alokasi jual'
+                    );
                 }
 
-                if ($request->qty > $product->stok) {
-                    throw new \Exception('Stok produk tidak mencukupi');
+                if ($request->quantity > $product->stock) {
+                    throw new \Exception(
+                        'Stok produk tidak mencukupi'
+                    );
                 }
 
-                $product->decrement('stok', $request->qty);
-                $allocation->decrement('qty', $request->qty);
+                $remainingQty = $request->quantity;
+
+                $batches = ProductStock::where(
+                    'product_id',
+                    $product->id
+                )
+                    ->where('quantity', '>', 0)
+                    ->where(function ($query) {
+                        $query->whereNull('expiration_date')
+                            ->orWhere(
+                                'expiration_date',
+                                '>=',
+                                now()
+                            );
+                    })
+                    ->orderBy('received_date', 'asc')
+                    ->lockForUpdate()
+                    ->get();
+
+                foreach ($batches as $batch) {
+
+                    if ($remainingQty <= 0) {
+                        break;
+                    }
+
+                    if ($batch->quantity >= $remainingQty) {
+
+                        $batch->decrement(
+                            'quantity',
+                            $remainingQty
+                        );
+
+                        $remainingQty = 0;
+
+                    } else {
+
+                        $remainingQty -= $batch->quantity;
+
+                        $batch->update([
+                            'quantity' => 0
+                        ]);
+                    }
+                }
+
+                if ($remainingQty > 0) {
+                    throw new \Exception(
+                        'Batch produk tidak mencukupi'
+                    );
+                }
+
+                $product->decrement(
+                    'stock',
+                    $request->quantity
+                );
+
+                $allocation->decrement(
+                    'quantity',
+                    $request->quantity
+                );
 
                 StockMovement::create([
                     'stockable_id' => $product->id,
                     'stockable_type' => Product::class,
                     'type' => 'out',
-                    'quantity' => $request->qty,
-                    'source' => 'jual',
+                    'quantity' => $request->quantity,
+                    'source' => 'sale',
                     'reference_id' => null,
+                    'notes' => 'Penjualan produk',
                     'movement_date' => now(),
+                ]);
+
+                ActivityLog::create([
+                    'actor_id' => auth('admin')->id(),
+                    'actor_type' => \App\Models\Admin::class,
+                    'type' => 'sale',
+                    'module' => 'product_allocation',
+                    'description' => 'Penjualan produk #' . $product->id,
                 ]);
             });
 
-            // 🔔 ROP CHECK
             $product->refresh();
 
-            if ($product->isBelowRop()) {
+            if ($product->isBelowReorderPoint()) {
+
                 return back()->with([
                     'success' => 'Penjualan berhasil',
                     'warning' => '⚠️ Stok produk sudah mencapai batas minimum (ROP)',
                 ]);
             }
 
-            return back()->with('success', 'Penjualan berhasil dicatat');
+            return back()->with(
+                'success',
+                'Penjualan berhasil dicatat'
+            );
 
         } catch (\Throwable $e) {
+
             return back()->withErrors([
-                'qty' => $e->getMessage(),
+                'quantity' => $e->getMessage(),
             ]);
         }
     }

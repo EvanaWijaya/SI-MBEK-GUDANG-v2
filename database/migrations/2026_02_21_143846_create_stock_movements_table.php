@@ -22,12 +22,12 @@ return new class extends Migration {
             $table->decimal('quantity', 10, 2);
 
             $table->string('source')->nullable();
-            // PO, Production, Sale, Adjustment
+            // Purchase Order, Production, Sale, Adjustment
 
             $table->unsignedBigInteger('reference_id')->nullable();
-            // id PO, id Production, id Order dll
+            // Related transaction ID
 
-            $table->string('catatan')->nullable();
+            $table->string('notes')->nullable();
 
             $table->timestamp('movement_date')->useCurrent();
 

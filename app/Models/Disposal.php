@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Disposal extends Model
 {
@@ -19,17 +21,17 @@ class Disposal extends Model
     ];
 
     /**
-     * Relasi polymorphic
+     * Related disposable entity
      */
-    public function disposable()
+    public function disposable(): MorphTo
     {
         return $this->morphTo();
     }
 
     /**
-     * Admin yang melakukan disposal
+     * Admin who recorded the disposal
      */
-    public function admin()
+    public function admin(): BelongsTo
     {
         return $this->belongsTo(Admin::class, 'created_by');
     }

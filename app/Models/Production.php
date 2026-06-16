@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Production extends Model
 {
@@ -15,18 +15,18 @@ class Production extends Model
     protected $fillable = [
         'product_id',
         'formula_id',
-        'qty_produksi',
+        'production_quantity',
         'qc_status',
         'qc_percentage',
         'qc_threshold',
         'production_date',
-        'expired_date',
+        'expiration_date',
         'status',
         'created_by',
     ];
 
     /* =======================
-     |  RELATIONS
+     | RELATIONS
      ======================= */
 
     public function formula(): BelongsTo
@@ -34,7 +34,6 @@ class Production extends Model
         return $this->belongsTo(Formula::class);
     }
 
-    // ✅ PRODUK JADI (BENAR)
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
@@ -45,23 +44,37 @@ class Production extends Model
         return $this->belongsTo(Admin::class, 'created_by');
     }
 
-    /* =======================
-     |  HELPERS
-     ======================= */
-
-    public function isDiproses(): bool
-    {
-        return $this->status === 'diproses';
-    }
-
-    public function isSelesai(): bool
-    {
-        return $this->status === 'selesai';
-    }
-
-    public function disposals()
+    public function disposals(): MorphMany
     {
         return $this->morphMany(Disposal::class, 'disposable');
     }
 
+    /* =======================
+     | HELPERS
+     ======================= */
+
+    public function isProgress(): bool
+    {
+        return $this->status === 'progress';
+    }
+
+    public function isCompleted(): bool
+    {
+        return $this->status === 'completed';
+    }
+
+    public function isRejected(): bool
+    {
+        return $this->status === 'rejected';
+    }
+
+    public function isQcPassed(): bool
+    {
+        return $this->qc_status === 'passed';
+    }
+
+    public function isQcFailed(): bool
+    {
+        return $this->qc_status === 'failed';
+    }
 }

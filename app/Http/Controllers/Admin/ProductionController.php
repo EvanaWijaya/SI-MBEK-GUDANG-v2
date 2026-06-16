@@ -17,17 +17,14 @@ use Illuminate\Support\Facades\DB;
 class ProductionController extends Controller
 {
     /**
-     * 1️⃣ Buat produksi (status: diproses)
-     * - validasi formula & produk
-     * - cek stok bahan baku
-     * - kurangi stok bahan baku
+     * Create new production process
      */
     public function store(Request $request)
     {
         $request->validate([
             'formula_id' => 'required|exists:formulas,id',
             'product_id' => 'required|exists:products,id',
-            'qty_produksi' => 'required|numeric|min:1',
+            'production_quantity' => 'required|numeric|min:1',
         ]);
 
         $formula = Formula::with('materials')->findOrFail($request->formula_id);
@@ -46,14 +43,14 @@ class ProductionController extends Controller
         DB::beginTransaction();
 
         try {
-            // 🔍 CEK STOK BAHAN BAKU
+            // Validate material availability
             foreach ($formula->materials as $material) {
-                $kebutuhan = $request->qty_produksi
-                    * ($material->pivot->persentase / 100);
+                $kebutuhan = $request->production_quantity
+                    * ($material->pivot->percentage / 100);
 
-                if ($material->stok < $kebutuhan) {
+                if ($material->stock < $kebutuhan) {
                     throw new \Exception(
-                        "Stok bahan {$material->nama_bahan} tidak mencukupi"
+                        "Stok bahan {$material->material_name} tidak mencukupi"
                     );
                 }
             }
@@ -62,27 +59,27 @@ class ProductionController extends Controller
             $production = Production::create([
                 'formula_id' => $formula->id,
                 'product_id' => $product->id,
-                'qty_produksi' => $request->qty_produksi,
+                'production_quantity' => $request->production_quantity,
                 'production_date' => now(),
-                'status' => 'diproses',
+                'status' => 'progress',
                 'created_by' => auth('admin')->id(),
             ]);
 
-            // 📉 KURANGI STOK BAHAN BAKU (FIFO)
+            // Deduct material stock using FIFO method
             foreach ($formula->materials as $material) {
 
-                $kebutuhan = $request->qty_produksi
-                    * ($material->pivot->persentase / 100);
+                $kebutuhan = $request->production_quantity
+                    * ($material->pivot->percentage / 100);
 
                 $remainingQty = $kebutuhan;
 
                 // Ambil batch paling lama dulu (FIFO)
                 /** @var \Illuminate\Database\Eloquent\Collection<int, MaterialStock> $batches */
                 $batches = MaterialStock::where('material_id', $material->id)
-                    ->where('qty', '>', 0)
+                    ->where('quantity', '>', 0)
                     ->where(function ($q) {
-                        $q->whereNull('expired_date')
-                            ->orWhere('expired_date', '>=', now());
+                        $q->whereNull('expiration_date')
+                            ->orWhere('expiration_date', '>=', now());
                     })
                     ->orderBy('received_date', 'asc') // FIFO
                     ->lockForUpdate()
@@ -94,25 +91,25 @@ class ProductionController extends Controller
                     if ($remainingQty <= 0)
                         break;
 
-                    if ($batch->qty >= $remainingQty) {
-                        // Batch cukup
-                        $batch->decrement('qty', $remainingQty);
+                    if ($batch->quantity >= $remainingQty) {
+                        // Current batch is sufficient
+                        $batch->decrement('quantity', $remainingQty);
                         $remainingQty = 0;
                     } else {
-                        // Batch tidak cukup → habiskan batch
-                        $remainingQty -= $batch->qty;
-                        $batch->update(['qty' => 0]);
+                        // Consume entire batch and continue
+                        $remainingQty -= $batch->quantity;
+                        $batch->update(['quantity' => 0]);
                     }
                 }
 
                 if ($remainingQty > 0) {
                     throw new \Exception(
-                        "Batch bahan {$material->nama_bahan} tidak mencukupi"
+                        "Batch bahan {$material->material_name} tidak mencukupi"
                     );
                 }
 
-                // Tetap kurangi stok summary
-                $material->stok = $material->materialStocks()->sum('qty');
+                // Synchronize material stock summary
+                $material->stock = $material->materialStocks()->sum('quantity');
                 $material->save();
 
                 StockMovement::create([
@@ -142,7 +139,7 @@ class ProductionController extends Controller
             DB::commit();
 
             return redirect()->route('admin.productions.index')
-        ->with('success', 'Proses produksi berhasil dimulai. Silakan lanjutkan ke tahap QC.');
+                ->with('success', 'Proses produksi berhasil dimulai. Silakan lanjutkan ke tahap QC.');
 
         } catch (\Throwable $e) {
             DB::rollBack();
@@ -155,7 +152,7 @@ class ProductionController extends Controller
 
     public function qc(Request $request, Production $production)
     {
-        if ($production->status !== 'diproses') {
+        if ($production->status !== 'progress') {
             return back()->withErrors([
                 'status' => 'Produksi tidak dalam status diproses',
             ]);
@@ -168,14 +165,14 @@ class ProductionController extends Controller
 
         $totalNonCritical = 0;
         $lulusNonCritical = 0;
-        $status = 'layak';
+        $status = 'passed';
 
         foreach ($request->indicators as $indicatorId => $result) {
             $indicator = \App\Models\QcIndicator::findOrFail($indicatorId);
 
             // Jika indikator critical gagal → langsung tidak layak
-            if ($indicator->is_critical && $result === 'gagal') {
-                $status = 'tidak_layak';
+            if ($indicator->is_critical && $result === 'failed') {
+                $status = 'failed';
             }
 
             // Hitung non critical untuk persentase
@@ -194,21 +191,21 @@ class ProductionController extends Controller
 
         // Jika persentase di bawah threshold → tidak layak
         if ($percentage < $request->qc_threshold) {
-            $status = 'tidak_layak';
+            $status = 'failed';
         }
 
         DB::transaction(function () use ($production, $status, $percentage, $request) {
 
-            // Update production (hasil QC)
+            // Update production QC result
             $production->update([
                 'qc_status' => $status,
                 'qc_percentage' => $percentage,
                 'qc_threshold' => $request->qc_threshold,
-                'status'        => $status === 'layak' ? 'diproses' : 'rejected',
+                'status' => $status === 'passed' ? 'completed' : 'rejected',
             ]);
 
-            // Simpan log QC
-            \App\Models\ProductionQc::create([
+            // Store QC record
+            ProductionQc::create([
                 'production_id' => $production->id,
                 'status' => $status,
                 'score_non_kritis' => $percentage,
@@ -217,17 +214,17 @@ class ProductionController extends Controller
                 'created_by' => auth('admin')->id(),
             ]);
 
-            // 🔥 AUTO DISPOSAL JIKA QC GAGAL
-            if ($status === 'tidak_layak') {
+            // Automatically create disposal for failed QC
+            if ($status === 'failed') {
 
                 $production->disposals()->create([
-                    'quantity' => $production->qty_produksi,
+                    'quantity' => $production->production_quantity,
                     'reason' => 'qc_failed',
                     'notes' => 'Otomatis dibuang karena tidak lolos Quality Control',
                     'created_by' => auth('admin')->id(),
                 ]);
 
-                // Ubah status produksi jadi rejected
+                // Mark production as rejected
                 $production->update([
                     'status' => 'rejected',
                 ]);
@@ -239,14 +236,14 @@ class ProductionController extends Controller
             ->with('success', 'QC berhasil disimpan');
     }
 
-   public function selesai(Request $request, Production $production)
-{
-    // 1. Validasi Input Tanggal
-    $request->validate([
-        'expired_date' => 'required|date|after:today',
-    ]);
+    public function selesai(Request $request, Production $production)
+    {
+        // Validate expiration date
+        $request->validate([
+            'expiration_date' => 'required|date|after:today',
+        ]);
 
-        if ($production->status === 'selesai') {
+        if ($production->status === 'completed') {
             return back()->withErrors([
                 'status' => 'Produksi sudah selesai',
             ]);
@@ -264,7 +261,7 @@ class ProductionController extends Controller
             ]);
         }
 
-        if ($production->qc_status !== 'layak') {
+        if ($production->qc_status !== 'passed') {
             return back()->withErrors([
                 'qc' => 'Produksi tidak layak untuk diselesaikan',
             ]);
@@ -274,42 +271,42 @@ class ProductionController extends Controller
 
         try {
 
-        // 2. Update Tanggal Expired di Tabel Productions
-        $production->update([
-            'status' => 'selesai',
-            'expired_date' => $request->expired_date,
-        ]);
+            // Update production expiration date
+            $production->update([
+                'status' => 'completed',
+                'expiration_date' => $request->expiration_date,
+            ]);
 
-            // 1️⃣ Tambah stok summary
+            // Increase product stock summary
             $production->product->increment(
-                'stok',
-                $production->qty_produksi
+                'stock',
+                $production->production_quantity
             );
 
-            // 2️⃣ INSERT KE PRODUCT_STOCKS (BATCH)
+            // Create product stock batch
             ProductStock::create([
                 'product_id' => $production->product_id,
-                'qty' => $production->qty_produksi,
+                'quantity' => $production->production_quantity,
                 'source' => 'production',
                 'reference_id' => $production->id,
                 'received_date' => $production->production_date ?? now(),
-                'expired_date' => $request->expired_date,
+                'expiration_date' => $request->expiration_date,
             ]);
 
-            // 3️⃣ Stock movement log
+            // Record stock movement
             StockMovement::create([
                 'stockable_id' => $production->product->id,
                 'stockable_type' => Product::class,
                 'type' => 'in',
-                'quantity' => $production->qty_produksi,
+                'quantity' => $production->production_quantity,
                 'source' => 'production',
                 'reference_id' => $production->id,
                 'movement_date' => now(),
             ]);
 
-            // 4️⃣ Update status produksi
+            // Mark production as completed
             $production->update([
-                'status' => 'selesai',
+                'status' => 'completed',
             ]);
 
             DB::commit();
@@ -326,9 +323,6 @@ class ProductionController extends Controller
                 ]);
             }
 
-
-            DB::commit();
-
             return back()->with('success', 'Produksi selesai & stok produk bertambah');
 
         } catch (\Throwable $e) {
@@ -336,66 +330,68 @@ class ProductionController extends Controller
             throw $e;
         }
     }
-/** 
- * Route: GET /admin/productions  →  admin.productions.index
- */
-public function index()
-{
-    $productions = Production::with(['product', 'formula'])
-        ->latest()
-        ->get();
 
-    return view('admin.production.index', compact('productions'));
-}
+    public function index()
+    {
+        $productions = Production::with(['product', 'formula'])
+            ->latest()
+            ->get();
 
-//Form buat produksi baru//
-public function create()
-{
-    $formulas = Formula::where('is_active', true)->get();
-
-    // Map formula_id → list produk (untuk JS dynamic dropdown)
-    $formulaProducts = [];
-    $formulaMaterials = [];
-
-    foreach ($formulas as $formula) {
-        // Produk yang punya formula_id ini
-        $formulaProducts[$formula->id] = Product::where('formula_id', $formula->id)
-            ->select('id', 'kode', 'nama')
-            ->get()
-            ->toArray();
-
-        // Komposisi bahan untuk preview
-        $formulaMaterials[$formula->id] = $formula->materials
-            ->map(fn($m) => [
-                'nama_bahan'  => $m->nama_bahan,
-                'satuan'      => $m->satuan,
-                'persentase'  => $m->pivot->persentase,
-            ])
-            ->toArray();
+        return view('admin.production.index', compact('productions'));
     }
 
-    return view('admin.production.create', compact(
-        'formulas',
-        'formulaProducts',
-        'formulaMaterials'
-    ));
-}
+    // Display production creation form
+    public function create()
+    {
+        $formulas = Formula::where('is_active', true)->get();
 
-public function show(Production $production)
-{
-    // PENTING: eager load formula->materials dengan pivot (persentase)
-    $production->load([
-        'product',
-        'formula.materials', // ini yang bikin komposisi bahan muncul
-    ]);
+        // Map formula_id → list produk (untuk JS dynamic dropdown)
+        $formulaProducts = [];
+        $formulaMaterials = [];
 
-    $qcIndicators = \App\Models\QcIndicator::active()
-        ->orderBy('is_critical', 'desc')
-        ->orderBy('name', 'asc')
-        ->get();
+        foreach ($formulas as $formula) {
+            // Produk yang punya formula_id ini
+            $formulaProducts[$formula->id] = Product::where('formula_id', $formula->id)
+                ->select(
+                    'id',
+                    'product_code',
+                    'product_name'
+                )
+                ->get()
+                ->toArray();
 
-    return view('admin.production.show', compact('production', 'qcIndicators'));
-}
+            // Komposisi bahan untuk preview
+            $formulaMaterials[$formula->id] = $formula->materials
+                ->map(fn($m) => [
+                    'material_name' => $m->material_name,
+                    'satuan' => $m->unit,
+                    'percentage' => $m->pivot->percentage,
+                ])
+                ->toArray();
+        }
+
+        return view('admin.production.create', compact(
+            'formulas',
+            'formulaProducts',
+            'formulaMaterials'
+        ));
+    }
+
+    public function show(Production $production)
+    {
+        // Eager load production relations and material composition
+        $production->load([
+            'product',
+            'formula.materials',
+        ]);
+
+        $qcIndicators = \App\Models\QcIndicator::active()
+            ->orderBy('is_critical', 'desc')
+            ->orderBy('name', 'asc')
+            ->get();
+
+        return view('admin.production.show', compact('production', 'qcIndicators'));
+    }
 
 }
 

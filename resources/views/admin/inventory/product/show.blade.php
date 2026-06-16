@@ -11,17 +11,17 @@
             </a>
             <div class="flex-1 min-w-0">
                 <div class="flex flex-wrap items-center gap-2">
-                    <h1 class="text-2xl font-bold text-gray-800">{{ $product->nama }}</h1>
-                    <span class="font-mono text-sm text-gray-400">{{ $product->kode }}</span>
+                    <h1 class="text-2xl font-bold text-gray-800">{{ $product->product_name }}</h1>
+                    <span class="font-mono text-sm text-gray-400">{{ $product->product_code }}</span>
                     <span class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold
-                        {{ $product->type === 'pakan' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700' }}">
-                        {{ ucfirst($product->type) }}
+                        {{ $product->category === 'pakan' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700' }}">
+                        {{ ucfirst($product->category) }}
                     </span>
                     <span class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold
                         {{ $product->source === 'produksi' ? 'bg-orange-100 text-orange-700' : 'bg-purple-100 text-purple-700' }}">
                         {{ ucfirst($product->source) }}
                     </span>
-                    @if($product->isBelowRop())
+                    @if($product->isBelowReorderPoint())
                         <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200">
                             <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
                             Di Bawah ROP
@@ -34,9 +34,9 @@
 
         {{-- Shared vars untuk semua partials --}}
         @php
-            $belowRop  = $product->isBelowRop();
-            $qJual     = $allocations->where('type', 'jual')->first()?->qty ?? 0;
-            $qInternal = $allocations->where('type', 'internal')->first()?->qty ?? 0;
+            $belowRop  = $product->isBelowReorderPoint();
+            $qJual     = $allocations->where('type', 'sale')->first()?->quantity ?? 0;
+            $qInternal = $allocations->where('type', 'internal')->first()?->quantity ?? 0;
             $activeTab = request('tab', 'overview');
         @endphp
 
@@ -56,7 +56,7 @@
                             ? 'border-orange-500 text-orange-600 bg-white'
                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
                     {{ $tab['label'] }}
-                    @if($key === 'alokasi' && ($qJual + $qInternal) > $product->stok)
+                    @if($key === 'alokasi' && ($qJual + $qInternal) > $product->stock)
                         <span class="ml-1 inline-flex w-2 h-2 bg-red-500 rounded-full"></span>
                     @endif
                     @if($key === 'overview' && $belowRop)

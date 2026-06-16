@@ -4,7 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
@@ -15,13 +16,15 @@ return new class extends Migration {
 
             // Polymorphic relation
             $table->morphs('disposable');
-            // menghasilkan:
+            // Generates:
             // disposable_id
             // disposable_type
 
             $table->integer('quantity');
+
+            // Disposal reason:
+            // qc_failed, expired
             $table->string('reason');
-            // contoh: qc_failed, expired, damaged, contamination
 
             $table->text('notes')->nullable();
 
@@ -31,7 +34,6 @@ return new class extends Migration {
 
             $table->timestamps();
         });
-
     }
 
     /**

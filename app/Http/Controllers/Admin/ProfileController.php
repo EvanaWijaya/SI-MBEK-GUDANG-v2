@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\AdminProfileUpdateRequest;
+use Illuminate\Support\Facades\Storage;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -34,7 +34,7 @@ class ProfileController extends Controller
         // Validasi input manual karena kita menambahkan profile_picture
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:admins,email,'.$admin->id],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:admins,email,' . $admin->id],
             'profile_picture' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'], // Maks 2MB
         ]);
 
@@ -56,10 +56,10 @@ class ProfileController extends Controller
 
             $file = $request->file('profile_picture');
             $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-            
+
             // Simpan ke storage/app/public/admin_avatars
             $file->storeAs('admin_avatars', $fileName, 'public');
-            
+
             $admin->profile_picture = $fileName;
         }
 

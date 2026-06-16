@@ -21,26 +21,26 @@
             @csrf
             
             {{-- Kategori Otomatis diset "pakan" secara tersembunyi --}}
-            <input type="hidden" name="kategori" value="pakan">
+            <input type="hidden" name="category" value="pakan">
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {{-- Kolom Kiri --}}
                 <div>
                     {{-- Input Nama Bahan --}}
-                    <label class="block font-bold mb-2 {{ $errors->has('nama_bahan') ? 'text-red-600' : 'text-gray-700' }}">Nama Bahan</label>
-                    <input type="text" name="nama_bahan" value="{{ old('nama_bahan') }}" 
-                        class="w-full border {{ $errors->has('nama_bahan') ? 'border-red-400 bg-red-50 text-red-900 focus:ring-red-500 focus:border-red-400' : 'border-gray-300 focus:ring-orange-500 focus:border-brand-orange' }} rounded-lg p-2.5 text-sm transition-all" 
+                    <label class="block font-bold mb-2 {{ $errors->has('material_name') ? 'text-red-600' : 'text-gray-700' }}">Nama Bahan</label>
+                    <input type="text" name="material_name" value="{{ old('material_name') }}" 
+                        class="w-full border {{ $errors->has('material_name') ? 'border-red-400 bg-red-50 text-red-900 focus:ring-red-500 focus:border-red-400' : 'border-gray-300 focus:ring-orange-500 focus:border-brand-orange' }} rounded-lg p-2.5 text-sm transition-all" 
                         placeholder="Contoh: Jagung Giling" required>
-                    @error('nama_bahan')
+                    @error('material_name')
                         <p class="mt-1 text-xs text-red-500 font-semibold">{{ $message }}</p>
                     @enderror
                     
                     {{-- Input Satuan --}}
-                    <label class="block font-bold mt-4 mb-2 {{ $errors->has('satuan') ? 'text-red-600' : 'text-gray-700' }}">Satuan</label>
-                    <input type="text" name="satuan" value="{{ old('satuan') }}" 
-                        class="w-full border {{ $errors->has('satuan') ? 'border-red-400 bg-red-50 text-red-900 focus:ring-red-500 focus:border-red-400' : 'border-gray-300 focus:ring-orange-500 focus:border-brand-orange' }} rounded-lg p-2.5 text-sm transition-all" 
+                    <label class="block font-bold mt-4 mb-2 {{ $errors->has('unit') ? 'text-red-600' : 'text-gray-700' }}">Satuan</label>
+                    <input type="text" name="unit" value="{{ old('unit') }}" 
+                        class="w-full border {{ $errors->has('unit') ? 'border-red-400 bg-red-50 text-red-900 focus:ring-red-500 focus:border-red-400' : 'border-gray-300 focus:ring-orange-500 focus:border-brand-orange' }} rounded-lg p-2.5 text-sm transition-all" 
                         placeholder="kg, karung, liter" required>
-                    @error('satuan')
+                    @error('unit')
                         <p class="mt-1 text-xs text-red-500 font-semibold">{{ $message }}</p>
                     @enderror
                 </div>

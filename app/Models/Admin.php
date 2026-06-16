@@ -32,10 +32,12 @@ class Admin extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'must_change_password' => 'boolean',
+        'password' => 'hashed',
     ];
 
     /**
-     * Helper method untuk cek apakah super admin
+     * Check if admin is super admin
      */
     public function isSuperAdmin(): bool
     {
@@ -43,7 +45,7 @@ class Admin extends Authenticatable
     }
 
     /**
-     * Helper method untuk cek apakah admin biasa
+     * Check if admin is regular admin
      */
     public function isAdmin(): bool
     {
@@ -51,32 +53,42 @@ class Admin extends Authenticatable
     }
 
     /**
-     * Override method untuk kirim notifikasi reset password
+     * Send password reset notification
      */
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new AdminResetPasswordNotification($token));
     }
 
-    public function purchaseOrders(): MorphMany
+    /**
+     * Purchase Orders ordered by this admin
+     */
+    public function orderedPurchaseOrders(): MorphMany
     {
-        return $this->morphMany(PurchaseOrder::class, 'dipesan_oleh');
+        return $this->morphMany(PurchaseOrder::class, 'ordered_by');
     }
 
-    public function purchaseOrdersDicatat(): HasMany
+    /**
+     * Purchase Orders recorded by this admin
+     */
+    public function recordedPurchaseOrders(): MorphMany
     {
-        return $this->hasMany(PurchaseOrder::class, 'dicatat_oleh');
+        return $this->morphMany(PurchaseOrder::class, 'recorded_by');
     }
 
+    /**
+     * Productions created by this admin
+     */
     public function productions(): HasMany
     {
-        return $this->hasMany(Production::class, 'dicatat_oleh');
+        return $this->hasMany(Production::class, 'created_by');
     }
 
-    public function activities()
+    /**
+     * Activity logs
+     */
+    public function activities(): MorphMany
     {
         return $this->morphMany(ActivityLog::class, 'actor');
     }
-
-
 }

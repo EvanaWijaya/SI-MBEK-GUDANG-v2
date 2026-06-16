@@ -12,17 +12,24 @@ use App\Notifications\CustomResetPassword;
 class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable;
-    public function kambing()
+
+    /* ==========================
+     | RELATIONSHIPS
+     ========================== */
+
+    public function kambings()
     {
         return $this->hasMany(Kambing::class);
     }
 
-    public function domba()
+    public function dombas()
     {
         return $this->hasMany(Domba::class);
     }
 
-
+    /* ==========================
+     | NOTIFICATIONS
+     ========================== */
 
     public function sendEmailVerificationNotification()
     {
@@ -34,48 +41,39 @@ class User extends Authenticatable implements MustVerifyEmail
         $this->notify(new CustomResetPassword($token));
     }
 
+    /* ==========================
+     | MASS ASSIGNABLE
+     ========================== */
 
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name',
         'email',
-        'alamat',
-        'no_telepon',
-        'password',
-        'provinsi',
-        'kota',
+        'province',
+        'city',
+        'address',
+        'phone_number',
         'profile_picture',
+        'password',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
+    /* ==========================
+     | HIDDEN
+     ========================== */
+
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
+    /* ==========================
+     | CASTS
+     ========================== */
+
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
-    }
-    public function kambings()
-    {
-        return $this->hasMany(Kambing::class);
     }
 }

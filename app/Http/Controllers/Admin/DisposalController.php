@@ -6,24 +6,26 @@ use App\Http\Controllers\Controller;
 use App\Models\MaterialStock;
 use App\Models\ProductStock;
 use App\Models\Production;
-use App\Models\Disposal;
+use Illuminate\Validation\Rule;
 use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class DisposalController extends Controller
 {
-    /**
-     * 🔥 Manual Disposal - Material (Batch)
-     */
+    //🔥 Manual Disposal - Material (Batch)//
     public function disposeMaterial(Request $request, MaterialStock $stock)
     {
         $request->validate([
-            'reason' => 'required|string|max:255',
-            'notes'  => 'nullable|string' // Pastikan notes divalidasi
+            'reason' => [
+                'required',
+                Rule::in([
+                    'expired',
+                    'qc_failed'
+                ]),
+            ],
+            'notes' => 'nullable|string'
         ]);
-
-        // HAPUS: $disposal = Disposal::create($validated); <- Ini yang bikin error SQL
 
         if ($stock->qty <= 0) {
             return back()->withErrors([
@@ -36,24 +38,24 @@ class DisposalController extends Controller
         try {
             $qty = $stock->qty;
 
-            // 💡 LOGIKA CATATAN OTOMATIS
+            // 💡 Otomatic Logic Notes
             $notes = $request->notes;
             if ($request->reason === 'expired') {
                 $notes = 'Otomatis dibuang karena batch bahan ini sudah melewati masa kadaluarsa (Expired).';
             }
 
-            // Simpan ke disposals (polymorphic) DENGAN BENAR
-            $disposal = $stock->disposals()->create([
+            // Store to disposals (polymorphic) PROPERLY
+            $stock->disposals()->create([
                 'quantity' => $qty,
                 'reason' => $request->reason,
-                'notes'      => $notes,
+                'notes' => $notes,
                 'created_by' => auth('admin')->id(),
             ]);
 
-            // Kurangi stok summary di materials
+            // Reduce stock summary in materials
             $stock->material->decrement('stok', $qty);
 
-            // Habisin batch
+            // Finish the batch
             $stock->update([
                 'qty' => 0
             ]);
@@ -65,8 +67,7 @@ class DisposalController extends Controller
                     'actor_type' => get_class($actor),
                     'type' => 'disposal_created',
                     'module' => 'disposal',
-                    // FIX: pakai material->nama_bahan, bukan product->kode karena ini bahan baku
-                    'description' => 'Membuat disposal untuk bahan ' . $stock->material->nama_bahan
+                    'description' => 'Membuat disposal untuk bahan ' . $stock->material->name
                 ]);
             }
 
@@ -82,17 +83,21 @@ class DisposalController extends Controller
         }
     }
 
-    /**
-     * 🔥 Manual Disposal - Production (Produk Jadi)
-     */
+    //🔥 Manual Disposal - Production//
     public function disposeProduction(Request $request, Production $production)
     {
         $request->validate([
-            'reason' => 'required|string|max:255',
-            'notes'  => 'nullable|string',
+            'reason' => [
+                'required',
+                Rule::in([
+                    'expired',
+                    'qc_failed'
+                ]),
+            ],
+            'notes' => 'nullable|string',
         ]);
 
-        // Cari batch stok produk yang sesuai dengan ID produksi ini
+        // Search for a product stock batch that matches this production ID
         $batch = ProductStock::where('source', 'production')
             ->where('reference_id', $production->id)
             ->first();
@@ -106,30 +111,30 @@ class DisposalController extends Controller
         DB::beginTransaction();
 
         try {
-            // FIX: Gunakan sisa qty di BATCH, bukan total awal produksi
-            $qty = $batch->qty; 
+            // FIX: Use remaining qty in BATCH, not initial production total
+            $qty = $batch->qty;
 
-            // 💡 LOGIKA CATATAN OTOMATIS
+            // 💡 AUTOMATIC NOTE LOGIC
             $notes = $request->notes;
             if ($request->reason === 'expired') {
                 $notes = 'Otomatis dibuang karena produk ini sudah melewati masa kadaluarsa (Expired).';
             }
 
-            // Simpan disposal
-            $disposal = $production->disposals()->create([
+            // Save disposal
+            $production->disposals()->create([
                 'quantity' => $qty,
                 'reason' => $request->reason,
-                'notes'      => $notes,
+                'notes' => $notes,
                 'created_by' => auth('admin')->id(),
             ]);
 
-            // Kurangi stok utama produk
+            // Reduce the main stock of the product
             $production->product->decrement('stok', $qty);
 
-            // Nol-kan qty di tabel batch
+            // Zero out qty in batch table
             $batch->update(['qty' => 0]);
 
-            // Update status produksi jadi rejected
+            // Production status update is rejected
             $production->update([
                 'status' => 'rejected',
             ]);
@@ -157,14 +162,18 @@ class DisposalController extends Controller
         }
     }
 
-    /**
-     * 🔥 Manual Disposal - Product (Batch)
-     */
+    //🔥 Manual Disposal - Product (Batch)//
     public function disposeProductBatch(Request $request, ProductStock $stock)
     {
         $request->validate([
-            'reason' => 'required|string|max:255',
-            'notes'  => 'nullable|string'
+            'reason' => [
+                'required',
+                Rule::in([
+                    'expired',
+                    'qc_failed'
+                ]),
+            ],
+            'notes' => 'nullable|string'
         ]);
 
         if ($stock->qty <= 0) {
@@ -184,17 +193,17 @@ class DisposalController extends Controller
             }
 
             // Simpan ke disposals
-            $disposal = $stock->disposals()->create([
-                'quantity'   => $qty,
-                'reason'     => $request->reason,
-                'notes'      => $notes,
+            $stock->disposals()->create([
+                'quantity' => $qty,
+                'reason' => $request->reason,
+                'notes' => $notes,
                 'created_by' => auth('admin')->id(),
             ]);
 
-            // Kurangi stok utama produk
+            // Reduce the main stock of the product
             $stock->product->decrement('stok', $qty);
 
-            // Habisin batch
+            // Finish the batch
             $stock->update([
                 'qty' => 0
             ]);
@@ -202,10 +211,10 @@ class DisposalController extends Controller
             $actor = $this->getCurrentActor();
             if ($actor) {
                 ActivityLog::create([
-                    'actor_id'    => $actor->id,
-                    'actor_type'  => get_class($actor),
-                    'type'        => 'disposal_created',
-                    'module'      => 'disposal',
+                    'actor_id' => $actor->id,
+                    'actor_type' => get_class($actor),
+                    'type' => 'disposal_created',
+                    'module' => 'disposal',
                     'description' => 'Membuat disposal untuk produk ' . $stock->product->nama
                 ]);
             }

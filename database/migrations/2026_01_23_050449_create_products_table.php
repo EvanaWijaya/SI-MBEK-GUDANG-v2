@@ -10,32 +10,33 @@ return new class extends Migration {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
 
-            $table->string('kode')->unique();
-            $table->string('nama');
+            $table->string('product_code')->unique();
+            $table->string('product_name');
+            $table->text('description')->nullable();
 
-            //harga jual
-            $table->decimal('harga', 12, 2)->nullable();
+            // Selling price
+            $table->decimal('selling_price', 12, 2)->nullable();
 
-            // stok produk jadi (kg)
-            $table->decimal('stok', 10, 2)->default(0);
+            // Finished product stock (kg)
+            $table->decimal('stock', 10, 2)->default(0);
 
-            //ROP
-            $table->integer('rop')
+            // Reorder Point (ROP)
+            $table->integer('reorder_point')
                 ->default(0);
 
-            // relasi ke formula
+            // Related formula
             $table->foreignId('formula_id')
                 ->nullable()
                 ->constrained('formulas')
                 ->nullOnDelete();
 
-            //Tipe Produk
-            $table->enum('type', ['pakan', 'obat']);
+            // Product type
+            $table->enum('category', ['pakan', 'obat']);
 
-            //Sumber produk
-            $table->enum('source', ['produksi', 'pembelian']);
+            // Product source
+            $table->enum('source', ['production', 'purchase']);
 
-            // siapa admin yg buat data produk
+            // Admin who created the product
             $table->foreignId('created_by')
                 ->constrained('admins')
                 ->cascadeOnDelete();

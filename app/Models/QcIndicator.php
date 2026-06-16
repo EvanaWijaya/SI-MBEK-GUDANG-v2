@@ -15,23 +15,34 @@ class QcIndicator extends Model
         'is_active',
     ];
 
+    protected $casts = [
+        'is_critical' => 'boolean',
+        'is_active' => 'boolean',
+    ];
+
     /* =====================
-     |  SCOPES
+     | SCOPES
      ===================== */
 
-    // hanya indikator aktif
+    /**
+     * Active indicators
+     */
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
     }
 
-    // indikator kritis
+    /**
+     * Critical indicators
+     */
     public function scopeCritical($query)
     {
         return $query->where('is_critical', true);
     }
 
-    // indikator non-kritis
+    /**
+     * Non-critical indicators
+     */
     public function scopeNonCritical($query)
     {
         return $query->where('is_critical', false);

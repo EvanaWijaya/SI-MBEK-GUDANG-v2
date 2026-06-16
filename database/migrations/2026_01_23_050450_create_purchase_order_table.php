@@ -9,7 +9,9 @@ return new class extends Migration {
     {
         Schema::create('purchase_orders', function (Blueprint $table) {
             $table->id();
-            $table->string('kode_po')->unique();
+
+            $table->string('po_code')->unique();
+
             $table->foreignId('supplier_id')
                 ->constrained()
                 ->cascadeOnDelete();
@@ -17,24 +19,25 @@ return new class extends Migration {
             $table->enum('type', ['material', 'product'])
                 ->default('material');
 
-            $table->date('tanggal_pesan');
+            $table->date('order_date');
+
             $table->enum('status', [
                 'draft',
-                'dipesan',
-                'diterima',
-                'dibatalkan'
+                'ordered',
+                'received',
+                'cancelled'
             ])->default('draft');
 
-            // owner & admin
-            $table->morphs('dipesan_oleh');
+            // Owner or Admin who placed the order
+            $table->morphs('ordered_by');
 
-            // owner & admin
-            $table->morphs('dicatat_oleh');
+            // Owner or Admin who recorded the order
+            $table->morphs('recorded_by');
 
-            $table->text('catatan')->nullable();
+            $table->text('notes')->nullable();
 
-            $table->date('tanggal_disetujui')->nullable();
-            $table->date('tanggal_diterima')->nullable();
+            $table->date('approved_date')->nullable();
+            $table->date('received_date')->nullable();
 
             $table->timestamps();
         });

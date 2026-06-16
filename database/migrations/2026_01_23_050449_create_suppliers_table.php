@@ -9,12 +9,16 @@ return new class extends Migration {
     {
         Schema::create('suppliers', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_supplier');
-            $table->string('kontak')->nullable();
-            $table->text('alamat')->nullable();
-            $table->string('kota')->nullable();
-            $table->string('provinsi')->nullable();
-            $table->text('catatan')->nullable();
+
+            $table->string('supplier_name');
+            $table->string('contact')->nullable();
+
+            $table->text('address')->nullable();
+            $table->string('city')->nullable();
+            $table->string('province')->nullable();
+
+            $table->text('notes')->nullable();
+
             $table->timestamps();
         });
     }

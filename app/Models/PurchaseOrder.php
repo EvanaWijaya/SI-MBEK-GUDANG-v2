@@ -8,41 +8,49 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class PurchaseOrder extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'kode_po',
+        'purchase_order_code',
         'supplier_id',
         'type',
-        'tanggal_pesan',
+        'order_date',
         'status',
-        'dipesan_oleh_id',
-        'dipesan_oleh_type',
-        'dicatat_oleh_id',
-        'dicatat_oleh_type',
-        'catatan',
-        'tanggal_disetujui',
-        'tanggal_diterima',
+
+        'ordered_by_id',
+        'ordered_by_type',
+
+        'recorded_by_id',
+        'recorded_by_type',
+
+        'notes',
+
+        'approved_date',
+        'received_date',
     ];
 
     /**
-     * Relasi polymorphic:
-     * Bisa Admin atau Owner
+     * Admin/Owner who ordered the PO
      */
-    public function dipesanOleh(): MorphTo
+    public function orderedBy(): MorphTo
     {
         return $this->morphTo();
     }
 
     /**
-     * Admin/Owner yang mencatat PO
+     * Admin/Owner who recorded the PO
      */
-    public function dicatatOleh(): MorphTo
+    public function recordedBy(): MorphTo
     {
-        return $this->morphTo(__FUNCTION__, 'dicatat_oleh_type', 'dicatat_oleh_id');
+        return $this->morphTo(
+            __FUNCTION__,
+            'recorded_by_type',
+            'recorded_by_id'
+        );
     }
 
     /**
@@ -54,15 +62,18 @@ class PurchaseOrder extends Model
     }
 
     /**
-     * Detail item PO
+     * Purchase Order Items
      */
     public function items(): HasMany
     {
         return $this->hasMany(PurchaseOrderItem::class);
     }
 
-    public function stockMovements()
+    public function stockMovements(): MorphMany
     {
-        return $this->morphMany(StockMovement::class, 'stockable');
+        return $this->morphMany(
+            StockMovement::class,
+            'stockable'
+        );
     }
 }

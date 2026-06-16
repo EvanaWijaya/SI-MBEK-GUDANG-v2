@@ -10,14 +10,14 @@ return new class extends Migration {
         Schema::create('qc_indicators', function (Blueprint $table) {
             $table->id();
 
-            // Nama indikator QC
+            // QC indicator name
             $table->string('name');
 
-            // Apakah indikator kritis
+            // Whether the indicator is critical
             $table->boolean('is_critical')
                 ->default(false);
 
-            // Status aktif indikator
+            // Indicator active status
             $table->boolean('is_active')
                 ->default(true);
 

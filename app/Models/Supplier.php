@@ -8,15 +8,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Supplier extends Model
 {
-     use HasFactory;
-     
+    use HasFactory;
+
     protected $fillable = [
-        'nama_supplier',
-        'kontak',
-        'alamat',
-        'kota',
-        'provinsi',
-        'catatan',
+        'supplier_name',
+        'contact',
+        'address',
+        'city',
+        'province',
+        'notes',
     ];
 
     public function purchaseOrders(): HasMany

@@ -25,8 +25,8 @@ class PurchaseOrderController extends Controller
     {
         $purchaseOrders = PurchaseOrder::with([
             'supplier',
-            'dipesanOleh',
-            'dicatatOleh'
+            'orderedBy',
+            'recordedBy'
         ])->latest()->get();
 
         return view('owner.purchase-orders.index', compact('purchaseOrders'));
@@ -47,40 +47,37 @@ class PurchaseOrderController extends Controller
     /**
      * 💾 Simpan PO + item
      */
-   /**
-     * 💾 Simpan PO + item
-     */
     public function store(Request $request)
     {
         $request->validate([
             'supplier_id' => 'required|exists:suppliers,id',
             'type' => 'required|in:material,product',
-            'tanggal_pesan' => 'required|date',
+            'order_date' => 'required|date',
             'items' => 'required|array|min:1',
             'items.*.material_id' => 'nullable|required_if:type,material|exists:materials,id',
             'items.*.product_id' => 'nullable|required_if:type,product|exists:products,id',
-            'items.*.jumlah' => 'required|integer|min:1',
-            'items.*.harga_satuan' => 'nullable|numeric|min:0',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.unit_price' => 'nullable|numeric|min:0',
         ]);
 
         $po = DB::transaction(function () use ($request) {
-            
+
             // 🔥 Langsung ambil data Owner yang lagi login
             $owner = Auth::guard('owner')->user();
 
-            $kode_po = 'PO-' . date('Ymd') . '-' . rand(1000, 9999);
+            $po_code = 'PO-' . date('Ymd') . '-' . rand(1000, 9999);
 
             $po = PurchaseOrder::create([
-                'kode_po' => $kode_po,
+                'po_code' => $po_code,
                 'supplier_id' => $request->supplier_id,
                 'type' => $request->type,
-                'tanggal_pesan' => $request->tanggal_pesan,
+                'order_date' => $request->order_date,
                 'status' => 'draft',
-                'dipesan_oleh_id' => $owner->id, // Memakai variabel $owner
-                'dipesan_oleh_type' => get_class($owner),
-                'dicatat_oleh_id' => $owner->id,
-                'dicatat_oleh_type' => get_class($owner),
-                'catatan' => $request->catatan_owner,
+                'ordered_by_id' => $owner->id,
+                'ordered_by_type' => get_class($owner),
+                'recorded_by_id' => $owner->id,
+                'recorded_by_type' => get_class($owner),
+                'notes' => $request->notes_owner,
             ]);
 
             foreach ($request->items as $item) {
@@ -88,13 +85,13 @@ class PurchaseOrderController extends Controller
                     'purchase_order_id' => $po->id,
                     'material_id' => $po->type === 'material' ? ($item['material_id'] ?? null) : null,
                     'product_id' => $po->type === 'product' ? ($item['product_id'] ?? null) : null,
-                    'jumlah' => $item['jumlah'],
-                    'harga_satuan' => $item['harga_satuan'] ?? 0,
-                    'subtotal' => $item['jumlah'] * ($item['harga_satuan'] ?? 0),
+                    'quantity' => $item['quantity'],
+                    'unit_price' => $item['unit_price'] ?? 0,
+                    'subtotal' => $item['quantity'] * ($item['unit_price'] ?? 0),
                 ]);
             }
 
-            return $po; 
+            return $po;
         });
 
         // Catat Log Aktivitas
@@ -121,8 +118,8 @@ class PurchaseOrderController extends Controller
         $po = PurchaseOrder::with([
             'supplier',
             'items.material',
-            'dipesanOleh',
-            'dicatatOleh'
+            'orderedBy',
+            'recordedBy'
         ])->findOrFail($id);
 
         return view('owner.purchase-orders.show', compact('po'));
@@ -143,8 +140,8 @@ class PurchaseOrderController extends Controller
         }
 
         $purchaseOrder->update([
-            'status' => 'dipesan',
-            'tanggal_disetujui' => now(),
+            'status' => 'ordered',
+            'order_date' => now(),
         ]);
 
         // 🔥 Tambahkan ini
@@ -170,11 +167,11 @@ class PurchaseOrderController extends Controller
             abort(403, 'Hanya admin yang bisa menerima barang');
         }
 
-        if ($purchaseOrder->status === 'diterima') {
+        if ($purchaseOrder->status === 'recivied') {
             return back()->with('error', 'Purchase Order sudah selesai.');
         }
 
-        if ($purchaseOrder->status !== 'dipesan') {
+        if ($purchaseOrder->status !== 'ordered') {
             return back()->with('error', 'Purchase Order belum disetujui');
         }
 
@@ -185,8 +182,8 @@ class PurchaseOrderController extends Controller
         $request->validate([
             'items' => 'required|array',
             'items.*.id' => 'required|exists:purchase_order_items,id',
-            'items.*.jumlah_diterima' => 'required|integer|min:1',
-            'items.*.expired_date' => 'nullable|date',
+            'items.*.received_quantity' => 'required|integer|min:1',
+            'items.*.expiration_date' => 'nullable|date',
         ]);
 
         foreach ($request->items as $data) {
@@ -199,7 +196,7 @@ class PurchaseOrderController extends Controller
                 return back()->with('error', 'Item tidak ditemukan.');
             }
 
-            if (!empty($item->jumlah_diterima)) {
+            if (!empty($item->received_quantity)) {
                 return back()->with('error', 'Item sudah pernah diterima.');
             }
         }
@@ -212,15 +209,15 @@ class PurchaseOrderController extends Controller
                     ->where('purchase_order_id', $purchaseOrder->id)
                     ->firstOrFail();
 
-                $jumlahPesan = $item->jumlah;
-                $jumlahDiterima = (int) $data['jumlah_diterima'];
+                $orderQuantity = $item->quantity;
+                $recivedQuantity = (int) $data['received_quantity'];
 
-                $selisih = $jumlahDiterima - $jumlahPesan;
+                $difference = $recivedQuantity - $orderQuantity;
 
                 // Update item (single receive only)
                 $item->update([
-                    'jumlah_diterima' => $jumlahDiterima,
-                    'selisih' => $selisih,
+                    'received_quantity' => $recivedQuantity,
+                    'difference' => $difference,
                 ]);
 
                 /*
@@ -238,26 +235,26 @@ class PurchaseOrderController extends Controller
 
                     MaterialStock::create([
                         'material_id' => $material->id,
-                        'qty' => $jumlahDiterima,
+                        'quantity' => $recivedQuantity,
                         'received_date' => now(),
-                        'expired_date' => $data['expired_date'] ?? null,
+                        'expiration_date' => $data['expired_date'] ?? null,
                         'created_by' => auth('admin')->id(),
                     ]);
 
-                    $material->stok = $material->materialStocks()->sum('qty');
+                    $material->stock = $material->materialStocks()->sum('quantity');
                     $material->save();
 
                     StockMovement::create([
                         'stockable_id' => $material->id,
                         'stockable_type' => Material::class,
                         'type' => 'in',
-                        'quantity' => $jumlahDiterima,
+                        'quantity' => $recivedQuantity,
                         'source' => 'PO',
                         'reference_id' => $purchaseOrder->id,
                         'note' => 'PO ' . $purchaseOrder->kode_po .
-                            ($purchaseOrder->catatan ? ' | ' . $purchaseOrder->catatan : ''),
+                            ($purchaseOrder->notes ? ' | ' . $purchaseOrder->notes : ''),
                         'movement_date' => now(),
-                        'catatan' => $purchaseOrder->catatan,
+                        'notes' => $purchaseOrder->notes,
                     ]);
                 }
 
@@ -277,30 +274,30 @@ class PurchaseOrderController extends Controller
                         throw new \Exception('Hanya produk obat yang boleh via PO.');
                     }
 
-                    if ($product->source !== 'pembelian') {
+                    if ($product->source !== 'purchase') {
                         throw new \Exception('Produk ini bukan dari pembelian.');
                     }
 
                     \App\Models\ProductStock::create([
                         'product_id' => $product->id,
-                        'qty' => $jumlahDiterima, 
+                        'quantity' => $recivedQuantity,
                         'received_date' => now(),
                         'expired_date' => $data['expired_date'] ?? null,
                         'source' => 'purchase', // Biar labelnya muncul "PO" warna ungu
                         'created_by' => auth('owner')->id(), // 🔥 Pastikan ini pakai 'owner'
                     ]);
 
-                    $product->increment('stok', $jumlahDiterima);
+                    $product->increment('stok', $recivedQuantity);
 
                     StockMovement::create([
                         'stockable_id' => $product->id,
                         'stockable_type' => Product::class,
                         'type' => 'in',
-                        'quantity' => $jumlahDiterima,
+                        'quantity' => $recivedQuantity,
                         'source' => 'PO',
                         'reference_id' => $purchaseOrder->id,
                         'movement_date' => now(),
-                        'catatan' => $purchaseOrder->catatan,
+                        'notes' => $purchaseOrder->notes,
                     ]);
                 }
             }
@@ -313,22 +310,22 @@ class PurchaseOrderController extends Controller
 
             $allReceived = $purchaseOrder->items()
                 ->where(function ($q) {
-                    $q->whereNull('jumlah_diterima')
-                        ->orWhere('jumlah_diterima', '<=', 0);
+                    $q->whereNull('received_quantity')
+                        ->orWhere('received_quantity', '<=', 0);
                 })
                 ->count() === 0;
 
             if ($allReceived) {
                 $purchaseOrder->update([
-                    'status' => 'diterima',
-                    'tanggal_diterima' => now(),
+                    'status' => 'recived',
+                    'recivied_date' => now(),
                 ]);
             }
         });
 
         $purchaseOrder->refresh();
 
-        if ($purchaseOrder->status === 'diterima') {
+        if ($purchaseOrder->status === 'recived') {
 
             $actor = $this->getCurrentActor();
 

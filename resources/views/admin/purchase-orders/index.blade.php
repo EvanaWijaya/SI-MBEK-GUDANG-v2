@@ -40,8 +40,8 @@
             @php
                 $total    = $purchaseOrders->count();
                 $draft    = $purchaseOrders->where('status','draft')->count();
-                $dipesan  = $purchaseOrders->where('status','dipesan')->count();
-                $diterima = $purchaseOrders->where('status','diterima')->count();
+                $ordered  = $purchaseOrders->where('status','ordered')->count();
+                $received = $purchaseOrders->where('status','received')->count();
             @endphp
             <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
                 <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Total PO</p>
@@ -53,11 +53,11 @@
             </div>
             <div class="bg-white rounded-xl border border-blue-100 shadow-sm p-4">
                 <p class="text-xs text-blue-600 font-medium uppercase tracking-wide">Dipesan</p>
-                <p class="text-3xl font-bold text-blue-500 mt-1">{{ $dipesan }}</p>
+                <p class="text-3xl font-bold text-blue-500 mt-1">{{ $ordered }}</p>
             </div>
             <div class="bg-white rounded-xl border border-green-100 shadow-sm p-4">
                 <p class="text-xs text-green-600 font-medium uppercase tracking-wide">Diterima</p>
-                <p class="text-3xl font-bold text-green-500 mt-1">{{ $diterima }}</p>
+                <p class="text-3xl font-bold text-green-500 mt-1">{{ $received }}</p>
             </div>
         </div>
 
@@ -80,7 +80,7 @@
                     <tbody class="divide-y divide-gray-100">
                         @forelse($purchaseOrders as $po)
                             <tr class="hover:bg-gray-50 transition-colors">
-                                <td class="px-5 py-4 font-mono text-orange-600 font-semibold text-xs">{{ $po->kode_po }}</td>
+                                <td class="px-5 py-4 font-mono text-orange-600 font-semibold text-xs">{{ $po->po_code }}</td>
                                 <td class="px-5 py-4 text-gray-800">{{ $po->supplier->nama_supplier ?? '-' }}</td>
                                 <td class="px-5 py-4">
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium
@@ -88,21 +88,21 @@
                                         {{ ucfirst($po->type ?? '-') }}
                                     </span>
                                 </td>
-                                <td class="px-5 py-4 text-gray-700">{{ $po->dipesanOleh->name ?? '-' }}</td>
+                                <td class="px-5 py-4 text-gray-700">{{ $po->orderedBy->name ?? '-' }}</td>
                                 {{-- Tanggal Pesan --}}
             <td class="px-5 py-4 text-gray-600">
-                {{ \Carbon\Carbon::parse($po->tanggal_pesan)->format('d/m/y') }}
+                {{ \Carbon\Carbon::parse($po->order_date)->format('d/m/y') }}
             </td>
                                {{-- Tanggal Diterima --}}
             <td class="px-5 py-4 text-gray-600 font-medium">
-                {{ $po->tanggal_diterima ? \Carbon\Carbon::parse($po->tanggal_diterima)->format('d/m/y') : '-' }}
+                {{ $po->received_date ? \Carbon\Carbon::parse($po->received_date)->format('d/m/y') : '-' }}
             </td>
                                 <td class="px-5 py-4">
                                     @php
                                         $statusConfig = [
                                             'draft'    => 'bg-yellow-100 text-yellow-700',
-                                            'dipesan'  => 'bg-blue-100 text-blue-700',
-                                            'diterima' => 'bg-green-100 text-green-700',
+                                            'ordered'  => 'bg-blue-100 text-blue-700',
+                                            'received' => 'bg-green-100 text-green-700',
                                         ];
                                         $cls = $statusConfig[$po->status] ?? 'bg-gray-100 text-gray-600';
                                     @endphp

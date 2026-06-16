@@ -1,7 +1,7 @@
 <x-owner-app-layout>
     <x-slot name="header">
         <h2 class="font-bold text-xl text-black leading-tight">
-            Detail Produk: {{ $product->nama }}
+            Detail Produk: {{ $product->product_name }}
         </h2>
     </x-slot>
 
@@ -42,7 +42,7 @@
                     <div>
                         <div class="mb-4">
                             <p class="text-xs text-black font-bold uppercase mb-1">Stok Sistem Saat Ini</p>
-                            <p class="text-3xl font-bold text-orange-600">{{ $product->stok }} <span class="text-sm text-gray-500">Unit</span></p>
+                            <p class="text-3xl font-bold text-orange-600">{{ $product->stock }} <span class="text-sm text-gray-500">Unit</span></p>
                         </div>
 
                         <div class="mb-4">

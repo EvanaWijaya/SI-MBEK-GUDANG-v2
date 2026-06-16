@@ -5,18 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class PurchaseOrderItem extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'purchase_order_id',
         'material_id',
         'product_id',
-        'jumlah',
-        'jumlah_diterima',
-        'selisih',
-        'harga_satuan',
+        'quantity',
+        'received_quantity',
+        'difference',
+        'unit_price',
         'subtotal',
     ];
 
@@ -35,8 +37,11 @@ class PurchaseOrderItem extends Model
         return $this->belongsTo(Product::class);
     }
 
-    public function stockMovements()
+    public function stockMovements(): MorphMany
     {
-        return $this->morphMany(StockMovement::class, 'stockable');
+        return $this->morphMany(
+            StockMovement::class,
+            'stockable'
+        );
     }
 }

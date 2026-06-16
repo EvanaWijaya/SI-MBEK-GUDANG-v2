@@ -16,9 +16,9 @@ class MaterialInventoryController extends Controller
      */
     public function index()
     {
-        $materials = Material::orderBy('nama_bahan')->get();
+        $materials = Material::orderBy('material_name')->get();
 
-       return view('admin.inventory.material.index', compact('materials'));
+        return view('admin.inventory.material.index', compact('materials'));
     }
 
     /**
@@ -34,7 +34,7 @@ class MaterialInventoryController extends Controller
             ->latest()
             ->get();
 
-       return view('admin.inventory.material.show', compact('material', 'batches', 'movements'));
+        return view('admin.inventory.material.show', compact('material', 'batches', 'movements'));
     }
 
     /**
@@ -42,16 +42,16 @@ class MaterialInventoryController extends Controller
      */
     public function adjust(Request $request, Material $material)
     {
-       $request->validate([
-        'type' => 'required|in:in,out',
-        'quantity' => 'required|integer|min:1',
-        // 🔥 Tambahkan baris ini: Wajib diisi jika type adalah 'in'
-        'expired_date' => 'required_if:type,in|nullable|date|after_or_equal:today',
-        'note' => 'nullable|string|max:255',
-    ], [
-        // Custom pesan error biar lebih jelas
-        'expired_date.required_if' => 'Expired date wajib diisi untuk penambahan stok barang baru.',
-    ]);
+        $request->validate([
+            'type' => 'required|in:in,out',
+            'quantity' => 'required|integer|min:1',
+
+            'expired_date' => 'required_if:type,in|nullable|date|after_or_equal:today',
+            'note' => 'nullable|string|max:255',
+        ], [
+            // Custom pesan error biar lebih jelas
+            'expired_date.required_if' => 'Expired date wajib diisi untuk penambahan stok barang baru.',
+        ]);
 
         DB::transaction(function () use ($request, $material) {
 
@@ -97,7 +97,7 @@ class MaterialInventoryController extends Controller
             }
 
             // 🔥 Sync summary stok
-            $material->stok = $material->materialStocks()->sum('qty');
+            $material->stock = $material->materialStocks()->sum('qty');
             $material->save();
 
             // Catat movement
@@ -108,12 +108,12 @@ class MaterialInventoryController extends Controller
                 'quantity' => $request->quantity,
                 'source' => 'adjustment',
                 'movement_date' => now(),
-                'catatan'        => $request->note,
+                'catatan' => $request->note,
                 'created_by' => auth('admin')->id(),
             ]);
         });
 
-       return redirect()->back()->with('success', 'Stok berhasil disesuaikan');
+        return redirect()->back()->with('success', 'Stok berhasil disesuaikan');
     }
 
     /**
@@ -121,9 +121,9 @@ class MaterialInventoryController extends Controller
      */
     public function sync(Material $material)
     {
-        $material->stok = $material->materialStocks()->sum('qty');
+        $material->stock = $material->materialStocks()->sum('qty');
         $material->save();
 
-       return redirect()->back()->with('success', 'Stok berhasil disinkronisasi');
+        return redirect()->back()->with('success', 'Stok berhasil disinkronisasi');
     }
 }

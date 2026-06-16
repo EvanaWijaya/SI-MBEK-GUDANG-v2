@@ -3,156 +3,235 @@
 namespace App\Http\Controllers\Owner;
 
 use App\Http\Controllers\Controller;
-use App\Models\Product;
 use App\Models\Formula;
+use App\Models\Product;
+use App\Models\Media;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
     /**
-     * 📋 List semua produk
+     * Display product list
      */
     public function index()
     {
-        $products = Product::latest()->get();
+        $products = Product::with(['formula', 'primaryImage'])
+            ->latest()
+            ->get();
 
         return view('owner.product.index', compact('products'));
     }
-    
+
     /**
-     * ➕ Form tambah produk baru
+     * Show create product form
      */
     public function create()
     {
-        // Mengambil data resep dari database
-        $formulas = Formula::orderBy('nama_formula')->get();
-        
-        // Mengirim ke view agar dropdown ada isinya
+        $formulas = Formula::where('is_active', true)
+            ->orderBy('formula_name')
+            ->get();
+
         return view('owner.product.create', compact('formulas'));
     }
 
     /**
-     * 💾 Simpan produk baru
+     * Store new product
      */
     public function store(Request $request)
     {
         $request->validate([
-            'kode' => 'required|string|max:50|unique:products,kode',
-            'nama' => 'required|string|max:255',
-            'harga' => 'nullable|numeric|min:0',
-            'rop' => 'nullable|integer|min:0',
+            'product_name' => 'required|string|max:255',
+            'selling_price' => 'nullable|numeric|min:0',
+            'reorder_point' => 'nullable|integer|min:0',
             'formula_id' => 'nullable|exists:formulas,id',
-            'type' => 'required|in:pakan,obat',
-            'source' => 'required|in:produksi,pembelian',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048', // Validasi gambar
+            'category' => 'required|in:pakan,obat',
+            'source' => 'required|in:production,purchase',
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
-        if ($request->source === 'produksi' && !$request->formula_id) {
-           return redirect()->back()->withInput()->with('error', 'Produk produksi wajib memiliki formula');
+        if ($request->source === 'production' && !$request->formula_id) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors([
+                    'formula_id' => 'Produk produksi wajib memiliki formula.'
+                ]);
         }
 
-        // Handle upload image
-        $imagePath = null;
-if ($request->hasFile('image')) {
-    $file = $request->file('image');
-    $fileName = time() . '_' . $file->getClientOriginalName();
-    // Pindahkan langsung ke public/uploads/products
-    $file->move(public_path('uploads/products'), $fileName);
-    $imagePath = 'uploads/products/' . $fileName;
-}
+        DB::transaction(function () use ($request) {
 
-        $product = Product::create([
-            'kode' => $request->kode,
-            'nama' => $request->nama,
-            'harga' => $request->harga,
-            'stok' => 0,
-            'rop' => $request->rop ?? 0,
-            'formula_id' => $request->formula_id,
-            'type' => $request->type,
-            'source' => $request->source,
-            'image' => $imagePath, // Simpan path gambar
-            'created_by' => auth('owner')->id(),
-        ]);
+            $product = Product::create([
+                'product_name' => $request->product_name,
+                'description' => $request->description,
+                'selling_price' => $request->selling_price,
+                'stock' => 0,
+                'reorder_point' => $request->reorder_point ?? 0,
+                'formula_id' => $request->formula_id,
+                'category' => $request->category,
+                'source' => $request->source,
+                'created_by' => auth('owner')->id(),
+            ]);
 
-       return redirect()->route('owner.products.index')
+            if ($request->hasFile('image')) {
+
+                $file = $request->file('image');
+
+                $path = $file->store('products', 'public');
+
+                $product->media()->create([
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_path' => $path,
+                    'mime_type' => $file->getMimeType(),
+                    'file_size' => $file->getSize(),
+                    'type' => 'image',
+                    'is_primary' => true,
+                    'sort_order' => 1,
+                ]);
+            }
+        });
+
+        return redirect()
+            ->route('owner.products.index')
             ->with('success', 'Produk berhasil ditambahkan');
     }
 
     /**
-     * 🔍 Detail produk & Form Edit
+     * Display product details
      */
     public function show(Product $product)
     {
-        $product->load('formula');
-        $formulas = Formula::all();
-        return view('owner.product.show', compact('product', 'formulas'));
+        $product->load([
+            'formula',
+            'media',
+            'primaryImage',
+            'stocks',
+        ]);
+
+        $formulas = Formula::where('is_active', true)->get();
+
+        return view('owner.product.show', compact(
+            'product',
+            'formulas'
+        ));
     }
 
     /**
-     * ✏ Update produk
+     * Update product data
      */
     public function update(Request $request, Product $product)
     {
         $request->validate([
-            'kode' => 'required|string|max:50|unique:products,kode,' . $product->id,
-            'nama' => 'required|string|max:255',
-            'harga' => 'nullable|numeric|min:0',
-            'rop' => 'nullable|integer|min:0',
+            'product_code' => 'required|string|max:50|unique:products,product_code,' . $product->id,
+            'product_name' => 'required|string|max:255',
+            'selling_price' => 'nullable|numeric|min:0',
+            'reorder_point' => 'nullable|integer|min:0',
             'formula_id' => 'nullable|exists:formulas,id',
-            'type' => 'required|in:pakan,obat',
-            'source' => 'required|in:produksi,pembelian',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048', // Validasi gambar
+            'category' => 'required|string|max:100',
+            'source' => 'required|in:production,purchase',
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
-        if ($request->source === 'produksi' && !$request->formula_id) {
-           return redirect()->back()->with('error', 'Produk produksi wajib memiliki formula');
+        if ($request->source === 'production' && !$request->formula_id) {
+            return redirect()->back()
+                ->withErrors([
+                    'formula_id' => 'Produk produksi wajib memiliki formula'
+                ]);
         }
 
-        // Handle update image
-        $dataToUpdate = [
-            'kode' => $request->kode,
-            'nama' => $request->nama,
-            'harga' => $request->harga,
-            'rop' => $request->rop ?? 0,
-            'formula_id' => $request->formula_id,
-            'type' => $request->type,
-            'source' => $request->source,
-        ];
+        DB::transaction(function () use ($request, $product) {
 
-        if ($request->hasFile('image')) {
-    // Hapus foto lama jika ada
-    if ($product->image && file_exists(public_path($product->image))) {
-        unlink(public_path($product->image));
+            $product->update([
+                'product_code' => $request->product_code,
+                'product_name' => $request->product_name,
+                'description' => $request->description,
+                'selling_price' => $request->selling_price,
+                'reorder_point' => $request->reorder_point ?? 0,
+                'formula_id' => $request->formula_id,
+                'category' => $request->category,
+                'source' => $request->source,
+            ]);
+
+            if ($request->hasFile('image')) {
+
+                $oldImage = $product->primaryImage;
+
+                if ($oldImage) {
+
+                    Storage::disk('public')->delete($oldImage->file_path);
+
+                    $oldImage->delete();
+                }
+
+                $file = $request->file('image');
+
+                $path = $file->store('products', 'public');
+
+                $product->media()->create([
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_path' => $path,
+                    'mime_type' => $file->getMimeType(),
+                    'file_size' => $file->getSize(),
+                    'type' => 'image',
+                    'is_primary' => true,
+                    'sort_order' => 1,
+                ]);
+            }
+        });
+
+        return redirect()
+            ->route('owner.products.index')
+            ->with('success', 'Produk berhasil diperbarui');
     }
-    
-    $file = $request->file('image');
-    $fileName = time() . '_' . $file->getClientOriginalName();
-    $file->move(public_path('uploads/products'), $fileName);
-    $dataToUpdate['image'] = 'uploads/products/' . $fileName;
-}
 
-        $product->update($dataToUpdate);
+    public function destroyMedia(Media $media)
+    {
 
-       return redirect()->route('owner.products.index')->with('success', 'Produk berhasil diperbarui');
+        if ($media->file_path) {
+            Storage::disk('public')->delete($media->file_path);
+        }
+
+        $media->delete();
+
+        return back()->with(
+            'success',
+            'Gambar berhasil dihapus'
+        );
     }
 
     /**
-     * ❌ Hapus produk
+     * Delete product
      */
     public function destroy(Product $product)
     {
-        if ($product->stok > 0) {
-           return redirect()->back()->with('error', 'Produk tidak bisa dihapus karena masih memiliki stok');
+        dd('destroy product terpanggil', $product->id);
+
+        if ($product->stock > 0) {
+            return redirect()->back()
+                ->with(
+                    'error',
+                    'Produk tidak bisa dihapus karena masih memiliki stok'
+                );
         }
 
-        // Hapus file gambar kalau ada
-        if ($product->image && Storage::disk('public')->exists($product->image)) {
-            Storage::disk('public')->delete($product->image);
-        }
+        DB::transaction(function () use ($product) {
 
-        $product->delete();
+            foreach ($product->media as $media) {
 
-        return redirect()->route('owner.products.index')->with('success', 'Produk berhasil dihapus');
+                if ($media->file_path) {
+                    Storage::disk('public')->delete($media->file_path);
+                }
+
+                $media->delete();
+            }
+
+            $product->delete();
+        });
+
+        return redirect()
+            ->route('owner.products.index')
+            ->with('success', 'Produk berhasil dihapus');
     }
 }

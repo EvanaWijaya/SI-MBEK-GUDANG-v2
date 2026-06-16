@@ -14,7 +14,7 @@ class AdminManagementController extends Controller
     public function index()
     {
         $admins = Admin::latest()->get();
-        
+
         return view('admin.management.index', compact('admins'));
     }
 
@@ -36,53 +36,53 @@ class AdminManagementController extends Controller
         $admin = Admin::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
+            'password' => $validated['password'],
             'role' => 'admin',
-            'created_by' => auth('admin')->id(),
             'must_change_password' => true,
         ]);
 
-       return redirect()->route('admin.admins.index')->with('success', 'Admin baru berhasil ditambahkan!');
+        return redirect()->route('admin.admins.index')->with('success', 'Admin baru berhasil ditambahkan!');
     }
 
-    // Detail admin
+    // Admin detail
     public function show($id)
     {
         $admin = Admin::where('role', 'admin')->findOrFail($id);
-        
-       return view('admin.management.show', compact('admin'));
+
+        return view('admin.management.show', compact('admin'));
     }
 
-    // Update admin
+    // Admin update
     public function update(Request $request, $id)
     {
         $admin = Admin::where('role', 'admin')->findOrFail($id);
-        
+
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'email' => ['sometimes', 'required', 'email', Rule::unique('admins')->ignore($id)],
+            'phone' => 'nullable|string|max:20',
         ]);
 
         $admin->update($validated);
 
-       return redirect()->route('admin.admins.index')->with('success', 'Data Admin berhasil diperbarui!');
+        return redirect()->route('admin.admins.index')->with('success', 'Data Admin berhasil diperbarui!');
     }
 
-    // Hapus admin
+    // Admin Delete
     public function destroy($id)
     {
         $admin = Admin::where('role', 'admin')->findOrFail($id);
-        
-        // Pastikan tidak menghapus diri sendiri
+
+        // Cannot delete yourself
         if ($admin->id === auth('admin')->id()) {
             return response()->json([
                 'message' => 'You cannot delete yourself'
             ], 403);
         }
-        
+
         $admin->delete();
 
-       return redirect()->route('admin.admins.index')->with('success', 'Admin berhasil dihapus!');
+        return redirect()->route('admin.admins.index')->with('success', 'Admin berhasil dihapus!');
     }
 }
 

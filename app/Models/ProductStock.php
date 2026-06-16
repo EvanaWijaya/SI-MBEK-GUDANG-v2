@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class ProductStock extends Model
 {
@@ -12,16 +13,22 @@ class ProductStock extends Model
 
     protected $fillable = [
         'product_id',
-        'qty',
+        'quantity',
         'source',
         'reference_id',
         'received_date',
-        'expired_date',
+        'expiration_date',
         'price_per_unit',
     ];
 
+    protected $casts = [
+        'received_date' => 'date',
+        'expiration_date' => 'date',
+        'price_per_unit' => 'decimal:2',
+    ];
+
     /**
-     * Relasi ke Product
+     * Related product
      */
     public function product(): BelongsTo
     {
@@ -29,7 +36,7 @@ class ProductStock extends Model
     }
 
     /**
-     * Relasi ke Production (jika source = production)
+     * Related production (source = production)
      */
     public function production(): BelongsTo
     {
@@ -37,7 +44,7 @@ class ProductStock extends Model
     }
 
     /**
-     * Relasi ke PurchaseOrder (jika source = purchase)
+     * Related purchase order (source = purchase)
      */
     public function purchaseOrder(): BelongsTo
     {
@@ -45,18 +52,19 @@ class ProductStock extends Model
     }
 
     /**
-     * Helper untuk ambil sumber secara dinamis
+     * Dynamic source reference
      */
     public function getReferenceAttribute()
     {
         return match ($this->source) {
             'production' => $this->production,
             'purchase' => $this->purchaseOrder,
+            'manual_adjustment' => null,
             default => null,
         };
     }
 
-    public function disposals()
+    public function disposals(): MorphMany
     {
         return $this->morphMany(Disposal::class, 'disposable');
     }

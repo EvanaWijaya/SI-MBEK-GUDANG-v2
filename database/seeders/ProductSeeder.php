@@ -6,14 +6,28 @@ use Illuminate\Database\Seeder;
 use App\Models\Product;
 use App\Models\Formula;
 use App\Models\Admin;
-use Illuminate\Support\Str;
 
 class ProductSeeder extends Seeder
 {
     public function run(): void
     {
-        // Buat admin kalau belum ada
-        $admin = Admin::factory()->create();
+        $admin = Admin::query()->firstOrFail();
+
+        /*
+        |--------------------------------------------------------------------------
+        | AMBIL FORMULA DARI SEEDER
+        |--------------------------------------------------------------------------
+        */
+
+        $formulaStarter = Formula::where(
+            'formula_name',
+            'Formula Starter'
+        )->firstOrFail();
+
+        $formulaGrower = Formula::where(
+            'formula_name',
+            'Formula Grower'
+        )->firstOrFail();
 
         /*
         |--------------------------------------------------------------------------
@@ -21,30 +35,27 @@ class ProductSeeder extends Seeder
         |--------------------------------------------------------------------------
         */
 
-        $formulaStarter = Formula::factory()->create(['nama_formula' => 'Formula Starter']);
-        $formulaGrower  = Formula::factory()->create(['nama_formula' => 'Formula Grower']);
-
         Product::create([
-            'kode' => 'PKN-STARTER',
-            'nama' => 'Pakan Starter',
-            'harga' => 85000,
-            'stok' => 100,
-            'rop' => 20,
+            'product_code' => 'PKN-0001',
+            'product_name' => 'Pakan Starter',
+            'selling_price' => 85000,
+            'stock' => 100,
+            'reorder_point' => 20,
             'formula_id' => $formulaStarter->id,
-            'type' => 'pakan',
-            'source' => 'produksi',
+            'category' => 'pakan',
+            'source' => 'production',
             'created_by' => $admin->id,
         ]);
 
         Product::create([
-            'kode' => 'PKN-GROWER',
-            'nama' => 'Pakan Grower',
-            'harga' => 90000,
-            'stok' => 80,
-            'rop' => 15,
+            'product_code' => 'PKN-0002',
+            'product_name' => 'Pakan Grower',
+            'selling_price' => 90000,
+            'stock' => 80,
+            'reorder_point' => 15,
             'formula_id' => $formulaGrower->id,
-            'type' => 'pakan',
-            'source' => 'produksi',
+            'category' => 'pakan',
+            'source' => 'production',
             'created_by' => $admin->id,
         ]);
 
@@ -55,26 +66,26 @@ class ProductSeeder extends Seeder
         */
 
         Product::create([
-            'kode' => 'OBT-VITC',
-            'nama' => 'Vitamin C Ternak',
-            'harga' => 45000,
-            'stok' => 50,
-            'rop' => 10,
+            'product_code' => 'OBT-0001',
+            'product_name' => 'Vitamin C Ternak',
+            'selling_price' => 45000,
+            'stock' => 50,
+            'reorder_point' => 10,
             'formula_id' => null,
-            'type' => 'obat',
-            'source' => 'pembelian',
+            'category' => 'obat',
+            'source' => 'purchase',
             'created_by' => $admin->id,
         ]);
 
         Product::create([
-            'kode' => 'OBT-ANTB',
-            'nama' => 'Antibiotik Ternak',
-            'harga' => 75000,
-            'stok' => 40,
-            'rop' => 8,
+            'product_code' => 'OBT-0002',
+            'product_name' => 'Antibiotik Ternak',
+            'selling_price' => 75000,
+            'stock' => 40,
+            'reorder_point' => 8,
             'formula_id' => null,
-            'type' => 'obat',
-            'source' => 'pembelian',
+            'category' => 'obat',
+            'source' => 'purchase',
             'created_by' => $admin->id,
         ]);
     }

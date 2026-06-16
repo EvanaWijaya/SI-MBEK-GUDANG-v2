@@ -4,32 +4,31 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     public function up(): void
     {
         Schema::create('product_allocations', function (Blueprint $table) {
             $table->id();
 
-            // Produk yang dialokasikan
+            // Allocated product
             $table->foreignId('product_id')
                 ->constrained()
                 ->cascadeOnDelete();
 
-            // Jenis alokasi stok
-            $table->enum('type', ['jual', 'internal']);
+            // Stock allocation type
+            $table->enum('type', ['sale', 'internal']);
 
-            // Jumlah stok dialokasikan
-            $table->integer('qty');
+            // Allocated quantity
+            $table->integer('quantity');
 
-            // Admin yang mengatur alokasi
+            // Admin who created the allocation
             $table->foreignId('created_by')
                 ->constrained('admins')
                 ->restrictOnDelete();
 
             $table->timestamps();
 
-            // 1 produk hanya boleh punya 1 alokasi per type
+            // One product can only have one allocation per type
             $table->unique(['product_id', 'type']);
         });
     }

@@ -13,10 +13,10 @@
                 <div class="flex items-center gap-3 flex-wrap">
                     <h1 class="text-2xl font-bold text-gray-800">Edit Formula</h1>
                     <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-mono font-semibold bg-gray-100 text-gray-700">
-                        {{ $formula->kode_formula }}
+                        {{ $formula->formula_code }}
                     </span>
                 </div>
-                <p class="text-sm text-gray-500 mt-0.5">{{ $formula->nama_formula }}</p>
+                <p class="text-sm text-gray-500 mt-0.5">{{ $formula->material_name }}</p>
             </div>
         </div>
 
@@ -51,7 +51,7 @@
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-xs font-medium text-gray-500 mb-1.5">Kode Formula</label>
-                                <input type="text" value="{{ $formula->kode_formula }}" disabled
+                                <input type="text" value="{{ $formula->formula_code }}" disabled
                                     class="w-full border border-gray-200 bg-gray-50 rounded-lg px-3 py-2.5 text-sm text-gray-500 cursor-not-allowed">
                                 <p class="mt-1 text-xs text-gray-400">Kode tidak dapat diubah</p>
                             </div>
@@ -59,18 +59,18 @@
                                 <label class="block text-xs font-medium text-gray-500 mb-1.5">
                                     Nama Formula <span class="text-red-500">*</span>
                                 </label>
-                                <input type="text" name="nama_formula"
-                                    value="{{ old('nama_formula', $formula->nama_formula) }}"
-                                    class="w-full border {{ $errors->has('nama_formula') ? 'border-red-400' : 'border-gray-300' }} rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all"
+                                <input type="text" name="formula_name"
+                                    value="{{ old('formula_name', $formula->formula_name) }}"
+                                    class="w-full border {{ $errors->has('formula_name') ? 'border-red-400' : 'border-gray-300' }} rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all"
                                     required>
-                                @error('nama_formula')
+                                @error('formula_name')
                                     <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                                 @enderror
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-gray-500 mb-1.5">Deskripsi</label>
-                                <textarea name="deskripsi" rows="4"
-                                    class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all resize-none">{{ old('deskripsi', $formula->deskripsi) }}</textarea>
+                                <textarea name="description" rows="4"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all resize-none">{{ old('description', $formula->description) }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -107,7 +107,7 @@
                                         class="material-select w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all" required>
                                         <option value="">-- Pilih Bahan --</option>
                                         @foreach($materials as $m)
-                                            <option value="{{ $m->id }}" {{ $material->id == $m->id ? 'selected' : '' }}>{{ $m->nama_bahan }}</option>
+                                            <option value="{{ $m->id }}" {{ $material->id == $m->id ? 'selected' : '' }}>{{ $m->material_name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -163,7 +163,7 @@
                         class="material-select w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all" required>
                         <option value="">-- Pilih Bahan --</option>
                         @foreach($materials as $m)
-                            <option value="{{ $m->id }}">{{ $m->nama_bahan }}</option>
+                            <option value="{{ $m->id }}">{{ $m->material_name }}</option>
                         @endforeach
                     </select>
                 </div>

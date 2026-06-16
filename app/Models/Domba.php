@@ -4,11 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class Domba extends Model
 {
     use HasFactory;
-    
+
     protected $table = 'domba';
     protected $primaryKey = 'id';
 
@@ -43,27 +45,42 @@ class Domba extends Model
     }
 
     public function histories()
-{
-    return $this->hasMany(KambingHistory::class);
-}
-// Method untuk menghitung umur
-public function hitungUmur($referensi = null)
-{
-    $referensi = $referensi ?: now();
-    $lahir = \Carbon\Carbon::parse($this->tanggal_lahir);
-    $diff = $lahir->diff($referensi);
-    
-    $result = [];
-    if ($diff->y > 0) $result[] = $diff->y . ' tahun';
-    if ($diff->m > 0) $result[] = $diff->m . ' bulan';
-    if ($diff->d > 0) $result[] = $diff->d . ' hari';
-    
-    return implode(' ', $result) ?: '0 hari';
-}
+    {
+        return $this->hasMany(KambingHistory::class);
+    }
+    // Method untuk menghitung umur
+    public function hitungUmur($referensi = null)
+    {
+        $referensi = $referensi ?: now();
+        $lahir = \Carbon\Carbon::parse($this->tanggal_lahir);
+        $diff = $lahir->diff($referensi);
 
-// Method untuk umur awal
-public function umurAwal()
-{
-    return $this->hitungUmur($this->created_at);
-}
+        $result = [];
+        if ($diff->y > 0)
+            $result[] = $diff->y . ' tahun';
+        if ($diff->m > 0)
+            $result[] = $diff->m . ' bulan';
+        if ($diff->d > 0)
+            $result[] = $diff->d . ' hari';
+
+        return implode(' ', $result) ?: '0 hari';
+    }
+
+    // Method untuk umur awal
+    public function umurAwal()
+    {
+        return $this->hitungUmur($this->created_at);
+    }
+
+    public function media()
+    {
+        return $this->morphMany(Media::class, 'mediable');
+    }
+
+    public function primaryImage()
+    {
+        return $this->morphOne(Media::class, 'mediable')
+            ->where('type', 'image')
+            ->where('is_primary', true);
+    }
 }

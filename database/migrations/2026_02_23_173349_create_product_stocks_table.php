@@ -10,32 +10,37 @@ return new class extends Migration {
         Schema::create('product_stocks', function (Blueprint $table) {
             $table->id();
 
-            // Relasi ke produk
+            // Related product
             $table->foreignId('product_id')
                 ->constrained()
                 ->cascadeOnDelete();
 
-            // Qty sisa di batch ini
-            $table->integer('qty');
+            // Remaining quantity in this batch
+            $table->integer('quantity');
 
-            // Sumber stok
-            $table->enum('source', ['production', 'purchase', 'sale', 'manual_adjustment']);
+            // Stock source
+            $table->enum('source', [
+                'production',
+                'purchase',
+                'sale',
+                'manual_adjustment'
+            ]);
 
-            // ID referensi (production_id atau purchase_order_id)
+            // Reference ID (production_id, purchase_order_id, etc.)
             $table->unsignedBigInteger('reference_id')->nullable();
 
-            // Tanggal masuk gudang
+            // Date received into inventory
             $table->date('received_date');
 
-            // Expired date (penting untuk obat & pakan)
-            $table->date('expired_date')->nullable();
+            // Expiration date
+            $table->date('expiration_date')->nullable();
 
-            // harga per unit (optional tapi bagus untuk laporan)
+            // Unit price (optional, useful for reporting)
             $table->decimal('price_per_unit', 12, 2)->nullable();
 
             $table->timestamps();
 
-            // Index untuk optimasi FIFO query
+            // FIFO optimization index
             $table->index(['product_id', 'received_date']);
         });
     }

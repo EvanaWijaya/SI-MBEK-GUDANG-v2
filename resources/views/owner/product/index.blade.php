@@ -42,11 +42,11 @@
                    <tbody class="divide-y divide-gray-200 bg-white">
     @foreach ($products as $p)
         <tr>
-            <td class="whitespace-nowrap px-3 py-4 text-sm font-medium text-gray-900">{{ $p->kode }}</td>
-            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $p->nama }}</td>
-            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 uppercase">{{ $p->type }}</td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm font-medium text-gray-900">{{ $p->product_code }}</td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $p->product_name }}</td>
+            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 uppercase">{{ $p->category }}</td>
             <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                <span class="px-2 py-1 rounded text-xs {{ $p->source == 'produksi' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800' }}">
+                <span class="px-2 py-1 rounded text-xs {{ $p->source == 'production' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800' }}">
                     {{ ucfirst($p->source) }}
                 </span>
             </td>

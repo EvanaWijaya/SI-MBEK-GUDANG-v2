@@ -9,12 +9,16 @@ return new class extends Migration {
     {
         Schema::create('materials', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_bahan');
-            $table->enum('kategori', ['pakan', 'obat']);
-            $table->string('satuan');
-            $table->integer('stok')->default(0);
 
-            $table->decimal('pemakaian_rata_rata', 10, 2)
+            $table->string('material_name');
+
+            $table->enum('category', ['pakan', 'obat']);
+
+            $table->string('unit');
+
+            $table->integer('stock')->default(0);
+
+            $table->decimal('average_usage', 10, 2)
                 ->default(0);
 
             $table->integer('lead_time')
@@ -22,8 +26,9 @@ return new class extends Migration {
 
             $table->integer('safety_stock')
                 ->default(5);
-                
-            $table->text('deskripsi')->nullable();
+
+            $table->text('description')->nullable();
+
             $table->timestamps();
         });
     }
@@ -33,4 +38,3 @@ return new class extends Migration {
         Schema::dropIfExists('materials');
     }
 };
-

@@ -4,18 +4,17 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     public function up(): void
     {
         Schema::create('formulas', function (Blueprint $table) {
             $table->id();
 
-            $table->string('kode_formula')->unique();
-            $table->string('nama_formula');
-            $table->text('deskripsi')->nullable();
+            $table->string('formula_code')->unique();
+            $table->string('formula_name');
+            $table->text('description')->nullable();
 
-            // admin yang membuat formula
+            // Admin who created the formula
             $table->foreignId('created_by')
                 ->constrained('admins')
                 ->restrictOnDelete();

@@ -129,7 +129,7 @@
                                 <p class="text-xs text-gray-400 mt-0.5">{{ $production->formula->nama_formula ?? '' }}</p>
                             </td>
                             <td class="px-5 py-4 text-right">
-                                <span class="font-bold text-gray-800">{{ number_format($production->qty_produksi) }}</span>
+                                <span class="font-bold text-gray-800">{{ number_format($production->production_quantity) }}</span>
                                 <span class="text-xs text-gray-400 ml-0.5">kg</span>
                             </td>
                             <td class="px-5 py-4 text-xs text-gray-500">

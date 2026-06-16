@@ -42,7 +42,7 @@ class MaterialInventoryController extends Controller
      */
     public function sync(Material $material)
     {
-        $material->stok = $material->materialStocks()->sum('qty');
+        $material->stock = $material->materialStocks()->sum('quantity');
         $material->save();
 
        return redirect()->back()->with('success', 'Stok berhasil disinkronisasi');

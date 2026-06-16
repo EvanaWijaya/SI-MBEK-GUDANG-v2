@@ -49,11 +49,11 @@
                                 </label>
                                 <input 
                                     type="text" 
-                                    value="{{ $kodeFormula }}" 
+                                    value="{{ $formulaCode }}" 
                                     class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm bg-gray-100"
                                     readonly
                                 >
-                                @error('kode_formula')
+                                @error('formula_code')
                                     <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                                 @enderror
                             </div>
@@ -61,20 +61,20 @@
                                 <label class="block text-xs font-medium text-gray-500 mb-1.5">
                                     Nama Formula <span class="text-red-500">*</span>
                                 </label>
-                                <input type="text" name="nama_formula"
-                                    value="{{ old('nama_formula') }}"
+                                <input type="text" name="formula_name"
+                                    value="{{ old('formula_name') }}"
                                     placeholder="Contoh: Pakan Sapi Standar"
-                                    class="w-full border {{ $errors->has('nama_formula') ? 'border-red-400' : 'border-gray-300' }} rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all"
+                                    class="w-full border {{ $errors->has('formula_name') ? 'border-red-400' : 'border-gray-300' }} rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all"
                                     required>
-                                @error('nama_formula')
+                                @error('formula_name')
                                     <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                                 @enderror
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-gray-500 mb-1.5">Deskripsi</label>
-                                <textarea name="deskripsi" rows="4"
+                                <textarea name="description" rows="4"
                                     placeholder="Keterangan tambahan formula..."
-                                    class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all resize-none">{{ old('deskripsi') }}</textarea>
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all resize-none">{{ old('description') }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -113,7 +113,7 @@
                                             class="material-select w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all" required>
                                             <option value="">-- Pilih Bahan --</option>
                                             @foreach($materials as $m)
-                                                <option value="{{ $m->id }}" {{ $item['material_id'] == $m->id ? 'selected' : '' }}>{{ $m->nama_bahan }}</option>
+                                                <option value="{{ $m->id }}" {{ $item['material_id'] == $m->id ? 'selected' : '' }}>{{ $m->material_name }}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -140,7 +140,7 @@
                                         class="material-select w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all" required>
                                         <option value="">-- Pilih Bahan Baku --</option>
                                         @foreach($materials as $m)
-                                            <option value="{{ $m->id }}">{{ $m->nama_bahan }}</option>
+                                            <option value="{{ $m->id }}">{{ $m->material_name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -196,7 +196,7 @@
                         class="material-select w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all" required>
                         <option value="">-- Pilih Bahan Baku --</option>
                         @foreach($materials as $m)
-                            <option value="{{ $m->id }}">{{ $m->nama_bahan }}</option>
+                            <option value="{{ $m->id }}">{{ $m->material_name }}</option>
                         @endforeach
                     </select>
                 </div>

@@ -12,12 +12,12 @@
                 </a>
                 <div>
                     <div class="flex items-center gap-3">
-                        <h1 class="text-2xl font-bold text-gray-800 font-mono">{{ $po->kode_po }}</h1>
+                        <h1 class="text-2xl font-bold text-gray-800 font-mono">{{ $po->po_code }}</h1>
                         @php
                             $statusConfig = [
                                 'draft'    => 'bg-yellow-100 text-yellow-700 border-yellow-200',
-                                'dipesan'  => 'bg-blue-100 text-blue-700 border-blue-200',
-                                'diterima' => 'bg-green-100 text-green-700 border-green-200',
+                                'ordered'  => 'bg-blue-100 text-blue-700 border-blue-200',
+                                'received' => 'bg-green-100 text-green-700 border-green-200',
                             ];
                             $cls = $statusConfig[$po->status] ?? 'bg-gray-100 text-gray-600 border-gray-200';
                         @endphp
@@ -55,8 +55,8 @@
 
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
                     <p class="text-xs text-gray-400 uppercase tracking-wide font-medium">Supplier</p>
-                    <p class="text-sm font-semibold text-gray-800 mt-1.5">{{ $po->supplier->nama_supplier ?? '-' }}</p>
-                    <p class="text-xs text-gray-400 mt-0.5">{{ $po->supplier->kota ?? '' }}{{ $po->supplier->kota && $po->supplier->provinsi ? ', ' : '' }}{{ $po->supplier->provinsi ?? '' }}</p>
+                    <p class="text-sm font-semibold text-gray-800 mt-1.5">{{ $po->supplier->supplier_name ?? '-' }}</p>
+                    <p class="text-xs text-gray-400 mt-0.5">{{ $po->supplier->city ?? '' }}{{ $po->supplier->city && $po->supplier->province ? ', ' : '' }}{{ $po->supplier->province ?? '' }}</p>
                 </div>
 
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
@@ -88,7 +88,7 @@
 <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
     <p class="text-xs text-gray-400 uppercase tracking-wide font-medium">Tanggal Diterima</p>
     <p class="text-sm font-semibold text-gray-800 mt-1.5">
-        {{ $po->tanggal_diterima ? \Carbon\Carbon::parse($po->tanggal_diterima)->format('d M Y') : '-' }}
+        {{ $po->received_date ? \Carbon\Carbon::parse($po->received_date)->format('d M Y') : '-' }}
     </p>
 </div>
             </div>
@@ -105,8 +105,8 @@
                         </div>
                         <div>
                             <p class="text-xs text-gray-400">Dipesan Atas Nama</p>
-                            <p class="font-semibold text-gray-800">{{ $po->dipesanOleh->name ?? '-' }}</p>
-                            <p class="text-xs text-gray-400">{{ class_basename($po->dipesan_oleh_type ?? '') }}</p>
+                            <p class="font-semibold text-gray-800">{{ $po->orderedBy->name ?? '-' }}</p>
+                            <p class="text-xs text-gray-400">{{ class_basename($po->ordered_by_type ?? '') }}</p>
                         </div>
                     </div>
                     <div class="flex items-start gap-3">
@@ -153,23 +153,23 @@
                             @forelse($po->items as $item)
                                 <tr class="hover:bg-gray-50 transition-colors">
                                     <td class="px-5 py-4">
-                                        <p class="font-medium text-gray-800">{{ $item->material->nama_bahan ?? $item->product->nama ?? '-' }}</p>
-                                        <p class="text-xs text-gray-400">{{ $item->material->satuan ?? '' }}</p>
+                                        <p class="font-medium text-gray-800">{{ $item->material->material_name ?? $item->product->material_name ?? '-' }}</p>
+                                        <p class="text-xs text-gray-400">{{ $item->material->unit ?? '' }}</p>
                                     </td>
-                                    <td class="px-5 py-4 text-right text-gray-700">{{ number_format($item->jumlah) }}</td>
-                                    <td class="px-5 py-4 text-right text-gray-700">Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</td>
+                                    <td class="px-5 py-4 text-right text-gray-700">{{ number_format($item->quantity) }}</td>
+                                    <td class="px-5 py-4 text-right text-gray-700">Rp {{ number_format($item->unit_price, 0, ',', '.') }}</td>
                                     <td class="px-5 py-4 text-right font-semibold text-gray-800">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</td>
                                     <td class="px-5 py-4 text-right">
-                                        @if($item->jumlah_diterima !== null)
-                                            <span class="font-medium text-gray-700">{{ number_format($item->jumlah_diterima) }}</span>
+                                        @if($item->received_quantity !== null)
+                                            <span class="font-medium text-gray-700">{{ number_format($item->received_quantity) }}</span>
                                         @else
                                             <span class="text-gray-300">-</span>
                                         @endif
                                     </td>
                                     <td class="px-5 py-4 text-right">
                                         @if($item->selisih !== null)
-                                            <span class="font-semibold {{ $item->selisih < 0 ? 'text-red-600' : ($item->selisih > 0 ? 'text-green-600' : 'text-gray-500') }}">
-                                                {{ $item->selisih > 0 ? '+' : '' }}{{ number_format($item->selisih) }}
+                                            <span class="font-semibold {{ $item->difference < 0 ? 'text-red-600' : ($item->difference > 0 ? 'text-green-600' : 'text-gray-500') }}">
+                                                {{ $item->selisih > 0 ? '+' : '' }}{{ number_format($item->difference) }}
                                             </span>
                                         @else
                                             <span class="text-gray-300">-</span>
@@ -194,7 +194,7 @@
             </div>
 
             {{-- Receive Form (Admin only, status dipesan) --}}
-@if(auth()->guard('admin')->check() && $po->status === 'dipesan')
+@if(auth()->guard('admin')->check() && $po->status === 'ordered')
     <div class="bg-white rounded-xl border border-blue-200 shadow-sm overflow-hidden">
         <div class="px-5 py-4 bg-blue-50 border-b border-blue-100 flex items-center gap-2">
             <svg class="w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -234,18 +234,18 @@
                         <input type="hidden" name="items[{{ $loop->index }}][id]" value="{{ $item->id }}">
                         
                         <td class="py-3.5 pr-4">
-                            <p class="font-medium text-gray-800">{{ $item->material->nama_bahan ?? $item->product->nama ?? '-' }}</p>
-                            <p class="text-xs text-gray-400">{{ $item->material->satuan ?? 'Pcs' }}</p>
+                            <p class="font-medium text-gray-800">{{ $item->material->material_name ?? $item->product->material_name ?? '-' }}</p>
+                            <p class="text-xs text-gray-400">{{ $item->material->unit ?? 'Pcs' }}</p>
                         </td>
                         
-                        <td class="py-3.5 text-right text-gray-600 pr-4">{{ number_format($item->jumlah) }}</td>
+                        <td class="py-3.5 text-right text-gray-600 pr-4">{{ number_format($item->quantity) }}</td>
                         
                         {{-- Kolom Jumlah Diterima --}}
                         <td class="py-3.5 text-center">
-                            <input type="number" name="items[{{ $loop->index }}][jumlah_diterima]" 
+                            <input type="number" name="items[{{ $loop->index }}][re]" 
                                 min="0" 
-                                value="{{ old("items.{$loop->index}.jumlah_diterima", $item->jumlah) }}" 
-                                class="w-24 border {{ $errors->has("items.{$loop->index}.jumlah_diterima") ? 'border-red-400 bg-red-50 text-red-900 focus:ring-red-500 focus:border-red-400' : 'border-gray-300 focus:ring-blue-400' }} rounded-lg px-2 py-1.5 text-center text-sm focus:outline-none">
+                                value="{{ old("items.{$loop->index}.received_quantity", $item->quantity) }}" 
+                                class="w-24 border {{ $errors->has("items.{$loop->index}.received_quantity") ? 'border-red-400 bg-red-50 text-red-900 focus:ring-red-500 focus:border-red-400' : 'border-gray-300 focus:ring-blue-400' }} rounded-lg px-2 py-1.5 text-center text-sm focus:outline-none">
                         </td>
                         
                         {{-- Kolom Expired Date --}}
@@ -274,7 +274,7 @@
 @endif
 
             {{-- Timeline --}}
-            @if($po->status === 'diterima')
+            @if($po->status === 'received')
                 <div class="bg-green-50 border border-green-200 rounded-xl p-5">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
@@ -286,7 +286,7 @@
                             <p class="font-semibold text-green-800">Pemesanan Bahan Selesai</p>
                             <p class="text-sm text-green-600 mt-0.5">
                                 Semua barang telah diterima pada
-                                {{ $po->tanggal_diterima ? \Carbon\Carbon::parse($po->tanggal_diterima)->format('d M Y, H:i') : '-' }}
+                                {{ $po->received_date ? \Carbon\Carbon::parse($po->received_date)->format('d M Y, H:i') : '-' }}
                             </p>
                         </div>
                     </div>

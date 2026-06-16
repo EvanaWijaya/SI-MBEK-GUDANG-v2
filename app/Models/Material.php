@@ -6,32 +6,32 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Material extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'nama_bahan',
-        'kategori',
-        'satuan',
-        'stok',
-        'pemakaian_rata_rata',
+        'material_name',
+        'category',
+        'unit',
+        'stock',
+        'average_usage',
         'lead_time',
         'safety_stock',
-        'deskripsi'
+        'description',
     ];
 
     protected $casts = [
-        'pemakaian_rata_rata' => 'float',
+        'average_usage' => 'float',
         'lead_time' => 'integer',
         'safety_stock' => 'integer',
-        'stok' => 'integer',
+        'stock' => 'integer',
     ];
 
     /**
-     * Relasi ke item PO
+     * Purchase Order Items
      */
     public function purchaseOrderItems(): HasMany
     {
@@ -39,35 +39,34 @@ class Material extends Model
     }
 
     /**
-     * Harga rata-rata bahan baku
+     * Average purchase price
      */
-    public function getHargaRataRataAttribute()
+    public function getAveragePriceAttribute()
     {
-        return $this->purchaseOrderItems()->avg('harga_satuan') ?? 0;
+        return $this->purchaseOrderItems()->avg('unit_price') ?? 0;
     }
 
     /**
      * Reorder Point (ROP)
-     * ROP = (pemakaian rata-rata × lead time) + safety stock
      */
-    public function getRopAttribute(): float
+    public function getReorderPointAttribute(): float
     {
-        return ($this->pemakaian_rata_rata * $this->lead_time)
+        return ($this->average_usage * $this->lead_time)
             + $this->safety_stock;
     }
 
     /**
-     * Apakah sudah menyentuh ROP
+     * Check if stock is below ROP
      */
-    public function isBelowRop(): bool
+    public function isBelowReorderPoint(): bool
     {
-        return $this->stok <= $this->rop;
+        return $this->stock <= $this->reorder_point;
     }
 
-    public function scopeBelowRop($query)
+    public function scopeBelowReorderPoint($query)
     {
         return $query->whereRaw(
-            'stok <= (pemakaian_rata_rata * lead_time + safety_stock)'
+            'stock <= (average_usage * lead_time + safety_stock)'
         );
     }
 
@@ -81,28 +80,27 @@ class Material extends Model
         return $this->belongsToMany(
             Formula::class,
             'formula_materials'
-        )->withPivot('persentase')
+        )->withPivot('percentage')
             ->withTimestamps();
     }
 
     public function productions(): HasMany
     {
-        return $this->hasMany(Production::class, 'produk_material_id');
+        return $this->hasMany(Production::class, 'material_id');
     }
 
-    public function disposals()
+    public function disposals(): MorphMany
     {
         return $this->morphMany(Disposal::class, 'disposable');
     }
 
-    public function materialStocks()
+    public function materialStocks(): HasMany
     {
         return $this->hasMany(MaterialStock::class);
     }
 
-    public function stockMovements()
+    public function stockMovements(): MorphMany
     {
         return $this->morphMany(StockMovement::class, 'stockable');
     }
-
 }
