@@ -21,26 +21,26 @@ class PurchaseOrderFactory extends Factory
         $pencatat = $pemesan;
 
         return [
-            'kode_po' => 'PO-' . now()->format('Ymd') . '-' .
+            'purchase_order_code' => 'PO-' . now()->format('Ymd') . '-' .
                 $this->faker->unique()->numberBetween(1000, 9999),
 
             'supplier_id' => Supplier::factory(),
 
             'type' => 'material',
 
-            'tanggal_pesan' => $this->faker->date(),
+            'order_date' => $this->faker->date(),
 
             'status' => 'draft',
 
             // ✅ Morph dipesan_oleh
-            'dipesan_oleh_id' => $pemesan->id,
-            'dipesan_oleh_type' => get_class($pemesan),
+            'ordered_by_id' => $pemesan->id,
+            'ordered_by_type' => get_class($pemesan),
 
             // ✅ Morph dicatat_oleh
-            'dicatat_oleh_id' => $pencatat->id,
-            'dicatat_oleh_type' => get_class($pencatat),
+            'recorded_by_id' => $pencatat->id,
+            'recorded_by_type' => get_class($pencatat),
 
-            'catatan' => $this->faker->optional()->sentence(),
+            'notes' => $this->faker->optional()->sentence(),
         ];
     }
 
@@ -53,10 +53,10 @@ class PurchaseOrderFactory extends Factory
             $admin = Admin::factory()->create();
 
             return [
-                'dipesan_oleh_id' => $admin->id,
-                'dipesan_oleh_type' => get_class($admin),
-                'dicatat_oleh_id' => $admin->id,
-                'dicatat_oleh_type' => get_class($admin),
+                'ordered_by_id' => $admin->id,
+                'ordered_by_type' => get_class($admin),
+                'recorded_by_id' => $admin->id,
+                'recorded_by_type' => get_class($admin),
             ];
         });
     }
@@ -71,10 +71,10 @@ class PurchaseOrderFactory extends Factory
             $admin = Admin::factory()->create();
 
             return [
-                'dipesan_oleh_id' => $owner->id,
-                'dipesan_oleh_type' => get_class($owner),
-                'dicatat_oleh_id' => $admin->id,
-                'dicatat_oleh_type' => get_class($admin),
+                'ordered_by_id' => $owner->id,
+                'ordered_by_type' => get_class($owner),
+                'recorded_by_id' => $admin->id,
+                'recorded_by_type' => get_class($admin),
             ];
         });
     }

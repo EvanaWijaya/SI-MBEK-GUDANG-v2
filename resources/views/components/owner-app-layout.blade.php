@@ -214,7 +214,7 @@
                                 <div class="pt-4 pb-1 border-t border-gray-200">
                                     <div class="px-4">
                                         <div class="font-medium text-base text-gray-800">{{ Auth::guard('owner')->user()->name }}</div>
-                                        <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+                                        <div class="font-medium text-sm text-gray-500">{{ Auth::guard('owner')->user()->email }}</div>
                                     </div>
                                     <div class="mt-3 flex flex-col gap-2 px-3">
                                         <a href="{{ route('owner.profile.edit') }}" class="w-full bg-brand-orange hover:bg-orange-700 text-white font-semibold py-2 rounded-md text-center transition-colors duration-200">

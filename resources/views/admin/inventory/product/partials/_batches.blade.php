@@ -15,7 +15,7 @@
                 </span>
                 @php
                     $expiredCount  = $batches->filter(fn($b) => $b->quantity > 0 && $b->expiration_date && \Carbon\Carbon::parse($b->expiration_date)->isPast())->count();
-$expiringSoon = $batches->filter(fn($b) => $b->qty > 0 && $b->expiration_date
+$expiringSoon = $batches->filter(fn($b) => $b->quantity > 0 && $b->expiration_date
     && \Carbon\Carbon::parse($b->expiration_date)->isFuture()
     && round(\Carbon\Carbon::now()->diffInDays($b->expiration_date)) <= 30)->count(); // Tambahkan round()
                 @endphp
@@ -193,7 +193,7 @@ $expiringSoon = $batches->filter(fn($b) => $b->qty > 0 && $b->expiration_date
                                         $sMap = [
                                             'production'         => ['bg-orange-100 text-orange-700', 'Produksi'],
                                             'sale'               => ['bg-blue-100 text-blue-700',     'Penjualan'],
-                                            'pemakaian_internal' => ['bg-purple-100 text-purple-700', 'Internal'],
+                                            'internal' => ['bg-purple-100 text-purple-700', 'Internal'],
                                             'manual_adjustment'  => ['bg-gray-100 text-gray-600',     'Adjustment'],
                                             'purchase'           => ['bg-indigo-100 text-indigo-700', 'Purchase Order'],
                                         ];

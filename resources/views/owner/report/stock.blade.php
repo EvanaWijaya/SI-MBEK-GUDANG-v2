@@ -114,7 +114,7 @@
                                <td class="px-4 py-3">
                                     @if($m->stockable)
                                         <p class="font-medium text-gray-800">
-                                            {{ $m->stockable->nama_bahan ?? $m->stockable->nama ?? $m->stockable->name ?? '-' }}
+                                            {{ $m->stockable->material_name ?? $m->stockable->product_name ?? $m->stockable->name ?? '-' }}
                                         </p>
                                         <p class="text-xs text-gray-400">{{ class_basename($m->stockable_type) }}</p>
                                     @else
@@ -137,7 +137,7 @@
                                         {{ ucfirst(str_replace('_', ' ', $m->source ?? '-')) }}
                                     </span>
                                 </td>
-                                <td class="px-4 py-3 text-xs text-gray-500 max-w-[180px] truncate">{{ $m->catatan ?? '—' }}</td>
+                                <td class="px-4 py-3 text-xs text-gray-500 max-w-[180px] truncate">{{ $m->notes ?? '—' }}</td>
                             </tr>
                         @endforeach
                     </tbody>

@@ -1,7 +1,7 @@
 <x-owner-app-layout>
     <x-slot name="header">
         <h2 class="font-bold text-xl text-black leading-tight">
-            Detail Material: {{ $material->nama_bahan }}
+            Detail Material: {{ $material->material_name }}
         </h2>
     </x-slot>
 
@@ -28,38 +28,38 @@
                         <div class="mb-4">
                             <p class="text-xs text-black font-bold uppercase mb-1">Nama Bahan Baku</p>
                             {{-- Teks (Mode Lihat) --}}
-                            <p x-show="!editMode" class="text-lg text-gray-800 font-semibold">{{ $material->nama_bahan }}</p>
+                            <p x-show="!editMode" class="text-lg text-gray-800 font-semibold">{{ $material->material_name }}</p>
                             {{-- Input (Mode Edit) --}}
-                            <input x-show="editMode" type="text" name="nama_bahan" value="{{ $material->nama_bahan }}" class="w-full border-gray-300 rounded focus:ring-orange-500 text-black">
+                            <input x-show="editMode" type="text" name="material_name" value="{{ $material->material_name }}" class="w-full border-gray-300 rounded focus:ring-orange-500 text-black">
                         </div>
 
                         <div class="mb-4">
                             <p class="text-xs text-black font-bold uppercase mb-1">Kategori</p>
-                            <p x-show="!editMode" class="text-lg text-gray-800 uppercase">{{ $material->kategori }}</p>
-                            <select x-show="editMode" name="kategori" class="w-full border-gray-300 rounded text-black">
-                                <option value="pakan" {{ $material->kategori == 'pakan' ? 'selected' : '' }}>PAKAN</option>
-                                <option value="obat" {{ $material->kategori == 'obat' ? 'selected' : '' }}>OBAT</option>
+                            <p x-show="!editMode" class="text-lg text-gray-800 uppercase">{{ $material->category }}</p>
+                            <select x-show="editMode" name="category" class="w-full border-gray-300 rounded text-black">
+                                <option value="pakan" {{ $material->category == 'pakan' ? 'selected' : '' }}>PAKAN</option>
+                                <option value="obat" {{ $material->category == 'obat' ? 'selected' : '' }}>OBAT</option>
                             </select>
                         </div>
 
                         <div class="mb-4">
                             <p class="text-xs text-black font-bold uppercase mb-1">Satuan</p>
-                            <p x-show="!editMode" class="text-lg text-gray-800">{{ $material->satuan }}</p>
-                            <input x-show="editMode" type="text" name="satuan" value="{{ $material->satuan }}" class="w-full border-gray-300 rounded text-black">
+                            <p x-show="!editMode" class="text-lg text-gray-800">{{ $material->unit }}</p>
+                            <input x-show="editMode" type="text" name="unit" value="{{ $material->unit }}" class="w-full border-gray-300 rounded text-black">
                         </div>
                     </div>
 
                     <div>
                         <div class="mb-4">
                             <p class="text-xs text-black font-bold uppercase mb-1">Stok Sistem Saat Ini</p>
-                            <p class="text-3xl font-bold text-orange-600">{{ $material->stok }} <span class="text-sm text-gray-500">{{ $material->satuan }}</span></p>
+                            <p class="text-3xl font-bold text-orange-600">{{ $material->stock }} <span class="text-sm text-gray-500">{{ $material->unit }}</span></p>
                             <p class="text-xs text-red-500 mt-1">* Stok hanya bisa berubah melalui transaksi/adjustment</p>
                         </div>
                         
                         <div class="mb-4">
                             <p class="text-xs text-black font-bold uppercase mb-1">Deskripsi / Catatan</p>
-                            <p x-show="!editMode" class="text-gray-700 italic">{{ $material->deskripsi ?? '-' }}</p>
-                            <textarea x-show="editMode" name="deskripsi" class="w-full border-gray-300 rounded text-black">{{ $material->deskripsi }}</textarea>
+                            <p x-show="!editMode" class="text-gray-700 italic">{{ $material->description ?? '-' }}</p>
+                            <textarea x-show="editMode" name="description" class="w-full border-gray-300 rounded text-black">{{ $material->description }}</textarea>
                         </div>
                     </div>
                 </div>

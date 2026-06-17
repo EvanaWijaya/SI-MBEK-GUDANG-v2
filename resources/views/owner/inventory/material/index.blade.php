@@ -15,10 +15,10 @@
         {{-- Stats --}}
         @php
             $totalBahan    = $materials->count();
-            $belowRopCount = $materials->filter(fn($m) => $m->isBelowRop())->count();
+            $belowRopCount = $materials->filter(fn($m) => $m->isBelowReorderPoint())->count();
             $allBatches    = $materials->flatMap->materialStocks;
-            $expiringCount = $allBatches->filter(fn($s) => $s->expired_date && \Carbon\Carbon::parse($s->expired_date)->isFuture() && \Carbon\Carbon::parse($s->expired_date)->diffInDays(now()) <= 30)->count();
-            $expiredCount  = $allBatches->filter(fn($s) => $s->expired_date && \Carbon\Carbon::parse($s->expired_date)->isPast())->count();
+            $expiringCount = $allBatches->filter(fn($s) => $s->expiration_date && \Carbon\Carbon::parse($s->expiration_date)->isFuture() && \Carbon\Carbon::parse($s->expiration_date)->diffInDays(now()) <= 30)->count();
+            $expiredCount  = $allBatches->filter(fn($s) => $s->expiration_date && \Carbon\Carbon::parse($s->expiration_date)->isPast())->count();
         @endphp
 
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -50,7 +50,7 @@
                 <label class="block text-xs font-medium text-gray-500 mb-1.5">Status Stok</label>
                 <select id="filter-status" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-400">
                     <option value="">Semua</option>
-                    <option value="rop">⚠️ Di Bawah ROP</option>
+                    <option value="reorder_point">⚠️ Di Bawah ROP</option>
                     <option value="aman">✅ Aman</option>
                 </select>
             </div>
@@ -84,21 +84,21 @@
                     <tbody class="divide-y divide-gray-50" id="material-tbody">
                         @forelse($materials as $material)
                             @php
-                                $belowRop      = $material->isBelowRop();
-                                $nearestBatch  = $material->materialStocks->sortBy('expired_date')->whereNotNull('expired_date')->first();
-                                $batchExpired  = $nearestBatch && \Carbon\Carbon::parse($nearestBatch->expired_date)->isPast();
-                                $batchExpiring = $nearestBatch && !$batchExpired && \Carbon\Carbon::parse($nearestBatch->expired_date)->diffInDays(now()) <= 30;
-                                $activeBatches = $material->materialStocks->where('qty', '>', 0)->count();
+                                $belowRop      = $material->isBelowReorderPoint();
+                                $nearestBatch  = $material->materialStocks->sortBy('expiration_date')->whereNotNull('expiration_date')->first();
+                                $batchExpired  = $nearestBatch && \Carbon\Carbon::parse($nearestBatch->expiration_date)->isPast();
+                                $batchExpiring = $nearestBatch && !$batchExpired && \Carbon\Carbon::parse($nearestBatch->expiration_date)->diffInDays(now()) <= 30;
+                                $activeBatches = $material->materialStocks->where('quantity', '>', 0)->count();
                                 $dataExpiry    = $batchExpired ? 'expired' : ($batchExpiring ? 'expiring' : 'ok');
                             @endphp
-                            <tr class="hover:bg-gray-50 transition-colors {{ $belowRop ? 'bg-red-50/20' : '' }}" data-name="{{ strtolower($material->nama_bahan) }}" data-status="{{ $belowRop ? 'rop' : 'aman' }}" data-expiry="{{ $dataExpiry }}">
+                            <tr class="hover:bg-gray-50 transition-colors {{ $belowRop ? 'bg-red-50/20' : '' }}" data-name="{{ strtolower($material->material_name) }}" data-status="{{ $belowRop ? 'reorder_point' : 'aman' }}" data-expiry="{{ $dataExpiry }}">
                                 <td class="px-5 py-4">
-                                    <p class="font-semibold text-gray-800">{{ $material->nama_bahan }}</p>
-                                    <p class="text-xs text-gray-400 mt-0.5">{{ $material->satuan }}</p>
+                                    <p class="font-semibold text-gray-800">{{ $material->material_name }}</p>
+                                    <p class="text-xs text-gray-400 mt-0.5">{{ $material->unit }}</p>
                                 </td>
-                                <td class="px-5 py-4"><span class="px-2.5 py-0.5 bg-gray-100 text-gray-600 rounded-md">{{ $material->kategori ?? '-' }}</span></td>
-                                <td class="px-5 py-4 text-right"><span class="font-bold {{ $belowRop ? 'text-red-600' : 'text-gray-800' }}">{{ number_format($material->stok) }}</span></td>
-                                <td class="px-5 py-4 text-right text-gray-500">{{ number_format($material->rop, 1) }}</td>
+                                <td class="px-5 py-4"><span class="px-2.5 py-0.5 bg-gray-100 text-gray-600 rounded-md">{{ $material->category ?? '-' }}</span></td>
+                                <td class="px-5 py-4 text-right"><span class="font-bold {{ $belowRop ? 'text-red-600' : 'text-gray-800' }}">{{ number_format($material->stock) }}</span></td>
+                                <td class="px-5 py-4 text-right text-gray-500">{{ number_format($material->reorder_point, 1) }}</td>
                                 <td class="px-5 py-4 text-center">
                                      @if($belowRop)
 
@@ -135,10 +135,10 @@
                                     <span class="text-xs text-gray-400"> / {{ $material->materialStocks->count() }} batch</span>
                                 </td>
                                 <td class="px-5 py-4 text-center">
-                                    @if($nearestBatch && $nearestBatch->expired_date)
-                                        <span class="text-xs font-medium {{ $batchExpired ? 'text-red-600' : ($batchExpiring ? 'text-yellow-600' : 'text-gray-600') }}">{{ \Carbon\Carbon::parse($nearestBatch->expired_date)->format('d M Y') }}</span>
+                                    @if($nearestBatch && $nearestBatch->expiration_date)
+                                        <span class="text-xs font-medium {{ $batchExpired ? 'text-red-600' : ($batchExpiring ? 'text-yellow-600' : 'text-gray-600') }}">{{ \Carbon\Carbon::parse($nearestBatch->expiration_date)->format('d M Y') }}</span>
                                         @if($batchExpired) <span class="block text-xs text-red-500 font-semibold">Kadaluarsa!</span>
-                                        @elseif($batchExpiring) <span class="block text-xs text-yellow-500">{{ (int) now()->diffInDays(\Carbon\Carbon::parse($nearestBatch->expired_date), false) }} hari lagi</span>
+                                        @elseif($batchExpiring) <span class="block text-xs text-yellow-500">{{ (int) now()->diffInDays(\Carbon\Carbon::parse($nearestBatch->expiration_date), false) }} hari lagi</span>
                                         @endif
                                     @else
                                         <span class="text-xs text-gray-300">-</span>

@@ -31,21 +31,20 @@
                         </td>
                         <td class="px-5 py-3.5 text-right font-bold {{ $mov->type === 'in' ? 'text-green-700' : 'text-red-600' }}">
                             {{ $mov->type === 'in' ? '+' : '-' }}{{ number_format($mov->quantity) }}
-                            <span class="text-xs font-normal text-gray-400 ml-0.5">{{ $material->satuan }}</span>
+                            <span class="text-xs font-normal text-gray-400 ml-0.5">{{ $material->unit }}</span>
                         </td>
                         <td class="px-5 py-3.5 text-xs text-gray-500 capitalize">
-                            @php $sourceLabel = ['PO' => 'Purchase Order', 'adjustment' => 'Adjustment Manual']; @endphp
-                            {{ $sourceLabel[$mov->source] ?? $mov->source ?? '-' }}
+@php $sourceLabel = ['PO' => 'Purchase Order', 'purchaseOrder' => 'Purchase Order', 'adjustment' => 'Adjustment Manual']; @endphp                            {{ $sourceLabel[$mov->source] ?? $mov->source ?? '-' }}
                         </td>
                         <td class="px-5 py-3.5 text-xs text-gray-400">
-                            @if($mov->reference_id && $mov->source === 'PO')
-                                <a href="{{ route('admin.purchase-orders.show', $mov->reference_id) }}" class="text-orange-500 hover:underline font-mono">#{{ $mov->reference_id }}</a>
+@if($mov->reference_id && in_array($mov->source, ['PO', 'purchaseOrder']))                                
+<a href="{{ route('admin.purchase-orders.show', $mov->reference_id) }}" class="text-orange-500 hover:underline font-mono">#{{ $mov->reference_id }}</a>
                             @else
                                 -
                             @endif
                         </td>
                         <td class="px-5 py-3.5 text-xs text-gray-500">
-                            {{ $mov->catatan ?? '-' }}
+                            {{ $mov->notes ?? '-' }}
                         </td>
                     </tr>
                 @endforeach

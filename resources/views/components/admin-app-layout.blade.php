@@ -51,7 +51,7 @@
                             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                                 <div class="flex justify-between h-16">
                                     <div class="flex items-center">
-                                        <span class="hidden sm:flex sm:items-center sm:ms-6 font-medium text-gray-700 px-2">{{ Auth::user()->name }}</span>
+                                        <span class="hidden sm:flex sm:items-center sm:ms-6 font-medium text-gray-700 px-2">{{ Auth::guard('admin')->user()->name }}</span>
                                         <div class="relative" x-data="{ open: false }">
                                             <button @click="open = !open" class="flex items-center justify-center w-10 h-10 rounded-full bg-brand-orange text-white focus:outline-none focus:ring-2 focus:ring-orange-300 overflow-hidden shadow" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
     @php
@@ -246,7 +246,7 @@
                             <div class="space-y-2 pt-2 ">
                                 <div class="pt-4 pb-1 border-t border-gray-200">
                                     <div class="px-4">
-                                        <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
+                                        <div class="font-medium text-base text-gray-800">{{ Auth::guard('admin')->user()->name }}</div>
                                         <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
                                     </div>
                                     <div class="mt-3 flex flex-col gap-2 px-3">

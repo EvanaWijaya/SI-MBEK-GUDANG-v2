@@ -9,7 +9,7 @@
         <div class="bg-white rounded-xl border {{ $belowRop ? 'border-red-200' : 'border-gray-200' }} shadow-sm p-5">
             <p class="text-xs text-gray-400 uppercase tracking-wide font-medium">Stok Total</p>
             <p class="text-3xl font-bold mt-1 {{ $belowRop ? 'text-red-600' : 'text-gray-800' }}">
-                {{ number_format($product->stok) }}
+                {{ number_format($product->stock) }}
             </p>
             <p class="text-xs text-gray-400 mt-0.5">unit</p>
         </div>
@@ -19,7 +19,7 @@
     <form action="{{ route('owner.inventory.product.update-rop', $product->id) }}" method="POST" class="flex items-center gap-2">
         @csrf
         <div class="relative flex-1">
-            <input type="number" name="rop" value="{{ $product->rop ?? 0 }}" min="0"
+            <input type="number" name="reorder_point" value="{{ $product->reorder_point ?? 0 }}" min="0"
                 class="w-full text-2xl font-bold text-orange-500 bg-orange-50/50 border-none rounded-lg p-0 focus:ring-0">
         </div>
         
@@ -47,11 +47,11 @@
             <dl class="space-y-3 text-sm">
                 <div class="flex justify-between">
                     <dt class="text-gray-400">Harga Jual</dt>
-                    <dd class="font-semibold text-gray-700">Rp {{ number_format($product->harga ?? 0, 0, ',', '.') }}</dd>
+                    <dd class="font-semibold text-gray-700">Rp {{ number_format($product->selling_price ?? 0, 0, ',', '.') }}</dd>
                 </div>
                 <div class="flex justify-between">
                     <dt class="text-gray-400">Tipe Produk</dt>
-                    <dd class="font-semibold text-gray-700">{{ ucfirst($product->type) }}</dd>
+                    <dd class="font-semibold text-gray-700">{{ ucfirst($product->category) }}</dd>
                 </div>
                 <div class="flex justify-between">
                     <dt class="text-gray-400">Sumber Stok</dt>
@@ -61,20 +61,20 @@
                     <div class="flex justify-between">
                         <dt class="text-gray-400">Formula</dt>
                         <dd class="font-semibold text-orange-600 font-mono text-xs">
-                            {{ $product->formula->kode_formula }} · {{ $product->formula->nama_formula }}
+                            {{ $product->formula->formula_code }} · {{ $product->formula->formula_name }}
                         </dd>
                     </div>
                 @endif
                 <div class="flex justify-between">
                     <dt class="text-gray-400">Batch Aktif</dt>
                     <dd class="font-semibold text-gray-700">
-                        {{ $batches->where('qty', '>', 0)->count() }} / {{ $batches->count() }} batch
+                        {{ $batches->where('quantity', '>', 0)->count() }} / {{ $batches->count() }} batch
                     </dd>
                 </div>
                 <div class="flex justify-between">
                     <dt class="text-gray-400">Sisa Bebas</dt>
-                    <dd class="font-semibold {{ max(0, $product->stok - $qJual - $qInternal) === 0 ? 'text-red-600' : 'text-gray-700' }}">
-                        {{ number_format(max(0, $product->stok - $qJual - $qInternal)) }} unit
+                    <dd class="font-semibold {{ max(0, $product->stock - $qJual - $qInternal) === 0 ? 'text-red-600' : 'text-gray-700' }}">
+                        {{ number_format(max(0, $product->stock - $qJual - $qInternal)) }} unit
                     </dd>
                 </div>
             </dl>
@@ -85,17 +85,17 @@
             <h3 class="text-sm font-semibold text-gray-700 mb-4">Status Stok</h3>
 
             @php
-                $rop    = $product->rop ?? 0;
-                $maxVal = max($rop * 2, $product->stok, 1);
-                $pct    = min(round(($product->stok / $maxVal) * 100), 100);
-                $ropPct = $maxVal > 0 ? min(round(($rop / $maxVal) * 100), 100) : 50;
+                $reorder_point    = $product->reorder_point ?? 0;
+                $maxVal = max($reorder_point * 2, $product->stock, 1);
+                $pct    = min(round(($product->stock / $maxVal) * 100), 100);
+                $ropPct = $maxVal > 0 ? min(round(($reorder_point / $maxVal) * 100), 100) : 50;
                 $barCol = $belowRop ? 'bg-red-500' : ($pct < 55 ? 'bg-yellow-400' : 'bg-green-500');
             @endphp
 
-            @if($rop > 0)
+            @if($reorder_point > 0)
                 <div class="flex justify-between text-xs text-gray-400 mb-1">
                     <span>0</span>
-                    <span class="text-orange-500 font-medium">ROP {{ number_format($rop) }}</span>
+                    <span class="text-orange-500 font-medium">ROP {{ number_format($reorder_point) }}</span>
                     <span>{{ number_format($maxVal) }}</span>
                 </div>
                 <div class="relative h-4 bg-gray-100 rounded-full overflow-hidden mb-1">
@@ -103,7 +103,7 @@
                     <div class="absolute inset-y-0 w-0.5 bg-orange-500 opacity-80" style="left: {{ $ropPct }}%"></div>
                 </div>
                 <div class="flex justify-between text-xs text-gray-400 mb-5">
-                    <span>Stok: <strong class="{{ $belowRop ? 'text-red-600' : 'text-green-600' }}">{{ number_format($product->stok) }}</strong></span>
+                    <span>Stok: <strong class="{{ $belowRop ? 'text-red-600' : 'text-green-600' }}">{{ number_format($product->stock) }}</strong></span>
                     <span>{{ $pct }}%</span>
                 </div>
             @endif
@@ -145,8 +145,8 @@
                 <div>
                     <p class="font-semibold text-orange-800 text-sm">Stok di bawah ROP!</p>
                     <p class="text-xs text-orange-600 mt-0.5">
-                        Stok <strong>{{ number_format($product->stok) }}</strong> unit —
-                        ROP <strong>{{ number_format($product->rop) }}</strong> unit.
+                        Stok <strong>{{ number_format($product->stock) }}</strong> unit —
+                        ROP <strong>{{ number_format($product->reorder_point) }}</strong> unit.
                     </p>
                 </div>
             </div>

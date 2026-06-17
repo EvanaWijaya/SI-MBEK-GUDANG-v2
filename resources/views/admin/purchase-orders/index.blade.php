@@ -78,24 +78,24 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
-                        @forelse($purchaseOrders as $po)
+                        @forelse($purchaseOrders as $purchaseOrder)
                             <tr class="hover:bg-gray-50 transition-colors">
-                                <td class="px-5 py-4 font-mono text-orange-600 font-semibold text-xs">{{ $po->po_code }}</td>
-                                <td class="px-5 py-4 text-gray-800">{{ $po->supplier->nama_supplier ?? '-' }}</td>
+                                <td class="px-5 py-4 font-mono text-orange-600 font-semibold text-xs">{{ $purchaseOrder->purchase_order_code }}</td>
+                                <td class="px-5 py-4 text-gray-800">{{ $purchaseOrder->supplier->supplier_name ?? '-' }}</td>
                                 <td class="px-5 py-4">
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium
-                                        {{ $po->type === 'material' ? 'bg-purple-50 text-purple-700' : 'bg-cyan-50 text-cyan-700' }}">
-                                        {{ ucfirst($po->type ?? '-') }}
+                                        {{ $purchaseOrder->type === 'material' ? 'bg-purple-50 text-purple-700' : 'bg-cyan-50 text-cyan-700' }}">
+                                        {{ ucfirst($purchaseOrder->type ?? '-') }}
                                     </span>
                                 </td>
-                                <td class="px-5 py-4 text-gray-700">{{ $po->orderedBy->name ?? '-' }}</td>
+                                <td class="px-5 py-4 text-gray-700">{{ $purchaseOrder->orderedBy->name ?? '-' }}</td>
                                 {{-- Tanggal Pesan --}}
             <td class="px-5 py-4 text-gray-600">
-                {{ \Carbon\Carbon::parse($po->order_date)->format('d/m/y') }}
+                {{ \Carbon\Carbon::parse($purchaseOrder->order_date)->format('d/m/y') }}
             </td>
                                {{-- Tanggal Diterima --}}
             <td class="px-5 py-4 text-gray-600 font-medium">
-                {{ $po->received_date ? \Carbon\Carbon::parse($po->received_date)->format('d/m/y') : '-' }}
+                {{ $purchaseOrder->received_date ? \Carbon\Carbon::parse($purchaseOrder->received_date)->format('d/m/y') : '-' }}
             </td>
                                 <td class="px-5 py-4">
                                     @php
@@ -104,14 +104,14 @@
                                             'ordered'  => 'bg-blue-100 text-blue-700',
                                             'received' => 'bg-green-100 text-green-700',
                                         ];
-                                        $cls = $statusConfig[$po->status] ?? 'bg-gray-100 text-gray-600';
+                                        $cls = $statusConfig[$purchaseOrder->status] ?? 'bg-gray-100 text-gray-600';
                                     @endphp
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold {{ $cls }}">
-                                        {{ ucfirst($po->status) }}
+                                        {{ ucfirst($purchaseOrder->status) }}
                                     </span>
                                 </td>
                                 <td class="px-5 py-4 text-right">
-                                    <a href="{{ route('admin.purchase-orders.show', $po->id) }}"
+                                    <a href="{{ route('admin.purchase-orders.show', $purchaseOrder->id) }}"
                                         class="inline-flex items-center gap-1.5 text-orange-600 hover:text-orange-800 font-medium text-xs transition-colors">
                                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>

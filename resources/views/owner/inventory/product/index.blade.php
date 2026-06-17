@@ -24,15 +24,15 @@
         {{-- Stats --}}
         @php
             $allBatches      = $products->flatMap->stocks;
-            $belowRopList    = $products->filter(fn($p) => $p->isBelowRop());
+            $belowRopList    = $products->filter(fn($p) => $p->isBelowReorderPoint());
             $expiringBatches = $allBatches->filter(fn($s) =>
-                $s->expired_date && $s->qty > 0
-                && \Carbon\Carbon::parse($s->expired_date)->isFuture()
-                && \Carbon\Carbon::now()->diffInDays($s->expired_date) <= 30
+                $s->expiration_date && $s->quantity > 0
+                && \Carbon\Carbon::parse($s->expiration_date)->isFuture()
+                && \Carbon\Carbon::now()->diffInDays($s->expiration_date) <= 30
             );
             $expiredBatches  = $allBatches->filter(fn($s) =>
-                $s->expired_date && $s->qty > 0
-                && \Carbon\Carbon::parse($s->expired_date)->isPast()
+                $s->expiration_date && $s->quantity > 0
+                && \Carbon\Carbon::parse($s->expiration_date)->isPast()
             );
         @endphp
 
@@ -106,15 +106,15 @@
                 <label class="block text-xs font-medium text-gray-500 mb-1.5">Sumber</label>
                 <select id="f-source" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400">
                     <option value="">Semua</option>
-                    <option value="produksi">Produksi</option>
-                    <option value="pembelian">Pembelian</option>
+                    <option value="production">Produksi</option>
+                    <option value="purchase">Pembelian</option>
                 </select>
             </div>
             <div class="min-w-[150px]">
                 <label class="block text-xs font-medium text-gray-500 mb-1.5">Status Stok</label>
                 <select id="f-status" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400">
                     <option value="">Semua</option>
-                    <option value="rop">⚠ Di Bawah ROP</option>
+                    <option value="reorder_point">⚠ Di Bawah ROP</option>
                     <option value="aman">✅ Aman</option>
                 </select>
             </div>
@@ -141,28 +141,28 @@
                     <tbody id="tbl-body" class="divide-y divide-gray-50">
                         @forelse($products as $prod)
                             @php
-                                $isRop     = $prod->isBelowRop();
-                                $aJual     = $prod->allocations->where('type','jual')->first();
+                                $isRop     = $prod->isBelowReorderPoint();
+                                $aJual     = $prod->allocations->where('type','sale')->first();
                                 $aInt      = $prod->allocations->where('type','internal')->first();
-                                $activeBat = $prod->stocks->where('qty','>',0);
+                                $activeBat = $prod->stocks->where('quantity','>',0);
 
-                                $nearExp   = $activeBat->whereNotNull('expired_date')->sortBy('expired_date')->first();
+                                $nearExp   = $activeBat->whereNotNull('expiration_date')->sortBy('expiration_date')->first();
                                 $expSoon   = $nearExp
-                                    && \Carbon\Carbon::parse($nearExp->expired_date)->isFuture()
-                                    && \Carbon\Carbon::now()->diffInDays($nearExp->expired_date) <= 30;
+                                    && \Carbon\Carbon::parse($nearExp->expiration_date)->isFuture()
+                                    && \Carbon\Carbon::now()->diffInDays($nearExp->expiration_date) <= 30;
                                 $hasExp    = $activeBat->filter(fn($s) =>
-                                    $s->expired_date && \Carbon\Carbon::parse($s->expired_date)->isPast()
+                                    $s->expiration_date && \Carbon\Carbon::parse($s->expiration_date)->isPast()
                                 )->isNotEmpty();
                             @endphp
                             <tr class="hover:bg-gray-50/80 transition-colors {{ $isRop ? 'bg-red-50/20' : '' }}"
-                                data-name="{{ strtolower($prod->nama.' '.$prod->kode) }}"
-                                data-type="{{ $prod->type }}"
+                                data-name="{{ strtolower($prod->product_name.' '.$prod->product_code) }}"
+                                data-category="{{ $prod->category }}"
                                 data-source="{{ $prod->source }}"
-                                data-status="{{ $isRop ? 'rop' : 'aman' }}">
+                                data-status="{{ $isRop ? 'reorder_point' : 'aman' }}">
 
                                 <td class="px-5 py-4">
-                                    <p class="font-semibold text-gray-800">{{ $prod->nama }}</p>
-                                    <p class="text-xs text-gray-400 font-mono">{{ $prod->kode }}</p>
+                                    <p class="font-semibold text-gray-800">{{ $prod->product_name }}</p>
+                                    <p class="text-xs text-gray-400 font-mono">{{ $prod->product_code }}</p>
                                     @if($hasExp)
                                         <p class="text-xs text-red-500 font-medium mt-0.5">⚠ Batch expired</p>
                                     @elseif($expSoon)
@@ -172,32 +172,32 @@
 
                                 <td class="px-5 py-4 text-center">
                                     <span class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold
-                                        {{ $prod->type==='pakan' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700' }}">
-                                        {{ ucfirst($prod->type) }}
+                                        {{ $prod->category==='pakan' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700' }}">
+                                        {{ ucfirst($prod->category) }}
                                     </span>
                                 </td>
 
                                 <td class="px-5 py-4 text-center">
                                     <span class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold
-                                        {{ $prod->source==='produksi' ? 'bg-orange-100 text-orange-700' : 'bg-purple-100 text-purple-700' }}">
+                                        {{ $prod->source==='production' ? 'bg-orange-100 text-orange-700' : 'bg-purple-100 text-purple-700' }}">
                                         {{ ucfirst($prod->source) }}
                                     </span>
                                 </td>
 
                                 <td class="px-5 py-4 text-right">
                                     <span class="text-lg font-bold {{ $isRop ? 'text-red-600' : 'text-gray-800' }}">
-                                        {{ number_format($prod->stok) }}
+                                        {{ number_format($prod->stock) }}
                                     </span>
                                 </td>
 
                                 <td class="px-5 py-4 text-right text-sm {{ $isRop ? 'text-red-400' : 'text-gray-500' }}">
-                                    {{ $prod->rop > 0 ? number_format($prod->rop) : '—' }}
+                                    {{ $prod->reorder_point > 0 ? number_format($prod->reorder_point) : '—' }}
                                 </td>
 
                                 <td class="px-5 py-4 text-center">
-                                    @if($aJual && $aJual->qty > 0)
+                                    @if($aJual && $aJual->quantity > 0)
                                         <span class="inline-flex px-2 py-0.5 rounded-md text-xs font-semibold bg-blue-100 text-blue-700">
-                                            {{ number_format($aJual->qty) }}
+                                            {{ number_format($aJual->quantity) }}
                                         </span>
                                     @else
                                         <span class="text-xs text-gray-300">—</span>
@@ -205,9 +205,9 @@
                                 </td>
 
                                 <td class="px-5 py-4 text-center">
-                                    @if($aInt && $aInt->qty > 0)
+                                    @if($aInt && $aInt->quantity > 0)
                                         <span class="inline-flex px-2 py-0.5 rounded-md text-xs font-semibold bg-purple-100 text-purple-700">
-                                            {{ number_format($aInt->qty) }}
+                                            {{ number_format($aInt->quantity) }}
                                         </span>
                                     @else
                                         <span class="text-xs text-gray-300">—</span>

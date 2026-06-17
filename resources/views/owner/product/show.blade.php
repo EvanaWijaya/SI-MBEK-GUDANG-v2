@@ -26,7 +26,7 @@
                     <div>
                         {{-- Foto View --}}
                        <div class="mb-6 flex justify-center bg-gray-50 p-4 rounded-lg">
-   <img src="{{ $product->image ? asset($product->image) : asset('logo/logosimbek.png') }}" 
+   <img src="{{ $product->image_url ? asset($product->image_url) : asset('logo/logosimbek.png') }}" 
      class="h-40 w-auto rounded shadow-sm object-cover"
      onerror="this.onerror=null; this.src='{{ asset('logo/logosimbek.png') }}';">
 </div>

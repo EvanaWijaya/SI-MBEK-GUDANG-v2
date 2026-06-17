@@ -13,24 +13,14 @@ Vars: $product, $allocations, $batches, $belowRop, $qJual, $qInternal
             </p>
             <p class="text-xs text-gray-400 mt-0.5">unit</p>
         </div>
-        {{-- Ganti kartu ROP lama dengan form ini --}}
-        <div class="bg-white rounded-xl border border-orange-100 shadow-sm p-5">
-            <p class="text-xs text-gray-400 uppercase tracking-wide font-medium mb-2">Reorder Point (ROP)</p>
-            <form action="{{ route('admin.inventory.product.update-rop', $product->id) }}" method="POST"
-                class="flex items-center gap-2">
-                @csrf
-                <div class="relative flex-1">
-                    <input type="number" name="reorder_point" value="{{ $product->reorder_point ?? 0 }}" min="0"
-                        class="w-full text-2xl font-bold text-orange-500 bg-orange-50/50 border-none rounded-lg p-0 focus:ring-0">
-                </div>
-                <button type="submit" title="Simpan ROP"
-                    class="p-2 bg-orange-100 text-orange-600 rounded-lg hover:bg-orange-200 transition-colors">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                </button>
-            </form>
-            <p class="text-[10px] text-gray-400 mt-1">Klik angka untuk mengubah, lalu tekan centang</p>
+       {{-- Ganti kartu ROP lama dengan form ini --}}
+<div class="bg-white rounded-xl border border-orange-100 shadow-sm p-5">
+    <p class="text-xs text-gray-400 uppercase tracking-wide font-medium mb-2">Reorder Point (ROP)</p>
+    <form action="{{ route('admin.inventory.product.update-rop', $product->id) }}" method="POST" class="flex items-center gap-2">
+        @csrf
+        <div class="relative flex-1">
+            <input type="number" name="reorder_point" value="{{ $product->reorder_point ?? 0 }}" min="0"
+                class="w-full text-2xl font-bold text-orange-500 bg-orange-50/50 border-none rounded-lg p-0 focus:ring-0">
         </div>
         <div class="bg-white rounded-xl border border-blue-100 shadow-sm p-5">
             <p class="text-xs text-gray-400 uppercase tracking-wide font-medium">Alokasi Jual</p>
@@ -53,12 +43,11 @@ Vars: $product, $allocations, $batches, $belowRop, $qJual, $qInternal
             <dl class="space-y-3 text-sm">
                 <div class="flex justify-between">
                     <dt class="text-gray-400">Harga Jual</dt>
-                    <dd class="font-semibold text-gray-700">Rp {{ number_format($product->harga ?? 0, 0, ',', '.') }}
-                    </dd>
+                    <dd class="font-semibold text-gray-700">Rp {{ number_format($product->selling_price ?? 0, 0, ',', '.') }}</dd>
                 </div>
                 <div class="flex justify-between">
                     <dt class="text-gray-400">Tipe Produk</dt>
-                    <dd class="font-semibold text-gray-700">{{ ucfirst($product->type) }}</dd>
+                    <dd class="font-semibold text-gray-700">{{ ucfirst($product->category) }}</dd>
                 </div>
                 <div class="flex justify-between">
                     <dt class="text-gray-400">Sumber Stok</dt>
@@ -68,7 +57,7 @@ Vars: $product, $allocations, $batches, $belowRop, $qJual, $qInternal
                     <div class="flex justify-between">
                         <dt class="text-gray-400">Formula</dt>
                         <dd class="font-semibold text-orange-600 font-mono text-xs">
-                            {{ $product->formula->kode_formula }} · {{ $product->formula->nama_formula }}
+                            {{ $product->formula->formula_code }} · {{ $product->formula->formula_name }}
                         </dd>
                     </div>
                 @endif
@@ -80,8 +69,7 @@ Vars: $product, $allocations, $batches, $belowRop, $qJual, $qInternal
                 </div>
                 <div class="flex justify-between">
                     <dt class="text-gray-400">Sisa Bebas</dt>
-                    <dd
-                        class="font-semibold {{ max(0, $product->stock - $qJual - $qInternal) === 0 ? 'text-red-600' : 'text-gray-700' }}">
+                    <dd class="font-semibold {{ max(0, $product->stock - $qJual - $qInternal) === 0 ? 'text-red-600' : 'text-gray-700' }}">
                         {{ number_format(max(0, $product->stock - $qJual - $qInternal)) }} unit
                     </dd>
                 </div>
@@ -93,9 +81,9 @@ Vars: $product, $allocations, $batches, $belowRop, $qJual, $qInternal
             <h3 class="text-sm font-semibold text-gray-700 mb-4">Status Stok</h3>
 
             @php
-                $reorder_point = $product->reorder_point ?? 0;
+                $reorder_point    = $product->reorder_point ?? 0;
                 $maxVal = max($reorder_point * 2, $product->stock, 1);
-                $pct = min(round(($product->stock / $maxVal) * 100), 100);
+                $pct    = min(round(($product->stock / $maxVal) * 100), 100);
                 $ropPct = $maxVal > 0 ? min(round(($reorder_point / $maxVal) * 100), 100) : 50;
                 $barCol = $belowRop ? 'bg-red-500' : ($pct < 55 ? 'bg-yellow-400' : 'bg-green-500');
             @endphp
@@ -112,8 +100,7 @@ Vars: $product, $allocations, $batches, $belowRop, $qJual, $qInternal
                     <div class="absolute inset-y-0 w-0.5 bg-orange-500 opacity-80" style="left: {{ $ropPct }}%"></div>
                 </div>
                 <div class="flex justify-between text-xs text-gray-400 mb-5">
-                    <span>Stok: <strong
-                            class="{{ $belowRop ? 'text-red-600' : 'text-green-600' }}">{{ number_format($product->stock) }}</strong></span>
+                    <span>Stok: <strong class="{{ $belowRop ? 'text-red-600' : 'text-green-600' }}">{{ number_format($product->stock) }}</strong></span>
                     <span>{{ $pct }}%</span>
                 </div>
             @endif

@@ -19,7 +19,7 @@ class PurchaseOrderSeeder extends Seeder
 
         // PO Draft
         PurchaseOrder::create([
-            'po_code' => 'PO-20250811-0001',
+            'purchase_order_code' => 'PO-20250811-0001',
             'supplier_id' => $supplier->id,
             'type' => 'material',
             'order_date' => now()->subDays(7),
@@ -36,7 +36,7 @@ class PurchaseOrderSeeder extends Seeder
 
         // PO Disetujui
         PurchaseOrder::create([
-            'po_code' => 'PO-20250811-0002',
+            'purchase_order_code' => 'PO-20250811-0002',
             'supplier_id' => $supplier->id,
             'type' => 'material',
             'order_date' => now()->subDays(5),
@@ -53,7 +53,7 @@ class PurchaseOrderSeeder extends Seeder
 
         // PO Selesai
         PurchaseOrder::create([
-            'po_code' => 'PO-20250811-0003',
+            'purchase_order_code' => 'PO-20250811-0003',
             'supplier_id' => $supplier->id,
             'type' => 'material',
             'order_date' => now()->subDays(2),

@@ -81,8 +81,8 @@ class MaterialController extends Controller
         ]);
 
         $material->update([
-            'name' => $request->name,
-            'category' => $request->category,
+'material_name' => $request->name,            
+'category' => $request->category,
             'unit' => $request->unit,
             'average_usage' => $request->average_usage ?? 0,
             'lead_time' => $request->lead_time ?? 0,

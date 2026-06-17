@@ -25,6 +25,7 @@ class PurchaseOrderController extends Controller
     {
         $purchaseOrders = PurchaseOrder::with([
             'supplier',
+            'items',
             'orderedBy',
             'recordedBy'
         ])->latest()->get();
@@ -170,7 +171,7 @@ class PurchaseOrderController extends Controller
             'recordedBy'
         ])->findOrFail($id);
 
-        return view('admin.purchase-orders.show', compact('po'));
+        return view('admin.purchase-orders.show', compact('purchaseOrder'));
     }
 
     /**

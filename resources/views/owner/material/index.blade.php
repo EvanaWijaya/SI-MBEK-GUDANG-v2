@@ -40,9 +40,9 @@
                     <tbody class="divide-y divide-gray-200 bg-white">
                     @foreach ($materials as $m)
                         <tr>
-                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">{{ $m->nama_bahan }}</td>
-                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $m->satuan }}</td>
-                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $m->deskripsi }}</td>
+                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">{{ $m->material_name }}</td>
+                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $m->unit }}</td>
+                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $m->description }}</td>
                             <td class="whitespace-nowrap px-3 py-4 text-sm flex gap-2">
                                 {{-- Icon Edit --}}
                                 <a href="{{ route('owner.materials.update', $m->id) }}" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700">

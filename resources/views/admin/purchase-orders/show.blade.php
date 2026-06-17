@@ -12,17 +12,17 @@
                 </a>
                 <div>
                     <div class="flex items-center gap-3">
-                        <h1 class="text-2xl font-bold text-gray-800 font-mono">{{ $po->po_code }}</h1>
+                        <h1 class="text-2xl font-bold text-gray-800 font-mono">{{ $purchaseOrder->purchase_order_code }}</h1>
                         @php
                             $statusConfig = [
                                 'draft'    => 'bg-yellow-100 text-yellow-700 border-yellow-200',
                                 'ordered'  => 'bg-blue-100 text-blue-700 border-blue-200',
                                 'received' => 'bg-green-100 text-green-700 border-green-200',
                             ];
-                            $cls = $statusConfig[$po->status] ?? 'bg-gray-100 text-gray-600 border-gray-200';
+                            $cls = $statusConfig[$purchaseOrder->status] ?? 'bg-gray-100 text-gray-600 border-gray-200';
                         @endphp
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border {{ $cls }}">
-                            {{ ucfirst($po->status) }}
+                            {{ ucfirst($purchaseOrder->status) }}
                         </span>
                     </div>
                     <p class="text-sm text-gray-500 mt-0.5">Detail Pemesanan Bahan</p>
@@ -55,16 +55,16 @@
 
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
                     <p class="text-xs text-gray-400 uppercase tracking-wide font-medium">Supplier</p>
-                    <p class="text-sm font-semibold text-gray-800 mt-1.5">{{ $po->supplier->supplier_name ?? '-' }}</p>
-                    <p class="text-xs text-gray-400 mt-0.5">{{ $po->supplier->city ?? '' }}{{ $po->supplier->city && $po->supplier->province ? ', ' : '' }}{{ $po->supplier->province ?? '' }}</p>
+                    <p class="text-sm font-semibold text-gray-800 mt-1.5">{{ $purchaseOrder->supplier->supplier_name ?? '-' }}</p>
+                    <p class="text-xs text-gray-400 mt-0.5">{{ $purchaseOrder->supplier->city ?? '' }}{{ $purchaseOrder->supplier->city && $purchaseOrder->supplier->province ? ', ' : '' }}{{ $purchaseOrder->supplier->province ?? '' }}</p>
                 </div>
 
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
                     <p class="text-xs text-gray-400 uppercase tracking-wide font-medium">Tipe</p>
                     <p class="text-sm font-semibold mt-1.5">
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium
-                            {{ $po->type === 'material' ? 'bg-purple-50 text-purple-700' : 'bg-cyan-50 text-cyan-700' }}">
-                            {{ ucfirst($po->type ?? '-') }}
+                            {{ $purchaseOrder->type === 'material' ? 'bg-purple-50 text-purple-700' : 'bg-cyan-50 text-cyan-700' }}">
+                            {{ ucfirst($purchaseOrder->type ?? '-') }}
                         </span>
                     </p>
                 </div>
@@ -72,7 +72,7 @@
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
                     <p class="text-xs text-gray-400 uppercase tracking-wide font-medium">Tanggal Pesan</p>
                     <p class="text-sm font-semibold text-gray-800 mt-1.5">
-                        {{ \Carbon\Carbon::parse($po->tanggal_pesan)->format('d M Y') }}
+                        {{ \Carbon\Carbon::parse($purchaseOrder->order_date)->format('d M Y') }}
                     </p>
                 </div>
 
@@ -80,7 +80,7 @@
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
         <p class="text-xs text-gray-400 uppercase tracking-wide font-medium">Tanggal Disetujui</p>
         <p class="text-sm font-semibold text-gray-800 mt-1.5">
-            {{ $po->tanggal_disetujui ? \Carbon\Carbon::parse($po->tanggal_disetujui)->format('d M Y') : '-' }}
+            {{ $purchaseOrder->approved_date ? \Carbon\Carbon::parse($purchaseOrder->approved_date)->format('d M Y') : '-' }}
         </p>
     </div>
 
@@ -88,7 +88,7 @@
 <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
     <p class="text-xs text-gray-400 uppercase tracking-wide font-medium">Tanggal Diterima</p>
     <p class="text-sm font-semibold text-gray-800 mt-1.5">
-        {{ $po->received_date ? \Carbon\Carbon::parse($po->received_date)->format('d M Y') : '-' }}
+        {{ $purchaseOrder->received_date ? \Carbon\Carbon::parse($purchaseOrder->received_date)->format('d M Y') : '-' }}
     </p>
 </div>
             </div>
@@ -105,8 +105,8 @@
                         </div>
                         <div>
                             <p class="text-xs text-gray-400">Dipesan Atas Nama</p>
-                            <p class="font-semibold text-gray-800">{{ $po->orderedBy->name ?? '-' }}</p>
-                            <p class="text-xs text-gray-400">{{ class_basename($po->ordered_by_type ?? '') }}</p>
+                            <p class="font-semibold text-gray-800">{{ $purchaseOrder->orderedBy->name ?? '-' }}</p>
+                            <p class="text-xs text-gray-400">{{ class_basename($purchaseOrder->ordered_by_type ?? '') }}</p>
                         </div>
                     </div>
                     <div class="flex items-start gap-3">
@@ -117,15 +117,15 @@
                         </div>
                         <div>
                             <p class="text-xs text-gray-400">Dicatat / Diinput Oleh</p>
-                            <p class="font-semibold text-gray-800">{{ $po->dicatatOleh->name ?? '-' }}</p>
-                            <p class="text-xs text-gray-400">{{ class_basename($po->dicatat_oleh_type ?? '') }}</p>
+                            <p class="font-semibold text-gray-800">{{ $purchaseOrder->recordedBy->name ?? '-' }}</p>
+                            <p class="text-xs text-gray-400">{{ class_basename($purchaseOrder->recorded_by_type ?? '') }}</p>
                         </div>
                     </div>
                 </div>
-                @if($po->catatan_owner)
+                @if($purchaseOrder->notes)
                 <div class="mt-4 pt-4 border-t border-gray-100">
                     <p class="text-xs text-gray-400 mb-1">Catatan</p>
-                    <p class="text-sm text-gray-700 bg-gray-50 rounded-lg p-3">{{ $po->catatan_owner }}</p>
+                    <p class="text-sm text-gray-700 bg-gray-50 rounded-lg p-3">{{ $purchaseOrder->notes}}</p>
                 </div>
                 @endif
             </div>
@@ -134,7 +134,7 @@
             <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                 <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
                     <h3 class="text-sm font-semibold text-gray-700">Item Pesanan</h3>
-                    <span class="text-xs text-gray-400">{{ $po->items->count() }} item</span>
+                    <span class="text-xs text-gray-400">{{ $purchaseOrder->items->count() }} item</span>
                 </div>
 
                 <div class="overflow-x-auto">
@@ -150,7 +150,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-50">
-                            @forelse($po->items as $item)
+                            @forelse($purchaseOrder->items as $item)
                                 <tr class="hover:bg-gray-50 transition-colors">
                                     <td class="px-5 py-4">
                                         <p class="font-medium text-gray-800">{{ $item->material->material_name ?? $item->product->material_name ?? '-' }}</p>
@@ -184,7 +184,7 @@
                             <tr>
                                 <td colspan="3" class="px-5 py-3 text-right text-sm font-semibold text-gray-600">Total:</td>
                                 <td class="px-5 py-3 text-right text-base font-bold text-orange-700">
-                                    Rp {{ number_format($po->items->sum('subtotal'), 0, ',', '.') }}
+                                    Rp {{ number_format($purchaseOrder->items->sum('subtotal'), 0, ',', '.') }}
                                 </td>
                                 <td colspan="2"></td>
                             </tr>
@@ -194,7 +194,7 @@
             </div>
 
             {{-- Receive Form (Admin only, status dipesan) --}}
-@if(auth()->guard('admin')->check() && $po->status === 'ordered')
+@if(auth()->guard('admin')->check() && $purchaseOrder->status === 'ordered')
     <div class="bg-white rounded-xl border border-blue-200 shadow-sm overflow-hidden">
         <div class="px-5 py-4 bg-blue-50 border-b border-blue-100 flex items-center gap-2">
             <svg class="w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -203,7 +203,7 @@
             <h3 class="text-sm font-semibold text-blue-700">Terima Barang & Input Stok</h3>
         </div>
 
-        <form method="POST" novalidate action="{{ route('admin.purchase-orders.receive', $po->id) }}" id="receive-form">
+        <form method="POST" novalidate action="{{ route('admin.purchase-orders.receive', $purchaseOrder->id) }}" id="receive-form">
     @csrf
 
     {{-- Kotak List Error Validasi Global di Atas Tabel --}}
@@ -229,7 +229,7 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-50">
-                @foreach($po->items as $item)
+                @foreach($purchaseOrder->items as $item)
                     <tr>
                         <input type="hidden" name="items[{{ $loop->index }}][id]" value="{{ $item->id }}">
                         
@@ -242,7 +242,7 @@
                         
                         {{-- Kolom Jumlah Diterima --}}
                         <td class="py-3.5 text-center">
-                            <input type="number" name="items[{{ $loop->index }}][re]" 
+                            <input type="number" name="items[{{ $loop->index }}][received_quantity]"
                                 min="0" 
                                 value="{{ old("items.{$loop->index}.received_quantity", $item->quantity) }}" 
                                 class="w-24 border {{ $errors->has("items.{$loop->index}.received_quantity") ? 'border-red-400 bg-red-50 text-red-900 focus:ring-red-500 focus:border-red-400' : 'border-gray-300 focus:ring-blue-400' }} rounded-lg px-2 py-1.5 text-center text-sm focus:outline-none">
@@ -250,9 +250,9 @@
                         
                         {{-- Kolom Expired Date --}}
                         <td class="py-3.5 pr-4 text-center">
-                            <input type="date" name="items[{{ $loop->index }}][expired_date]"
-                                value="{{ old("items.{$loop->index}.expired_date") }}"
-                                class="w-full border {{ $errors->has("items.{$loop->index}.expired_date") ? 'border-red-400 bg-red-50 text-red-900 focus:ring-red-500 focus:border-red-400' : 'border-gray-300 focus:ring-blue-400' }} rounded-lg px-2 py-1.5 text-sm focus:outline-none bg-gray-50 focus:bg-white transition-all">
+                            <input type="date" name="items[{{ $loop->index }}][expiration_date]"
+                                value="{{ old("items.{$loop->index}.expiration_date") }}"
+                                class="w-full border {{ $errors->has("items.{$loop->index}.expiration_date") ? 'border-red-400 bg-red-50 text-red-900 focus:ring-red-500 focus:border-red-400' : 'border-gray-300 focus:ring-blue-400' }} rounded-lg px-2 py-1.5 text-sm focus:outline-none bg-gray-50 focus:bg-white transition-all">
                         </td>
                     </tr>
                 @endforeach
@@ -274,7 +274,7 @@
 @endif
 
             {{-- Timeline --}}
-            @if($po->status === 'received')
+            @if($purchaseOrder->status === 'received')
                 <div class="bg-green-50 border border-green-200 rounded-xl p-5">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
@@ -286,7 +286,7 @@
                             <p class="font-semibold text-green-800">Pemesanan Bahan Selesai</p>
                             <p class="text-sm text-green-600 mt-0.5">
                                 Semua barang telah diterima pada
-                                {{ $po->received_date ? \Carbon\Carbon::parse($po->received_date)->format('d M Y, H:i') : '-' }}
+                                {{ $purchaseOrder->received_date ? \Carbon\Carbon::parse($purchaseOrder->received_date)->format('d M Y, H:i') : '-' }}
                             </p>
                         </div>
                     </div>
