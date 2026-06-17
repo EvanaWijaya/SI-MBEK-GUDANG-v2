@@ -81,7 +81,7 @@
                         @forelse($purchaseOrders as $po)
                             <tr class="hover:bg-gray-50 transition-colors">
                                 <td class="px-5 py-4 font-mono text-orange-600 font-semibold text-xs">{{ $po->po_code }}</td>
-                                <td class="px-5 py-4 text-gray-800">{{ $po->supplier->nama_supplier ?? '-' }}</td>
+                                <td class="px-5 py-4 text-gray-800">{{ $po->supplier->supplier_name ?? '-' }}</td>
                                 <td class="px-5 py-4">
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium
                                         {{ $po->type === 'material' ? 'bg-purple-50 text-purple-700' : 'bg-cyan-50 text-cyan-700' }}">

@@ -54,7 +54,7 @@
                         </div>
 
                         <div class="mb-4">
-                            <p class="text-xs text-black font-bold uppercase mb-1">Satuan</p>
+                            <p class="text-xs text-black font-bold uppercase mb-1">Unit</p>
                             <p x-show="!editMode" class="text-lg text-gray-800">{{ $material->unit }}</p>
                             <input x-show="editMode" type="text" name="unit" value="{{ $material->unit }}" class="w-full border-gray-300 rounded focus:ring-orange-500 text-black">
                         </div>

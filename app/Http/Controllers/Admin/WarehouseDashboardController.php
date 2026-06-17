@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\Material;
 use App\Models\Product;
 use App\Models\Supplier;
@@ -101,10 +102,10 @@ class WarehouseDashboardController extends Controller
         )
             ->join('users', 'orders.user_id', '=', 'users.id')
             ->select(
-                'users.kota',
+                'users.city',
                 DB::raw('COUNT(orders.id) as total')
             )
-            ->groupBy('users.kota')
+            ->groupBy('users.city')
             ->orderByDesc('total')
             ->take(6)
             ->get();
@@ -224,7 +225,7 @@ class WarehouseDashboardController extends Controller
             ->values();
 
         return view(
-            'warehouse.activity-log',
+            'admin.warehouse.activity-log',
             compact('logs', 'types', 'modules')
         );
     }

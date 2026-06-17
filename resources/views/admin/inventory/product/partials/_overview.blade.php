@@ -53,12 +53,12 @@ Vars: $product, $allocations, $batches, $belowRop, $qJual, $qInternal
             <dl class="space-y-3 text-sm">
                 <div class="flex justify-between">
                     <dt class="text-gray-400">Harga Jual</dt>
-                    <dd class="font-semibold text-gray-700">Rp {{ number_format($product->harga ?? 0, 0, ',', '.') }}
+                    <dd class="font-semibold text-gray-700">Rp {{ number_format($product->selling_price ?? 0, 0, ',', '.') }}
                     </dd>
                 </div>
                 <div class="flex justify-between">
                     <dt class="text-gray-400">Tipe Produk</dt>
-                    <dd class="font-semibold text-gray-700">{{ ucfirst($product->type) }}</dd>
+                    <dd class="font-semibold text-gray-700">{{ ucfirst($product->category) }}</dd>
                 </div>
                 <div class="flex justify-between">
                     <dt class="text-gray-400">Sumber Stok</dt>

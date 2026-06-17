@@ -251,7 +251,7 @@ class PurchaseOrderController extends Controller
                         'quantity' => $recivedQuantity,
                         'source' => 'PO',
                         'reference_id' => $purchaseOrder->id,
-                        'note' => 'PO ' . $purchaseOrder->kode_po .
+                        'note' => 'PO ' . $purchaseOrder->po_code .
                             ($purchaseOrder->notes ? ' | ' . $purchaseOrder->notes : ''),
                         'movement_date' => now(),
                         'notes' => $purchaseOrder->notes,
@@ -335,7 +335,7 @@ class PurchaseOrderController extends Controller
                     'actor_type' => get_class($actor),
                     'type' => 'po_received',
                     'module' => 'purchase_order',
-                    'description' => 'Menerima Purchase Order #' . $purchaseOrder->kode_po
+                    'description' => 'Menerima Purchase Order #' . $purchaseOrder->po_code
                 ]);
             }
         }

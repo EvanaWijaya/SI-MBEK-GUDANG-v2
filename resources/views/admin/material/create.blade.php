@@ -36,7 +36,7 @@
                     @enderror
                     
                     {{-- Input Satuan --}}
-                    <label class="block font-bold mt-4 mb-2 {{ $errors->has('unit') ? 'text-red-600' : 'text-gray-700' }}">Satuan</label>
+                    <label class="block font-bold mt-4 mb-2 {{ $errors->has('unit') ? 'text-red-600' : 'text-gray-700' }}">Unit</label>
                     <input type="text" name="unit" value="{{ old('unit') }}" 
                         class="w-full border {{ $errors->has('unit') ? 'border-red-400 bg-red-50 text-red-900 focus:ring-red-500 focus:border-red-400' : 'border-gray-300 focus:ring-orange-500 focus:border-brand-orange' }} rounded-lg p-2.5 text-sm transition-all" 
                         placeholder="kg, karung, liter" required>

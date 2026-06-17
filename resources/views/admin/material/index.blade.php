@@ -36,7 +36,7 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Nama Bahan</th>
-                            <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Satuan</th>
+                            <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Unit</th>
                             <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Deskripsi</th>
                             <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Aksi</th>
                         </tr>

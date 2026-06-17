@@ -100,7 +100,7 @@ class PurchaseOrderController extends Controller
             $purchaseOrderCode = 'PO-' . date('Ymd') . '-' . rand(1000, 9999);
 
             $purchaseOrder = PurchaseOrder::create([
-                'purchase_order_code' => $purchaseOrderCode,
+                'po_code' => $purchaseOrderCode,
                 'supplier_id' => $request->supplier_id,
                 'type' => $request->type,
                 'order_date' => $request->order_date,
@@ -149,7 +149,7 @@ class PurchaseOrderController extends Controller
                 'actor_type' => get_class($actor),
                 'type' => 'po_created',
                 'module' => 'purchase_order',
-                'description' => 'Membuat Purchase Order #' . $purchaseOrder->purchase_order_code
+                'description' => "Membuat Purchase Order #{$purchaseOrder->po_code}",
             ]);
         }
 
@@ -170,7 +170,7 @@ class PurchaseOrderController extends Controller
             'recordedBy'
         ])->findOrFail($id);
 
-        return view('admin.purchase-orders.show', compact('po'));
+        return view('admin.purchase-orders.show', compact('purchaseOrder'));
     }
 
     /**
@@ -201,7 +201,7 @@ class PurchaseOrderController extends Controller
             'type' => 'po_approved',
             'module' => 'purchase_order',
             'description' => 'Owner Menyetujui Purchase Order #' .
-                $purchaseOrder->purchase_order_code,
+                $purchaseOrder->po_code,
         ]);
 
         return back()->with(
@@ -303,7 +303,7 @@ class PurchaseOrderController extends Controller
                         'quantity' => $received_quantity,
                         'source' => 'purchaseOrder',
                         'reference_id' => $purchaseOrder->id,
-                        'note' => 'purchaseOrder ' . $purchaseOrder->purchase_order_code .
+                        'note' => 'purchaseOrder ' . $purchaseOrder->po_code .
                             ($purchaseOrder->notes ? ' | ' . $purchaseOrder->notes : ''),
                         'movement_date' => now(),
                         'notes' => $purchaseOrder->notes,
@@ -322,11 +322,11 @@ class PurchaseOrderController extends Controller
                         throw new \Exception('Product tidak ditemukan.');
                     }
 
-                    if ($product->type !== 'obat') {
+                    if ($product->category !== 'obat') {
                         throw new \Exception('Hanya produk obat yang boleh via PO.');
                     }
 
-                    if ($product->source !== 'pembelian') {
+                    if ($product->source !== 'purchase') {
                         throw new \Exception('Produk ini bukan dari pembelian.');
                     }
 
@@ -387,7 +387,7 @@ class PurchaseOrderController extends Controller
                     'actor_type' => get_class($actor),
                     'type' => 'po_received',
                     'module' => 'purchase_order',
-                    'description' => 'Menerima Purchase Order #' . $purchaseOrder->purchase_order_code
+                    'description' => 'Menerima Purchase Order #' . $purchaseOrder->po_code
                 ]);
             }
         }

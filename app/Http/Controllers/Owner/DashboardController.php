@@ -121,13 +121,13 @@ class DashboardController extends Controller
             'product_types' => $allForSale->pluck('product_type')->toArray()
         ];
 
-        return view('admin.dashboard', compact('kambingCount', 'kambingThisMonth', 'kambingLastMonth', 'kambingPercentageChange', 'dombaCount', 'dombaThisMonth', 'dombaLastMonth', 'dombaPercentageChange', 'userCount', 'userThisMonth', 'userLastMonth', 'userPercentageChange', 'users', 'usersa', 'usersWithDomba', 'ownerPercentage', 'kambingAvgWeight', 'dombaAvgWeight', 'kambingAvgPrice', 'dombaAvgPrice', 'weeklyLabels', 'weeklyKambingCounts', 'weeklyDombaCounts', 'forSaleChartData'));
+        return view('owner.dashboard', compact('kambingCount', 'kambingThisMonth', 'kambingLastMonth', 'kambingPercentageChange', 'dombaCount', 'dombaThisMonth', 'dombaLastMonth', 'dombaPercentageChange', 'userCount', 'userThisMonth', 'userLastMonth', 'userPercentageChange', 'users', 'usersa', 'usersWithDomba', 'ownerPercentage', 'kambingAvgWeight', 'dombaAvgWeight', 'kambingAvgPrice', 'dombaAvgPrice', 'weeklyLabels', 'weeklyKambingCounts', 'weeklyDombaCounts', 'forSaleChartData'));
     }
 
     public function perjanjian()
     {
         $users = User::withCount('kambings')->orderBy('kambings_count', 'desc')->take(7)->get();
-        return view('admin.perjanjian', compact('users'));
+        return view('owner.perjanjian', compact('users'));
     }
     public function penjualan(Request $request)
     {
@@ -232,7 +232,7 @@ class DashboardController extends Controller
             'revenues' => $revenues
         ];
 
-        return view('admin.penjualan', compact(
+        return view('owner.penjualan', compact(
             'orders',
             'totalPenjualan',
             'totalPendapatan',
@@ -265,7 +265,7 @@ class DashboardController extends Controller
                 'notes' => 'required|string|max:1000',
             ]);
 
-            $order->admin_notes = $request->notes;
+            $order->owner_notes = $request->notes;
             $order->save();
 
             return response()->json([
@@ -303,7 +303,7 @@ class DashboardController extends Controller
 
             $order->status = $status;
             if ($notes) {
-                $order->admin_notes = $notes;
+                $order->owner_notes = $notes;
             }
             $order->save();
 

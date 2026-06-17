@@ -46,11 +46,11 @@ class MaterialInventoryController extends Controller
             'type' => 'required|in:in,out',
             'quantity' => 'required|integer|min:1',
 
-            'expired_date' => 'required_if:type,in|nullable|date|after_or_equal:today',
+            'expiration_date' => 'required_if:type,in|nullable|date|after_or_equal:today',
             'note' => 'nullable|string|max:255',
         ], [
             // Custom pesan error biar lebih jelas
-            'expired_date.required_if' => 'Expired date wajib diisi untuk penambahan stok barang baru.',
+            'expiration_date.required_if' => 'Expired date wajib diisi untuk penambahan stok barang baru.',
         ]);
 
         DB::transaction(function () use ($request, $material) {
@@ -62,7 +62,7 @@ class MaterialInventoryController extends Controller
                     'material_id' => $material->id,
                     'qty' => $request->quantity,
                     'received_date' => now(),
-                    'expired_date' => $request->expired_date,
+                    'expiration_date' => $request->expiration_date,
                     'created_by' => auth('admin')->id(),
                 ]);
 

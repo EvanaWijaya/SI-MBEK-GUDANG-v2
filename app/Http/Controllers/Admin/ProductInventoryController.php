@@ -84,7 +84,7 @@ class ProductInventoryController extends Controller
             'expiration_date' => 'required_if:type,in|nullable|date|after_or_equal:today',
             'reason' => 'nullable|string'
         ], [
-            'expired_date.required_if' => 'Expired date wajib diisi untuk penambahan stok barang baru.',
+            'expiration_date.required_if' => 'Expired date wajib diisi untuk penambahan stok barang baru.',
         ]);
 
         DB::transaction(function () use ($request, $product) {
@@ -99,7 +99,7 @@ class ProductInventoryController extends Controller
                     'source' => 'manual_adjustment',
                     'reference_id' => null,
                     'received_date' => now(),
-                    'expiration_date' => $request->expired_date,
+                    'expiration_date' => $request->expiration_date,
                     'price_per_unit' => 0,
                 ]);
 

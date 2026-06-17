@@ -11,6 +11,7 @@ use App\Models\Production;
 use App\Models\Product;
 use App\Models\ProductStock;
 use App\Models\ActivityLog;
+use App\Models\ProductionQc;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 

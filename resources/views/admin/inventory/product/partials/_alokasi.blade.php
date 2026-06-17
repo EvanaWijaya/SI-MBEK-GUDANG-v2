@@ -36,9 +36,9 @@
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm px-5 py-4 flex flex-wrap items-center gap-6 text-sm">
         <div class="flex items-center gap-2">
             <span class="text-gray-400 text-xs">Stok Total</span>
-            <span class="font-bold {{ $belowRop ? 'text-red-600' : 'text-gray-800' }}">{{ number_format($product->stok) }}</span>
+            <span class="font-bold {{ $belowRop ? 'text-red-600' : 'text-gray-800' }}">{{ number_format($product->stock) }}</span>
             @if($belowRop)
-                <span class="text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-semibold">⚠ ROP: {{ $product->rop }}</span>
+                <span class="text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-semibold">⚠ ROP: {{ $product->reorder_point }}</span>
             @endif
         </div>
         <div class="w-px h-4 bg-gray-200"></div>

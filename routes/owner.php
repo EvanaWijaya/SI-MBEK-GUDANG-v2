@@ -9,7 +9,7 @@ use App\Http\Controllers\Owner\KambingController;
 use App\Http\Controllers\Owner\DombaController;
 use App\Http\Controllers\Owner\PenjualanController;
 use App\Http\Controllers\Owner\SupplierController;
-use App\Http\Controllers\Admin\PurchaseOrderController;
+use App\Http\Controllers\Owner\PurchaseOrderController;
 use App\Http\Controllers\Owner\MaterialInventoryController;
 use App\Http\Controllers\Owner\ProductInventoryController;
 use App\Http\Controllers\Owner\MaterialController;

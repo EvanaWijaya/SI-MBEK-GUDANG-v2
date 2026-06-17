@@ -113,10 +113,10 @@
                                 </div>
                                 <div class="w-28">
                                     <div class="relative">
-                                        <input type="number" name="materials[{{ $i }}][persentase]"
-                                            class="persentase-input w-full border border-gray-300 rounded-lg pl-3 pr-7 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all"
+                                        <input type="number" name="materials[{{ $i }}][percentage]"
+                                            class="percentage-input w-full border border-gray-300 rounded-lg pl-3 pr-7 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all"
                                             step="0.01" min="0.01" max="100"
-                                            value="{{ $material->pivot->persentase }}" required>
+                                            value="{{ $material->pivot->percentage }}" required>
                                         <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-gray-400">%</span>
                                     </div>
                                 </div>
@@ -169,8 +169,8 @@
                 </div>
                 <div class="w-28">
                     <div class="relative">
-                        <input type="number" name="materials[__IDX__][persentase]"
-                            class="persentase-input w-full border border-gray-300 rounded-lg pl-3 pr-7 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all"
+                        <input type="number" name="materials[__IDX__][percentage]"
+                            class="percentage-input w-full border border-gray-300 rounded-lg pl-3 pr-7 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all"
                             step="0.01" min="0.01" max="100" placeholder="0" required>
                         <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-gray-400">%</span>
                     </div>
@@ -190,7 +190,7 @@
 
     function updateTotal() {
         let total = 0;
-        document.querySelectorAll('.persentase-input').forEach(i => total += parseFloat(i.value) || 0);
+        document.querySelectorAll('.percentage-input').forEach(i => total += parseFloat(i.value) || 0);
         total = Math.round(total * 100) / 100;
 
         const bar   = document.getElementById('progressBar');
@@ -235,7 +235,7 @@
         div.innerHTML = tpl.trim();
         const row = div.firstChild;
         row.querySelector('.btn-remove').addEventListener('click', () => { row.remove(); updateRemoveButtons(); updateTotal(); });
-        row.querySelector('.persentase-input').addEventListener('input', updateTotal);
+        row.querySelector('.percentage-input').addEventListener('input', updateTotal);
         document.getElementById('materialRows').appendChild(row);
         updateRemoveButtons();
     });
@@ -248,11 +248,11 @@
         });
     });
 
-    document.querySelectorAll('.persentase-input').forEach(i => i.addEventListener('input', updateTotal));
+    document.querySelectorAll('.percentage-input').forEach(i => i.addEventListener('input', updateTotal));
 
     document.getElementById('formulaForm').addEventListener('submit', function(e) {
         let total = 0;
-        document.querySelectorAll('.persentase-input').forEach(i => total += parseFloat(i.value) || 0);
+        document.querySelectorAll('.percentage-input').forEach(i => total += parseFloat(i.value) || 0);
         if (Math.round(total * 100) / 100 !== 100) {
             e.preventDefault();
             alert('Total persentase bahan harus tepat 100%. Saat ini: ' + total + '%');

@@ -43,19 +43,19 @@ class FormulaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'formula_name' => 'required|string|max:255',
             'materials' => 'required|array|min:1',
             'materials.*.material_id' => 'required|exists:materials,id',
-            'materials.*.persentase' => 'required|numeric|min:0.01|max:100',
+            'materials.*.percentage' => 'required|numeric|min:0.01|max:100',
         ]);
 
         // 🔥 Validasi total 100%
         $totalPersentase = collect($request->materials)
-            ->sum('persentase');
+            ->sum('percentage');
 
         if (round($totalPersentase, 2) != 100) {
             return back()->withInput()->withErrors([
-                'persentase' => 'Total persentase bahan harus 100%',
+                'percentage' => 'Total persentase bahan harus 100%',
             ]);
         }
 
@@ -70,8 +70,8 @@ class FormulaController extends Controller
             $formulaCode = 'FRM-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
 
             $formula = Formula::create([
-                'code' => $formulaCode,
-                'name' => $request->name,
+                'formula_code' => $formulaCode,
+                'formula_name' => $request->formula_name,
                 'description' => $request->description,
                 'created_by' => auth('admin')->id(),
                 'is_active' => true,
@@ -81,7 +81,7 @@ class FormulaController extends Controller
             foreach ($request->materials as $item) {
                 $formula->materials()->attach(
                     $item['material_id'],
-                    ['persentase' => $item['persentase']]
+                    ['percentage' => $item['percentage']]
                 );
             }
 
@@ -115,25 +115,25 @@ class FormulaController extends Controller
     public function update(Request $request, Formula $formula)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'formula_name' => 'required|string|max:255',
             'materials' => 'required|array|min:1',
             'materials.*.material_id' => 'required|exists:materials,id',
-            'materials.*.persentase' => 'required|numeric|min:0.01|max:100',
+            'materials.*.percentage' => 'required|numeric|min:0.01|max:100',
         ]);
 
         $totalPersentase = collect($request->materials)
-            ->sum('persentase');
+            ->sum('percentage');
 
         if ($totalPersentase != 100) {
             return back()->withInput()->withErrors([
-                'persentase' => 'Total persentase bahan harus 100%',
+                'percentage' => 'Total persentase bahan harus 100%',
             ]);
         }
 
         DB::transaction(function () use ($request, $formula) {
 
             $formula->update([
-                'name' => $request->name,
+                'formula_name' => $request->formula_name,
                 'description' => $request->description,
             ]);
 
@@ -142,7 +142,7 @@ class FormulaController extends Controller
 
             foreach ($request->materials as $item) {
                 $syncData[$item['material_id']] = [
-                    'persentase' => $item['persentase']
+                    'percentage' => $item['percentage']
                 ];
             }
 

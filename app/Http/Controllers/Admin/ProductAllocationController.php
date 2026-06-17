@@ -51,9 +51,9 @@ class ProductAllocationController extends Controller
             ActivityLog::create([
                 'actor_id' => auth('admin')->id(),
                 'actor_type' => \App\Models\Admin::class,
-                'type' => 'allocation_created',
+                'type' => $allocation->type,
                 'module' => 'product_allocation',
-                'description' => 'Membuat alokasi produk #' . $allocation->id,
+                'description' => "Membuat alokasi produk id #{$allocation->product_id} sebanyak ({$allocation->quantity})",
             ]);
 
             return back()->with(

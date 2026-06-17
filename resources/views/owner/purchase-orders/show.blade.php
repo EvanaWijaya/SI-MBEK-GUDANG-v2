@@ -12,12 +12,12 @@
                 </a>
                 <div>
                     <div class="flex items-center gap-3">
-                        <h1 class="text-2xl font-bold text-gray-800 font-mono">{{ $po->kode_po }}</h1>
+                        <h1 class="text-2xl font-bold text-gray-800 font-mono">{{ $po->po_code }}</h1>
                         @php
                             $statusConfig = [
                                 'draft'    => 'bg-yellow-100 text-yellow-700 border-yellow-200',
-                                'dipesan'  => 'bg-blue-100 text-blue-700 border-blue-200',
-                                'diterima' => 'bg-green-100 text-green-700 border-green-200',
+                                'ordered'  => 'bg-blue-100 text-blue-700 border-blue-200',
+                                'received' => 'bg-green-100 text-green-700 border-green-200',
                             ];
                             $cls = $statusConfig[$po->status] ?? 'bg-gray-100 text-gray-600 border-gray-200';
                         @endphp
@@ -73,7 +73,7 @@
 
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
                     <p class="text-xs text-gray-400 uppercase tracking-wide font-medium">Supplier</p>
-                    <p class="text-sm font-semibold text-gray-800 mt-1.5">{{ $po->supplier->nama_supplier ?? '-' }}</p>
+                    <p class="text-sm font-semibold text-gray-800 mt-1.5">{{ $po->supplier->supplier_name ?? '-' }}</p>
                     <p class="text-xs text-gray-400 mt-0.5">{{ $po->supplier->kota ?? '' }}{{ $po->supplier->kota && $po->supplier->provinsi ? ', ' : '' }}{{ $po->supplier->provinsi ?? '' }}</p>
                 </div>
 
@@ -123,8 +123,8 @@
                         </div>
                         <div>
                             <p class="text-xs text-gray-400">Dipesan Atas Nama</p>
-                            <p class="font-semibold text-gray-800">{{ $po->dipesanOleh->name ?? '-' }}</p>
-                            <p class="text-xs text-gray-400">{{ class_basename($po->dipesan_oleh_type ?? '') }}</p>
+                            <p class="font-semibold text-gray-800">{{ $po->OrderedBy->name ?? '-' }}</p>
+                            <p class="text-xs text-gray-400">{{ class_basename($po->ordered_by_type ?? '') }}</p>
                         </div>
                     </div>
                     <div class="flex items-start gap-3">
@@ -171,7 +171,7 @@
                             @forelse($po->items as $item)
                                 <tr class="hover:bg-gray-50 transition-colors">
                                     <td class="px-5 py-4">
-                                        <p class="font-medium text-gray-800">{{ $item->material->nama_bahan ?? $item->product->nama ?? '-' }}</p>
+                                        <p class="font-medium text-gray-800">{{ $item->material->material_name ?? $item->product->material_name ?? '-' }}</p>
                                         <p class="text-xs text-gray-400">{{ $item->material->satuan ?? '' }}</p>
                                     </td>
                                     <td class="px-5 py-4 text-right text-gray-700">{{ number_format($item->jumlah) }}</td>

@@ -152,7 +152,7 @@
                                     <div class="flex flex-wrap gap-1">
                                         @foreach($formula->materials->take(3) as $material)
                                             <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-blue-50 text-blue-700">
-                                                {{ $material->material_name }} ({{ $material->pivot->persentase }}%)
+                                                {{ $material->material_name }} ({{ $material->pivot->percentage }}%)
                                             </span>
                                         @endforeach
                                         @if($formula->materials->count() > 3)

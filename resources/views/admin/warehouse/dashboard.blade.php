@@ -255,10 +255,10 @@
                             ->get();
 
                         $allBuyerData = $ordersSukses->groupBy(function($order) {
-                            return ($order->user && $order->user->kota) ? $order->user->kota : 'Lainnya';
-                        })->map(function($group, $kota) {
+                            return ($order->user && $order->user->city) ? $order->user->city : 'Lainnya';
+                        })->map(function($group, $city) {
                             return [
-                                'daerah' => (string) $kota,
+                                'daerah' => (string) $city,
                                 'total'  => $group->count()
                             ];
                         })->sortByDesc('total')->values();

@@ -109,7 +109,7 @@
     <label class="block text-xs text-gray-500 mb-1.5">
         Expired Date <span id="exp-required-star" class="text-red-500">*</span>
     </label>
-    <input type="date" name="expired_date" id="adj-expired-input" 
+    <input type="date" name="expiration_date" id="adj-expired-input" 
         class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-orange-400">
 </div>
                     <div><label class="block text-xs text-gray-500 mb-1.5">Catatan</label><input type="text" name="note" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm"></div>

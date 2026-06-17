@@ -27,7 +27,7 @@
             </div>
         @endif
 
-        <form action="{{ route('admin.purchase-orders.store') }}" method="POST" novalidate id="po-form">
+        <form action="{{ route('admin.purchase-orders.store') }}" method="POST" novalidate id="purchaseOrder-form">
             @csrf
 
             <div class="space-y-6">
@@ -52,7 +52,7 @@
                                 <option value="">-- Pilih Supplier --</option>
                                 @foreach($suppliers as $supplier)
                                     <option value="{{ $supplier->id }}" {{ old('supplier_id') == $supplier->id ? 'selected' : '' }}>
-                                        {{ $supplier->nama_supplier }}
+                                        {{ $supplier->supplier_name }}
                                     </option>
                                 @endforeach
                             </select>
@@ -63,7 +63,7 @@
                             <label
                                 class="block text-sm font-medium mb-1.5 {{ $errors->has('type') ? 'text-red-600' : 'text-gray-700' }}">Tipe
                                 PO <span class="text-red-500">*</span></label>
-                            <select name="type" id="po-type" required
+                            <select name="type" id="purchaseOrder-type" required
                                 class="w-full border {{ $errors->has('type') ? 'border-red-400 bg-red-50 focus:ring-red-500' : 'border-gray-300 focus:ring-orange-400' }} rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none transition">
                                 <option value="">-- Pilih Tipe --</option>
                                 <option value="material" {{ old('type') === 'material' ? 'selected' : '' }}>Material
@@ -78,8 +78,7 @@
                             <label
                                 class="block text-sm font-medium mb-1.5 {{ $errors->has('order_date') ? 'text-red-600' : 'text-gray-700' }}">Tanggal
                                 Pesan <span class="text-red-500">*</span></label>
-                            <input type="date" name="order_date" value="{{ old('order_date', date('Y-m-d')) }}"
-                                required
+                            <input type="date" name="order_date" value="{{ old('order_date', date('Y-m-d')) }}" required
                                 class="w-full border {{ $errors->has('order_date') ? 'border-red-400 bg-red-50 focus:ring-red-500' : 'border-gray-300 focus:ring-orange-400' }} rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none transition">
                         </div>
 
@@ -110,8 +109,8 @@
                     {{-- Catatan --}}
                     <div class="mt-5">
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">Catatan</label>
-                        <textarea name="notes_owner" rows="3" placeholder="Tambahkan catatan opsional..."
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-400 transition resize-none">{{ old('notes_owner') }}</textarea>
+                        <textarea name="owner_notes" rows="3" placeholder="Tambahkan catatan opsional..."
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-400 transition resize-none">{{ old('owner_notes') }}</textarea>
                     </div>
                 </div>
 
@@ -137,48 +136,49 @@
                         {{-- Logika Penahan Data Lama Saat Gagal Validasi --}}
                         @if(old('items'))
                             @foreach(old('items') as $index => $oldItem)
-                                @php $poType = old('type'); @endphp
+                                @php $purchaseOrderType = old('type'); @endphp
                                 <div class="item-row grid grid-cols-12 gap-3 items-start bg-gray-50 rounded-lg p-4 border {{ $errors->has("items.$index.*") ? 'border-red-400 bg-red-50/20' : 'border-gray-200' }}"
                                     data-index="{{ $index }}">
                                     <div class="col-span-12 sm:col-span-5">
                                         <label
                                             class="block text-xs font-medium mb-1 {{ $errors->has("items.$index.material_id") || $errors->has("items.$index.product_id") ? 'text-red-600 font-bold' : 'text-gray-500' }}">
-                                            {{ $poType === 'material' ? 'Bahan / Material' : 'Produk Obat' }}
+                                            {{ $purchaseOrderType === 'material' ? 'Bahan / Material' : 'Produk Obat' }}
                                         </label>
                                         <select
-                                            name="items[{{ $index }}][{{ $poType === 'material' ? 'material_id' : 'product_id' }}]"
-                                            required onchange="updateSatuan(this, {{ $index }}); updateDropdownOptions();"
+                                            name="items[{{ $index }}][{{ $purchaseOrderType === 'material' ? 'material_id' : 'product_id' }}]"
+                                            required onchange="updateUnit(this, {{ $index }}); updateDropdownOptions();"
                                             class="item-select w-full border {{ $errors->has("items.$index.material_id") || $errors->has("items.$index.product_id") ? 'border-red-400 bg-red-50' : 'border-gray-300' }} bg-white rounded-lg px-3 py-2 text-sm focus:outline-none">
-                                            @if($poType === 'material')
+                                            @if($purchaseOrderType === 'material')
                                                 <option value="">-- Pilih Material --</option>
                                                 @foreach($materials as $m)
-                                                    <option value="{{ $m->id }}" {{ (isset($oldItem['material_id']) && $oldItem['material_id'] == $m->id) ? 'selected' : '' }}>{{ $m->nama_bahan }}
-                                                        ({{ $m->satuan }})</option>
+                                                    <option value="{{ $m->id }}" {{ (isset($oldItem['material_id']) && $oldItem['material_id'] == $m->id) ? 'selected' : '' }}>{{ $m->material_name }}
+                                                        ({{ $m->unit }})</option>
                                                 @endforeach
                                             @else
                                                 <option value="">-- Pilih Obat --</option>
                                                 @foreach($products as $p)
-                                                    <option value="{{ $p->id }}" {{ (isset($oldItem['product_id']) && $oldItem['product_id'] == $p->id) ? 'selected' : '' }}>{{ $p->nama }}</option>
+                                                    <option value="{{ $p->id }}" {{ (isset($oldItem['product_id']) && $oldItem['product_id'] == $p->id) ? 'selected' : '' }}>{{ $p->product_name }}
+                                                    </option>
                                                 @endforeach
                                             @endif
                                         </select>
                                     </div>
                                     <div class="col-span-4 sm:col-span-2">
                                         <label
-                                            class="block text-xs font-medium mb-1 {{ $errors->has("items.$index.jumlah") ? 'text-red-600 font-bold' : 'text-gray-500' }}">Jumlah</label>
-                                        <input type="number" name="items[{{ $index }}][jumlah]"
-                                            value="{{ $oldItem['jumlah'] ?? '' }}" min="1" placeholder="0" required
+                                            class="block text-xs font-medium mb-1 {{ $errors->has("items.$index.quantity") ? 'text-red-600 font-bold' : 'text-gray-500' }}">Jumlah</label>
+                                        <input type="number" name="items[{{ $index }}][quantity]"
+                                            value="{{ $oldItem['quantity'] ?? '' }}" min="1" placeholder="0" required
                                             oninput="calcRow({{ $index }})"
-                                            class="w-full border {{ $errors->has("items.$index.jumlah") ? 'border-red-400 bg-red-50' : 'border-gray-300' }} bg-white rounded-lg px-3 py-2 text-sm">
+                                            class="w-full border {{ $errors->has("items.$index.quantity") ? 'border-red-400 bg-red-50' : 'border-gray-300' }} bg-white rounded-lg px-3 py-2 text-sm">
                                     </div>
                                     <div class="col-span-8 sm:col-span-4">
                                         <label
-                                            class="block text-xs font-medium mb-1 {{ $errors->has("items.$index.harga_satuan") ? 'text-red-600 font-bold' : 'text-gray-500' }}">Harga
+                                            class="block text-xs font-medium mb-1 {{ $errors->has("items.$index.unit_price") ? 'text-red-600 font-bold' : 'text-gray-500' }}">Harga
                                             Satuan (Rp)</label>
-                                        <input type="text" name="items[{{ $index }}][harga_satuan]"
-                                            value="{{ isset($oldItem['harga_satuan']) ? 'Rp ' . number_format($oldItem['harga_satuan'], 0, ',', '.') : '' }}"
+                                        <input type="text" name="items[{{ $index }}][unit_price]"
+                                            value="{{ isset($oldItem['unit_price']) ? 'Rp ' . number_format($oldItem['unit_price'], 0, ',', '.') : '' }}"
                                             placeholder="Rp 0" required oninput="formatRupiah(this); calcRow({{ $index }})"
-                                            class="w-full border {{ $errors->has("items.$index.harga_satuan") ? 'border-red-400 bg-red-50' : 'border-gray-300' }} bg-white rounded-lg px-3 py-2 text-sm">
+                                            class="w-full border {{ $errors->has("items.$index.unit_price") ? 'border-red-400 bg-red-50' : 'border-gray-300' }} bg-white rounded-lg px-3 py-2 text-sm">
                                     </div>
                                     <div class="col-span-12 sm:col-span-1 flex items-end sm:pt-5">
                                         <button type="button" onclick="removeItem(this)"
@@ -191,7 +191,7 @@
                                     </div>
                                     <div class="col-span-12">
                                         <div class="flex items-center justify-between text-xs text-gray-400">
-                                            <span id="satuan-label-{{ $index }}"></span>
+                                            <span id="unit-label-{{ $index }}"></span>
                                             <span>Subtotal: <strong class="text-gray-700" id="subtotal-{{ $index }}">Rp
                                                     0</strong></span>
                                         </div>
@@ -228,13 +228,13 @@
 
     @push('scripts')
         <script>
-            const materials = @json($materials->map(fn($m) => ['id' => $m->id, 'nama' => $m->nama_bahan, 'satuan' => $m->satuan]));
+            const materials = @json($materials->map(fn($m) => ['id' => $m->id, 'material_name' => $m->material_name, 'unit' => $m->unit]));
             const products = @json($products ?? []);
 
             // Set indeks awal dinamis mendeteksi keberadaan old data
             let itemIndex = {{ old('items') ? count(old('items')) : 0 }};
 
-            document.getElementById('po-type').addEventListener('change', function () {
+            document.getElementById('purchaseOrder-type').addEventListener('change', function () {
                 document.getElementById('items-container').innerHTML = '';
                 itemIndex = 0;
                 addItem();
@@ -244,9 +244,9 @@
 
             function addItem() {
                 const container = document.getElementById('items-container');
-                const poType = document.getElementById('po-type').value;
+                const purchaseOrderType = document.getElementById('po-type').value;
 
-                if (!poType) {
+                if (!purchaseOrderType) {
                     alert('Silakan pilih Tipe PO terlebih dahulu');
                     return;
                 }
@@ -257,48 +257,48 @@
                 row.dataset.index = idx;
 
                 let options = '';
-                let selectName = (poType === 'material') ? `items[${idx}][material_id]` : `items[${idx}][product_id]`;
+                let selectName = (purchaseOrderType === 'material') ? `items[${idx}][material_id]` : `items[${idx}][product_id]`;
 
-                if (poType === 'material') {
+                if (purchaseOrderType === 'material') {
                     options = `<option value="">-- Pilih Material --</option>` +
-                        materials.map(m => `<option value="${m.id}">${m.nama} (${m.satuan})</option>`).join('');
+                        materials.map(m => `<option value="${m.id}">${m.material_name} (${m.unit})</option>`).join('');
                 } else {
                     options = `<option value="">-- Pilih Obat --</option>` +
-                        products.map(p => `<option value="${p.id}">${p.nama}</option>`).join('');
+                        products.map(p => `<option value="${p.id}">${p.product_name}</option>`).join('');
                 }
 
                 row.innerHTML = `
-                        <div class="col-span-12 sm:col-span-5">
-                            <label class="block text-xs font-medium text-gray-500 mb-1">
-                                ${poType === 'material' ? 'Bahan / Material' : 'Produk Obat'}
-                            </label>
-                            <select name="${selectName}" required onchange="updateSatuan(this, ${idx}); updateDropdownOptions();"
-                                class="item-select w-full border border-gray-300 bg-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400">
-                                ${options}
-                            </select>
-                        </div>
-                        <div class="col-span-4 sm:col-span-2">
-                            <label class="block text-xs font-medium text-gray-500 mb-1">Jumlah</label>
-                            <input type="number" name="items[${idx}][jumlah]" min="1" placeholder="0" required oninput="calcRow(${idx})"
-                                class="w-full border border-gray-300 bg-white rounded-lg px-3 py-2 text-sm">
-                        </div>
-                        <div class="col-span-8 sm:col-span-4">
-                            <label class="block text-xs font-medium text-gray-500 mb-1">Harga Satuan (Rp)</label>
-                            <input type="text" name="items[${idx}][harga_satuan]" placeholder="Rp 0" required oninput="formatRupiah(this); calcRow(${idx})"
-                                class="w-full border border-gray-300 bg-white rounded-lg px-3 py-2 text-sm">
-                        </div>
-                        <div class="col-span-12 sm:col-span-1 flex items-end sm:pt-5">
-                            <button type="button" onclick="removeItem(this)" class="p-2 text-gray-400 hover:text-red-500">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                            </button>
-                        </div>
-                        <div class="col-span-12">
-                            <div class="flex items-center justify-between text-xs text-gray-400">
-                                <span id="satuan-label-${idx}"></span>
-                                <span>Subtotal: <strong class="text-gray-700" id="subtotal-${idx}">Rp 0</strong></span>
+                            <div class="col-span-12 sm:col-span-5">
+                                <label class="block text-xs font-medium text-gray-500 mb-1">
+                                    ${purchaseOrderType === 'material' ? 'Bahan / Material' : 'Produk Obat'}
+                                </label>
+                                <select name="${selectName}" required onchange="updateUnit(this, ${idx}); updateDropdownOptions();"
+                                    class="item-select w-full border border-gray-300 bg-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400">
+                                    ${options}
+                                </select>
                             </div>
-                        </div>
-                    `;
+                            <div class="col-span-4 sm:col-span-2">
+                                <label class="block text-xs font-medium text-gray-500 mb-1">Jumlah</label>
+                                <input type="number" name="items[${idx}][quantity]" min="1" placeholder="0" required oninput="calcRow(${idx})"
+                                    class="w-full border border-gray-300 bg-white rounded-lg px-3 py-2 text-sm">
+                            </div>
+                            <div class="col-span-8 sm:col-span-4">
+                                <label class="block text-xs font-medium text-gray-500 mb-1">Harga Satuan (Rp)</label>
+                                <input type="text" name="items[${idx}][unit_price]" placeholder="Rp 0" required oninput="formatRupiah(this); calcRow(${idx})"
+                                    class="w-full border border-gray-300 bg-white rounded-lg px-3 py-2 text-sm">
+                            </div>
+                            <div class="col-span-12 sm:col-span-1 flex items-end sm:pt-5">
+                                <button type="button" onclick="removeItem(this)" class="p-2 text-gray-400 hover:text-red-500">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                </button>
+                            </div>
+                            <div class="col-span-12">
+                                <div class="flex items-center justify-between text-xs text-gray-400">
+                                    <span id="unit-label-${idx}"></span>
+                                    <span>Subtotal: <strong class="text-gray-700" id="subtotal-${idx}">Rp 0</strong></span>
+                                </div>
+                            </div>
+                        `;
                 container.appendChild(row);
                 updateDropdownOptions();
             }
@@ -314,14 +314,14 @@
                 updateDropdownOptions();
             }
 
-            function updateSatuan(select, idx) {
+            function updateUnit(select, idx) {
                 const poType = document.getElementById('po-type').value;
-                const label = document.getElementById(`satuan-label-${idx}`);
+                const label = document.getElementById(`unit-label-${idx}`);
                 if (!select.value) { if (label) label.textContent = ''; return; }
 
                 if (poType === 'material') {
                     const mat = materials.find(m => m.id == select.value);
-                    if (label) label.textContent = mat ? `Satuan: ${mat.satuan}` : '';
+                    if (label) label.textContent = mat ? `Unit: ${mat.unit}` : '';
                 } else {
                     const prod = products.find(p => p.id == select.value);
                     if (label) label.textContent = prod ? `Tipe: ${prod.type}` : '';
@@ -337,10 +337,10 @@
             function calcRow(idx) {
                 const row = document.querySelector(`[data-index="${idx}"]`);
                 if (!row) return;
-                const qty = parseFloat(row.querySelector(`[name*="[jumlah]"]`).value) || 0;
-                const priceInput = row.querySelector(`[name*="[harga_satuan]"]`).value;
+                const quantity = parseFloat(row.querySelector(`[name*="[quantity]"]`).value) || 0;
+                const priceInput = row.querySelector(`[name*="[unit_price]"]`).value;
                 const price = parseFloat(priceInput.replace(/\D/g, '')) || 0;
-                const subtotal = qty * price;
+                const subtotal = quantity * price;
                 const el = document.getElementById(`subtotal-${idx}`);
                 if (el) el.textContent = 'Rp ' + subtotal.toLocaleString('id-ID');
                 updateGrandTotal();
@@ -350,10 +350,10 @@
                 let total = 0;
                 document.querySelectorAll('.item-row').forEach(row => {
                     const idx = row.dataset.index;
-                    const qty = parseFloat(row.querySelector(`[name*="[jumlah]"]`)?.value) || 0;
-                    const priceInput = row.querySelector(`[name*="[harga_satuan]"]`)?.value || '';
+                    const quantity = parseFloat(row.querySelector(`[name*="[quantity]"]`)?.value) || 0;
+                    const priceInput = row.querySelector(`[name*="[unit_price]"]`)?.value || '';
                     const price = parseFloat(priceInput.replace(/\D/g, '')) || 0;
-                    total += qty * price;
+                    total += quantity * price;
                 });
                 document.getElementById('grand-total').textContent = 'Rp ' + total.toLocaleString('id-ID');
             }
@@ -383,7 +383,7 @@
                     document.querySelectorAll('.item-row').forEach(row => {
                         const idx = row.dataset.index;
                         const select = row.querySelector('.item-select');
-                        updateSatuan(select, idx);
+                        updateUnit(select, idx);
                         calcRow(idx);
                     });
                     updateDropdownOptions();
@@ -392,7 +392,7 @@
 
             // Bersihkan format Rp saat form dikirim ke controller
             document.getElementById('po-form').addEventListener('submit', function () {
-                document.querySelectorAll('input[name*="[harga_satuan]"]').forEach(input => {
+                document.querySelectorAll('input[name*="[unit_price]"]').forEach(input => {
                     input.value = input.value.replace(/\D/g, '');
                 });
             });
