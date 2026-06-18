@@ -62,7 +62,7 @@
                 @forelse($reasonBreakdown->take(3) as $rb)
                     <div class="flex justify-between text-xs">
                         <span class="text-gray-600">{{ ucfirst(str_replace('_',' ',$rb->reason)) }}</span>
-                        <span class="font-bold text-gray-800">{{ $rb->jumlah }}x</span>
+                        <span class="font-bold text-gray-800">{{ $rb->quantity }}x</span>
                     </div>
                 @empty
                     <p class="text-xs text-gray-400">—</p>

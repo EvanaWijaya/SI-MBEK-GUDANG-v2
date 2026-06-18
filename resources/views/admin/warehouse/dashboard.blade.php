@@ -121,8 +121,8 @@
             
             <div class="space-y-3">
                 @foreach([
-                    'pending'  => ['label'=>'Menunggu (Pending)', 'color'=>'text-yellow-600', 'bg'=>'bg-yellow-50/50'],
-                    'approved' => ['label'=>'PO Disetujui', 'color'=>'text-blue-600', 'bg'=>'bg-blue-50/50'],
+                    'draft'  => ['label'=>'Menunggu (Pending)', 'color'=>'text-yellow-600', 'bg'=>'bg-yellow-50/50'],
+                    'ordered' => ['label'=>'PO Disetujui', 'color'=>'text-blue-600', 'bg'=>'bg-blue-50/50'],
                     'received' => ['label'=>'Selesai / Diterima', 'color'=>'text-green-600', 'bg'=>'bg-green-50/50']
                 ] as $s => $cfg)
                     <div class="flex items-center justify-between p-3 rounded-lg {{ $cfg['bg'] }} border border-transparent">
@@ -158,18 +158,18 @@
                         @foreach($materialsLow as $m)
                             <div class="px-5 py-3.5 hover:bg-gray-50 transition-colors">
                                 <div class="flex items-center justify-between mb-2">
-                                    <p class="text-sm font-bold text-gray-800">{{ $m->nama_bahan }}</p>
+                                    <p class="text-sm font-bold text-gray-800">{{ $m->material_name }}</p>
                                     <span class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded font-medium uppercase tracking-wider">Material</span>
                                 </div>
                                 <div class="flex items-center gap-3">
                                     <div class="flex-1 bg-gray-100 rounded-full h-2">
                                         @php
-                                            $safeStock = ($m->pemakaian_rata_rata * $m->lead_time) + ($m->safety_stock ?? 0);
-                                            $pct = $safeStock > 0 ? min(($m->stok / $safeStock) * 100, 100) : 0;
+                                            $safeStock = ($m->average_usage * $m->lead_time) + ($m->safety_stock ?? 0);
+                                            $pct = $safeStock > 0 ? min(($m->stock / $safeStock) * 100, 100) : 0;
                                         @endphp
                                         <div class="rop-bar h-2 rounded-full bg-red-400" style="width: {{ $pct }}%"></div>
                                     </div>
-                                    <span class="text-xs font-bold text-red-500 whitespace-nowrap">{{ $m->stok }} Tersisa</span>
+                                    <span class="text-xs font-bold text-red-500 whitespace-nowrap">{{ $m->stock }} Tersisa</span>
                                 </div>
                             </div>
                         @endforeach
@@ -178,17 +178,17 @@
                         @foreach($productsLow as $p)
                             <div class="px-5 py-3.5 hover:bg-gray-50 transition-colors">
                                 <div class="flex items-center justify-between mb-2">
-                                    <p class="text-sm font-bold text-gray-800">{{ $p->nama }}</p>
-                                    <span class="text-[10px] px-2 py-0.5 rounded font-medium uppercase tracking-wider {{ $p->type === 'pakan' ? 'bg-green-50 text-green-600' : 'bg-purple-50 text-purple-600' }}">
-                                        Produk {{ ucfirst($p->type) }}
+                                    <p class="text-sm font-bold text-gray-800">{{ $p->product_name }}</p>
+                                    <span class="text-[10px] px-2 py-0.5 rounded font-medium uppercase tracking-wider {{ $p->category === 'pakan' ? 'bg-green-50 text-green-600' : 'bg-purple-50 text-purple-600' }}">
+                                        Produk {{ ucfirst($p->category) }}
                                     </span>
                                 </div>
                                 <div class="flex items-center gap-3">
                                     <div class="flex-1 bg-gray-100 rounded-full h-2">
-                                        @php $pct = $p->rop > 0 ? min(($p->stok / $p->rop) * 100, 100) : 0; @endphp
+                                        @php $pct = $p->reorder_point > 0 ? min(($p->stock / $p->reorder_point) * 100, 100) : 0; @endphp
                                         <div class="rop-bar h-2 rounded-full bg-orange-400" style="width: {{ $pct }}%"></div>
                                     </div>
-                                    <span class="text-xs font-bold text-orange-500 whitespace-nowrap">{{ $p->stok }} / {{ $p->rop }} (Batas)</span>
+                                    <span class="text-xs font-bold text-orange-500 whitespace-nowrap">{{ $p->stock }} / {{ $p->reorder_point }} (Batas)</span>
                                 </div>
                             </div>
                         @endforeach
@@ -228,7 +228,7 @@
                             @foreach($supplierDistribution->sortByDesc('total')->take(4) as $sd)
                                 <div>
                                     <div class="flex justify-between text-xs mb-1.5">
-                                        <span class="font-medium text-gray-700 truncate max-w-[150px]">{{ $sd->supplier?->nama_supplier ?? 'Supplier #'.$sd->supplier_id }}</span>
+                                        <span class="font-medium text-gray-700 truncate max-w-[150px]">{{ $sd->supplier?->supplier_name ?? 'Supplier #'.$sd->supplier_id }}</span>
                                         <span class="font-bold text-gray-800">{{ $sd->total }} PO</span>
                                     </div>
                                     <div class="w-full bg-gray-100 rounded-full h-1.5">
