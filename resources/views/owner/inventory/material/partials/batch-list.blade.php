@@ -3,7 +3,7 @@
         <h3 class="text-sm font-semibold text-gray-700">Daftar Batch Stok</h3>
         <div class="flex items-center gap-3">
             <span class="text-xs text-gray-400">
-                {{ $batches->where('qty', '>', 0)->count() }} aktif / {{ $batches->count() }} total
+                {{ $batches->where('quantity', '>', 0)->count() }} aktif / {{ $batches->count() }} total
             </span>
         </div>
     </div>
@@ -33,26 +33,26 @@
                     @foreach($batches as $i => $batch)
                         @php
     // Gunakan startOfDay() dan today() agar perbandingan murni per hari (00:00:00)
-    $expDate = $batch->expired_date ? \Carbon\Carbon::parse($batch->expired_date)->startOfDay() : null;
+    $expDate = $batch->expiration_date ? \Carbon\Carbon::parse($batch->expiration_date)->startOfDay() : null;
     $bExp  = $expDate && $expDate->isPast();
     $diffDays = $expDate ? today()->diffInDays($expDate, false) : 0;
     
     $bSoon = $expDate && !$bExp && $diffDays <= 30;
-    $bEmpty = $batch->qty <= 0;
+    $bEmpty = $batch->quantity <= 0;
 @endphp
                         <tr class="hover:bg-gray-50 transition-colors {{ $bExp ? 'bg-red-50/30' : '' }} {{ $bEmpty ? 'opacity-60' : '' }}">
                             <td class="px-5 py-3.5 text-xs text-gray-400">{{ $i + 1 }}</td>
                             <td class="px-5 py-3.5 text-right font-bold {{ $bEmpty ? 'text-gray-400' : 'text-gray-800' }}">
-                                {{ number_format($batch->qty) }}
-                                <span class="text-xs text-gray-400 font-normal ml-1">{{ $material->satuan }}</span>
+                                {{ number_format($batch->quantity) }}
+                                <span class="text-xs text-gray-400 font-normal ml-1">{{ $material->unit }}</span>
                             </td>
                             <td class="px-5 py-3.5 text-center text-gray-600">
                                 {{ \Carbon\Carbon::parse($batch->received_date)->format('d M Y') }}
                             </td>
                             <td class="px-5 py-3.5 text-center">
-                                @if($batch->expired_date)
+                                @if($batch->expiration_date)
                                     <span class="text-xs font-medium {{ $bExp ? 'text-red-600' : ($bSoon ? 'text-yellow-600' : 'text-gray-600') }}">
-                                        {{ \Carbon\Carbon::parse($batch->expired_date)->format('d M Y') }}
+                                        {{ \Carbon\Carbon::parse($batch->expiration_date)->format('d M Y') }}
                                     </span>
                                    @if($bExp)
     <span class="block text-xs text-red-500 font-semibold">Kadaluarsa</span>
@@ -66,11 +66,11 @@
                             </td>
                             <td class="px-5 py-3.5 text-right text-gray-600 font-medium">
                                 @php
-                                    $lastPurchase = \App\Models\PurchaseOrderItem::where('material_id', $material->id)->whereHas('purchaseOrder', function($q) { $q->where('status', 'diterima'); })->latest()->first();
-                                    $hargaTampil = ($batch->source == 'PO') ? ($batch->purchaseOrderItems->subtotal ?? 0) : ($lastPurchase ? ($batch->qty * $lastPurchase->harga_satuan) : 0);
+                                    $lastPurchase = \App\Models\PurchaseOrderItem::where('material_id', $material->id)->whereHas('purchaseOrder', function($q) { $q->where('status', 'received'); })->latest()->first();
+                                    $hargaTampil = ($batch->source == 'PO') ? ($batch->purchaseOrderItems->subtotal ?? 0) : ($lastPurchase ? ($batch->quantity * $lastPurchase->unit_price) : 0);
                                 @endphp
                                 Rp {{ number_format($hargaTampil, 0, ',', '.') }}
-                                <p class="text-[10px] text-gray-400">(Est. Rp {{ number_format($lastPurchase->harga_satuan ?? 0, 0, ',', '.') }}/unit)</p>
+                                <p class="text-[10px] text-gray-400">(Est. Rp {{ number_format($lastPurchase->unit_price ?? 0, 0, ',', '.') }}/unit)</p>
                             </td>
                             <td class="px-5 py-3.5 text-center">
                                 @if($bEmpty)
@@ -89,7 +89,7 @@
                 <tfoot class="bg-gray-50 border-t border-gray-200">
                     <tr>
                         <td colspan="2" class="px-5 py-3 text-right text-xs font-semibold text-gray-600">
-                            Total Stok: <span class="ml-1 {{ $belowRop ? 'text-red-600' : 'text-green-700' }}">{{ number_format($batches->sum('qty')) }} {{ $material->satuan }}</span>
+                            Total Stok: <span class="ml-1 {{ $belowRop ? 'text-red-600' : 'text-green-700' }}">{{ number_format($batches->sum('quantity')) }} {{ $material->unit }}</span>
                         </td>
                         <td colspan="4"></td>
                     </tr>

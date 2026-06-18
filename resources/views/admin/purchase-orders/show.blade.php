@@ -62,7 +62,9 @@
 
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
                     <p class="text-xs text-gray-400 uppercase tracking-wide font-medium">Supplier</p>
-                    <p class="text-sm font-semibold text-gray-800 mt-1.5">{{ $purchaseOrder->supplier->supplier_name ?? '-' }}</p>
+                    <p class="text-sm font-semibold text-gray-800 mt-1.5">
+                        {{ $purchaseOrder->supplier->supplier_name ?? '-' }}
+                    </p>
                     <p class="text-xs text-gray-400 mt-0.5">
                         {{ $purchaseOrder->supplier->city ?? '' }}{{ $purchaseOrder->supplier->city && $purchaseOrder->supplier->province ? ', ' : '' }}{{ $purchaseOrder->supplier->province ?? '' }}
                     </p>
@@ -90,7 +92,7 @@
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
                     <p class="text-xs text-gray-400 uppercase tracking-wide font-medium">Tanggal Disetujui</p>
                     <p class="text-sm font-semibold text-gray-800 mt-1.5">
-                        {{ $purchaseOrder->received_date ? \Carbon\Carbon::parse($purchaseOrder->received_date)->format('d M Y') : '-' }}
+                        {{ $purchaseOrder->approved_date ? \Carbon\Carbon::parse($purchaseOrder->approved_date)->format('d M Y') : '-' }}
                     </p>
                 </div>
 
@@ -98,7 +100,7 @@
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
                     <p class="text-xs text-gray-400 uppercase tracking-wide font-medium">Tanggal Diterima</p>
                     <p class="text-sm font-semibold text-gray-800 mt-1.5">
-                        {{ $purchaseOrder->received_date ? \Carbon\Carbon::parse($received_date->received_date)->format('d M Y') : '-' }}
+                        {{ $purchaseOrder->received_date ? \Carbon\Carbon::parse($purchaseOrder->received_date)->format('d M Y') : '-' }}
                     </p>
                 </div>
             </div>
@@ -118,8 +120,9 @@
                         </div>
                         <div>
                             <p class="text-xs text-gray-400">Dipesan Atas Nama</p>
-                            <p class="font-semibold text-gray-800">{{ $received_date->orderedBy->name ?? '-' }}</p>
-                            <p class="text-xs text-gray-400">{{ class_basename($received_date->ordered_by_type ?? '') }}</p>
+                            <p class="font-semibold text-gray-800">{{ $purchaseOrder->orderedBy->name ?? '-' }}</p>
+                            <p class="text-xs text-gray-400">{{ class_basename($purchaseOrder->ordered_by_type ?? '') }}
+                            </p>
                         </div>
                     </div>
                     <div class="flex items-start gap-3">
@@ -133,15 +136,17 @@
                         </div>
                         <div>
                             <p class="text-xs text-gray-400">Dicatat / Diinput Oleh</p>
-                            <p class="font-semibold text-gray-800">{{ $received_date->recordedBy->name ?? '-' }}</p>
-                            <p class="text-xs text-gray-400">{{ class_basename($received_date->recorded_by_type ?? '') }}</p>
+                            <p class="font-semibold text-gray-800">{{ $purchaseOrder->recordedBy->name ?? '-' }}</p>
+                            <p class="text-xs text-gray-400">
+                                {{ class_basename($purchaseOrder->recorded_by_type ?? '') }}
+                            </p>
                         </div>
                     </div>
                 </div>
-                @if($purchaseOrder->owner_notes)
+                @if($purchaseOrder->notes)
                     <div class="mt-4 pt-4 border-t border-gray-100">
                         <p class="text-xs text-gray-400 mb-1">Catatan</p>
-                        <p class="text-sm text-gray-700 bg-gray-50 rounded-lg p-3">{{ $purchaseOrder->owner_notes }}</p>
+                        <p class="text-sm text-gray-700 bg-gray-50 rounded-lg p-3">{{ $purchaseOrder->owner_notes}}</p>
                     </div>
                 @endif
             </div>
@@ -182,14 +187,17 @@
                                 <tr class="hover:bg-gray-50 transition-colors">
                                     <td class="px-5 py-4">
                                         <p class="font-medium text-gray-800">
-                                            {{ $item->material->material_name ?? $item->product->material_name ?? '-' }}</p>
+                                            {{ $item->material->material_name ?? $item->product->product_name ?? '-' }}
+                                        </p>
                                         <p class="text-xs text-gray-400">{{ $item->material->unit ?? '' }}</p>
                                     </td>
                                     <td class="px-5 py-4 text-right text-gray-700">{{ number_format($item->quantity) }}</td>
                                     <td class="px-5 py-4 text-right text-gray-700">Rp
-                                        {{ number_format($item->unit_price, 0, ',', '.') }}</td>
+                                        {{ number_format($item->unit_price, 0, ',', '.') }}
+                                    </td>
                                     <td class="px-5 py-4 text-right font-semibold text-gray-800">Rp
-                                        {{ number_format($item->subtotal, 0, ',', '.') }}</td>
+                                        {{ number_format($item->subtotal, 0, ',', '.') }}
+                                    </td>
                                     <td class="px-5 py-4 text-right">
                                         @if($item->received_quantity !== null)
                                             <span
@@ -282,26 +290,27 @@
 
                                             <td class="py-3.5 pr-4">
                                                 <p class="font-medium text-gray-800">
-                                                    {{ $item->material->material_name ?? $item->product->material_name ?? '-' }}
+                                                    {{ $item->material->material_name ?? $item->product->product_name ?? '-' }}
                                                 </p>
                                                 <p class="text-xs text-gray-400">{{ $item->material->unit ?? 'Pcs' }}</p>
                                             </td>
 
                                             <td class="py-3.5 text-right text-gray-600 pr-4">
-                                                {{ number_format($item->quantity) }}</td>
+                                                {{ number_format($item->quantity) }}
+                                            </td>
 
                                             {{-- Kolom Jumlah Diterima --}}
                                             <td class="py-3.5 text-center">
-                                                <input type="number" name="items[{{ $loop->index }}][re]" min="0"
+                                                <input type="number" name="items[{{ $loop->index }}][received_quantity]" min="0"
                                                     value="{{ old("items.{$loop->index}.received_quantity", $item->quantity) }}"
                                                     class="w-24 border {{ $errors->has("items.{$loop->index}.received_quantity") ? 'border-red-400 bg-red-50 text-red-900 focus:ring-red-500 focus:border-red-400' : 'border-gray-300 focus:ring-blue-400' }} rounded-lg px-2 py-1.5 text-center text-sm focus:outline-none">
                                             </td>
 
                                             {{-- Kolom Expired Date --}}
                                             <td class="py-3.5 pr-4 text-center">
-                                                <input type="date" name="items[{{ $loop->index }}][expired_date]"
-                                                    value="{{ old("items.{$loop->index}.expired_date") }}"
-                                                    class="w-full border {{ $errors->has("items.{$loop->index}.expired_date") ? 'border-red-400 bg-red-50 text-red-900 focus:ring-red-500 focus:border-red-400' : 'border-gray-300 focus:ring-blue-400' }} rounded-lg px-2 py-1.5 text-sm focus:outline-none bg-gray-50 focus:bg-white transition-all">
+                                                <input type="date" name="items[{{ $loop->index }}][expiration_date]"
+                                                    value="{{ old("items.{$loop->index}.expiration_date") }}"
+                                                    class="w-full border {{ $errors->has("items.{$loop->index}.expiration_date") ? 'border-red-400 bg-red-50 text-red-900 focus:ring-red-500 focus:border-red-400' : 'border-gray-300 focus:ring-blue-400' }} rounded-lg px-2 py-1.5 text-sm focus:outline-none bg-gray-50 focus:bg-white transition-all">
                                             </td>
                                         </tr>
                                     @endforeach

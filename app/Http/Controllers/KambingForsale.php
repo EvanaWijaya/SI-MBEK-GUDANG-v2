@@ -12,10 +12,10 @@ class KambingForsale extends Controller
     public function index(Request $request)
     {
         $kategori = $request->input('kategori_produk', 'semua');
-        $jenis    = $request->input('jenis');
-        $q        = $request->input('q');
-        $diskon   = $request->boolean('diskon');
-        $sort     = $request->input('sort');
+        $jenis = $request->input('jenis');
+        $q = $request->input('q');
+        $diskon = $request->boolean('diskon');
+        $sort = $request->input('sort');
         $hargaMin = $request->input('harga_min');
         $hargaMax = $request->input('harga_max');
 
@@ -30,10 +30,10 @@ class KambingForsale extends Controller
     {
         $kambingQuery = Kambing::query()->where('for_sale', 'yes');
         $dombaQuery = Domba::query()->where('for_sale', 'yes');
-        
+
         // Query untuk produk (hanya yang dialokasikan jual)
         $productQuery = Product::query()->whereHas('allocations', function ($query) {
-            $query->where('type', 'jual')->where('qty', '>', 0);
+            $query->where('type', 'sale')->where('quantity', '>', 0);
         });
 
         // Filter berdasarkan diskon
@@ -58,9 +58,9 @@ class KambingForsale extends Controller
                     ->orWhere('type_domba', 'like', "%{$q}%");
             });
             $productQuery->where(function ($subQuery) use ($q) {
-                $subQuery->where('nama', 'like', "%{$q}%")
-                    ->orWhere('type', 'like', "%{$q}%")
-                    ->orWhere('kode', 'like', "%{$q}%");
+                $subQuery->where('product_name', 'like', "%{$q}%")
+                    ->orWhere('category', 'like', "%{$q}%")
+                    ->orWhere('product_code', 'like', "%{$q}%");
             });
         }
 
@@ -82,14 +82,14 @@ class KambingForsale extends Controller
 
         // Filter berdasarkan harga
         if ($hargaMin !== null && $hargaMin !== '') {
-            $kambingQuery->where('harga', '>=', (int)$hargaMin);
-            $dombaQuery->where('harga', '>=', (int)$hargaMin);
-            $productQuery->where('harga', '>=', (int)$hargaMin);
+            $kambingQuery->where('harga', '>=', (int) $hargaMin);
+            $dombaQuery->where('harga', '>=', (int) $hargaMin);
+            $productQuery->where('harga', '>=', (int) $hargaMin);
         }
         if ($hargaMax !== null && $hargaMax !== '') {
-            $kambingQuery->where('harga', '<=', (int)$hargaMax);
-            $dombaQuery->where('harga', '<=', (int)$hargaMax);
-            $productQuery->where('harga', '<=', (int)$hargaMax);
+            $kambingQuery->where('harga', '<=', (int) $hargaMax);
+            $dombaQuery->where('harga', '<=', (int) $hargaMax);
+            $productQuery->where('harga', '<=', (int) $hargaMax);
         }
 
         // Ambil data kambing, domba, dan produk
@@ -125,9 +125,9 @@ class KambingForsale extends Controller
         );
 
         return view('forsale', [
-            'kambings'    => $paginator, // Memakai paginator gabungan ke variabel utama
-            'dombas'      => collect(),
-            'products'    => collect(),  // Harus dikirim kosong agar blade tidak error 'undefined variable'
+            'kambings' => $paginator, // Memakai paginator gabungan ke variabel utama
+            'dombas' => collect(),
+            'products' => collect(),  // Harus dikirim kosong agar blade tidak error 'undefined variable'
             'totalProduk' => $allProduk->count(),
         ]);
     }
@@ -137,8 +137,8 @@ class KambingForsale extends Controller
     {
         $modelMap = [
             'kambing' => Kambing::class,
-            'domba'   => Domba::class,
-            'produk'  => Product::class, // Tambahkan map untuk produk
+            'domba' => Domba::class,
+            'produk' => Product::class, // Tambahkan map untuk produk
         ];
 
         if (!array_key_exists($kategori, $modelMap)) {
@@ -151,7 +151,7 @@ class KambingForsale extends Controller
         // Filter For Sale (Ternak pakai 'yes', Produk pakai 'allocations')
         if ($kategori === 'produk') {
             $query->whereHas('allocations', function ($q) {
-                $q->where('type', 'jual')->where('qty', '>', 0);
+                $q->where('type', 'sale')->where('quantity', '>', 0);
             });
         } else {
             $query->where('for_sale', 'yes');
@@ -169,7 +169,7 @@ class KambingForsale extends Controller
             } elseif ($kategori === 'domba') {
                 $query->where('type_domba', $jenis);
             } elseif ($kategori === 'produk') {
-                $query->where('type', $jenis);
+                $query->where('category', $jenis);
             }
         }
 
@@ -177,13 +177,13 @@ class KambingForsale extends Controller
         if ($q) {
             $query->where(function ($subQuery) use ($q, $kategori) {
                 if ($kategori === 'produk') {
-                    $subQuery->where('nama', 'like', "%{$q}%")
-                             ->orWhere('kode', 'like', "%{$q}%")
-                             ->orWhere('type', 'like', "%{$q}%");
+                    $subQuery->where('product_name', 'like', "%{$q}%")
+                        ->orWhere('product_code', 'like', "%{$q}%")
+                        ->orWhere('category', 'like', "%{$q}%");
                 } else {
                     $subQuery->where('name', 'like', "%{$q}%")
-                             ->orWhere('jenis_kelamin', 'like', "%{$q}%")
-                             ->orWhere('weight_now', 'like', "%{$q}%");
+                        ->orWhere('jenis_kelamin', 'like', "%{$q}%")
+                        ->orWhere('weight_now', 'like', "%{$q}%");
 
                     if ($kategori === 'kambing') {
                         $subQuery->orWhere('type_goat', 'like', "%{$q}%");
@@ -214,19 +214,19 @@ class KambingForsale extends Controller
 
         // Filter berdasarkan harga
         if ($hargaMin !== null && $hargaMin !== '') {
-            $query->where('harga', '>=', (int)$hargaMin);
+            $query->where('harga', '>=', (int) $hargaMin);
         }
         if ($hargaMax !== null && $hargaMax !== '') {
-            $query->where('harga', '<=', (int)$hargaMax);
+            $query->where('harga', '<=', (int) $hargaMax);
         }
 
         // Ambil produk dengan pagination
         $hasil = $query->paginate(10)->withQueryString();
 
         return view('forsale', [
-            'kambings'    => $kategori === 'kambing' ? $hasil : collect(),
-            'dombas'      => $kategori === 'domba' ? $hasil : collect(),
-            'products'    => $kategori === 'produk' ? $hasil : collect(), // Kirim variabel products
+            'kambings' => $kategori === 'kambing' ? $hasil : collect(),
+            'dombas' => $kategori === 'domba' ? $hasil : collect(),
+            'products' => $kategori === 'produk' ? $hasil : collect(), // Kirim variabel products
             'totalProduk' => $hasil->total(),
         ]);
     }

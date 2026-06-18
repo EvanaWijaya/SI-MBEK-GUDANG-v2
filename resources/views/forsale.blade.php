@@ -18,21 +18,21 @@
         $jenisList = Domba::whereNotNull('type_domba')->distinct()->pluck('type_domba')->toArray();
         $dombas = Domba::where('for_sale', 'yes')->get();
     } elseif ($kategoriProduk === 'produk') {
-        $jenisList = Product::whereNotNull('type')->distinct()->pluck('type')->toArray();
+        $jenisList = Product::whereNotNull('category')->distinct()->pluck('category')->toArray();
         $products = Product::whereHas('allocations', function ($q) {
-            $q->where('type', 'jual')->where('qty', '>', 0);
-        })->where('stok', '>', 0)->with(['allocations'])->get();
+            $q->where('type', 'sale')->where('quantity', '>', 0);
+        })->where('stock', '>', 0)->with(['allocations'])->get();
     } else {
         $jenisList = array_merge(
             Kambing::whereNotNull('type_goat')->distinct()->pluck('type_goat')->toArray(),
             Domba::whereNotNull('type_domba')->distinct()->pluck('type_domba')->toArray(),
-            Product::whereNotNull('type')->distinct()->pluck('type')->toArray()
+            Product::whereNotNull('category')->distinct()->pluck('category')->toArray()
         );
         $kambings = Kambing::where('for_sale', 'yes')->get();
         $dombas = Domba::where('for_sale', 'yes')->get();
         $products = Product::whereHas('allocations', function ($q) {
-            $q->where('type', 'jual')->where('qty', '>', 0);
-        })->where('stok', '>', 0)->with(['allocations'])->get();
+            $q->where('type', 'sale')->where('quantity', '>', 0);
+        })->where('stock', '>', 0)->with(['allocations'])->get();
     }
 
     $currentProduk = collect([...$kambings, ...$dombas, ...$products]);
@@ -42,8 +42,8 @@
     if (request()->filled('q')) {
         $q = strtolower(request()->q);
         $currentProduk = $currentProduk->filter(function ($item) use ($q) {
-            $nama = strtolower($item->name ?? $item->nama ?? '');
-            $jenis = strtolower($item->type_goat ?? $item->type_domba ?? $item->type ?? '');
+            $nama = strtolower($item->name ?? $item->product_name ?? '');
+            $jenis = strtolower($item->type_goat ?? $item->type_domba ?? $item->category ?? '');
             return str_contains($nama, $q) || str_contains($jenis, $q);
         });
     }
@@ -54,7 +54,7 @@
         $currentProduk = $currentProduk->filter(function ($item) use ($jenis) {
             return ($item->type_goat ?? '') === $jenis 
                 || ($item->type_domba ?? '') === $jenis 
-                || ($item->type ?? '') === $jenis;
+                || ($item->category ?? '') === $jenis;
         });
     }
 
@@ -199,11 +199,11 @@ if (request()->filled('harga_max')) {
                         <li>
                             @php
                                 $jenisProdukList = Product::whereHas('allocations', function ($q) {
-                                        $q->where('type', 'jual')->where('qty', '>', 0);
+                                        $q->where('type', 'sale')->where('quantity', '>', 0);
                                     })
-                                    ->whereNotNull('type')
+                                    ->whereNotNull('category')
                                     ->distinct()
-                                    ->pluck('type');
+                                    ->pluck('category');
                                 $isProdukActive = $kategoriProduk === 'produk';
                             @endphp
                             <a href="{{ url()->current() . '?' . http_build_query(array_merge($baseParams, ['kategori_produk' => 'produk'])) }}"
@@ -301,8 +301,8 @@ if (request()->filled('harga_max')) {
                             // Untuk Produk Pakan/Obat, ambil stok dari alokasi
                             $stokTersedia = 1; // Default ternak 1
                             if (!$isTernak) {
-                                $alokasi = $produk->allocations->where('type', 'jual')->first();
-                                $stokTersedia = $alokasi ? $alokasi->qty : 0;
+                                $alokasi = $produk->allocations->where('type', 'sale')->first();
+                                $stokTersedia = $alokasi ? $alokasi->quantity : 0;
                             }
 
                             // Cek Path Gambar Biar Gak Error
@@ -316,14 +316,14 @@ if (request()->filled('harga_max')) {
                         <div class="bg-white border rounded-xl shadow-sm hover:shadow-md transition overflow-hidden flex flex-col {{ $isPending ? 'opacity-75' : '' }}">
                             
                             <div class="aspect-[4/3] bg-gray-50 flex-shrink-0">
-                                <img src="{{ $imgPath }}" alt="{{ $produk->name ?? $produk->nama }}" 
+                                <img src="{{ $imgPath }}" alt="{{ $produk->name ?? $produk->product_name }}" 
                                     class="w-full h-full object-cover" 
                                     onerror="this.src='{{ asset('uploads/default.png') }}'">
                             </div>
                             
                             <div class="p-4 flex flex-col flex-1">
                                 <h3 class="font-semibold text-gray-800 truncate mb-2">
-                                    {{ $produk->name ?? $produk->nama ?? ucfirst($kategoriProduk) }}
+                                    {{ $produk->name ?? $produk->product_name ?? ucfirst($kategoriProduk) }}
                                 </h3>
                                 
                                 @if($isTernak)
@@ -344,8 +344,8 @@ if (request()->filled('harga_max')) {
                                     </div>
                                 @else
                                     {{-- Info khusus Produk (Pakan/Obat) --}}
-                                    <p class="text-xs text-gray-500 mb-1">Tipe: {{ ucfirst($produk->type) }}</p>
-                                    <p class="text-xs text-gray-500 mb-1">Kode: {{ $produk->kode }}</p>
+                                    <p class="text-xs text-gray-500 mb-1">Tipe: {{ ucfirst($produk->category) }}</p>
+                                    <p class="text-xs text-gray-500 mb-1">Kode: {{ $produk->product_code }}</p>
                                     <p class="text-xs text-orange-600 font-bold mb-2">Tersedia: {{ $stokTersedia }} unit</p>
                                 @endif
 

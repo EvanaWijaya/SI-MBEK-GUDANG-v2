@@ -31,6 +31,8 @@ class PurchaseOrder extends Model
 
         'approved_date',
         'received_date',
+
+        
     ];
 
     /**

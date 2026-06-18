@@ -10,7 +10,6 @@
                 body {
                     background: white !important;
                 }
-
                 .shadow-sm {
                     box-shadow: none !important;
                 }

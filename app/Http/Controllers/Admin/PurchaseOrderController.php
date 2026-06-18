@@ -25,6 +25,7 @@ class PurchaseOrderController extends Controller
     {
         $purchaseOrders = PurchaseOrder::with([
             'supplier',
+            'items',
             'orderedBy',
             'recordedBy'
         ])->latest()->get();
@@ -290,6 +291,7 @@ class PurchaseOrderController extends Controller
                         'quantity' => $received_quantity,
                         'received_date' => now(),
                         'expiration_date' => $data['expiration_date'] ?? null,
+                        'price_per_unit' => $item->unit_price,
                         'created_by' => auth('admin')->id(),
                     ]);
 

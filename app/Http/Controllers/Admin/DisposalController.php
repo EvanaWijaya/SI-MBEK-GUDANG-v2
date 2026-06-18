@@ -27,7 +27,7 @@ class DisposalController extends Controller
             'notes' => 'nullable|string'
         ]);
 
-        if ($stock->qty <= 0) {
+        if ($stock->quantity <= 0) {
             return back()->withErrors([
                 'stok' => 'Batch bahan sudah habis atau sudah didisposal.',
             ]);
@@ -36,7 +36,7 @@ class DisposalController extends Controller
         DB::beginTransaction();
 
         try {
-            $qty = $stock->qty;
+            $qty = $stock->quantity;
 
             // 💡 Otomatic Logic Notes
             $notes = $request->notes;
@@ -57,7 +57,7 @@ class DisposalController extends Controller
 
             // Finish the batch
             $stock->update([
-                'qty' => 0
+                'quantity' => 0
             ]);
 
             $actor = $this->getCurrentActor();
@@ -176,7 +176,7 @@ class DisposalController extends Controller
             'notes' => 'nullable|string'
         ]);
 
-        if ($stock->qty <= 0) {
+        if ($stock->quantity <= 0) {
             return back()->withErrors([
                 'stok' => 'Batch produk sudah habis atau sudah didisposal.',
             ]);
@@ -185,7 +185,7 @@ class DisposalController extends Controller
         DB::beginTransaction();
 
         try {
-            $qty = $stock->qty;
+            $qty = $stock->quantity;
 
             $notes = $request->notes;
             if ($request->reason === 'expired') {
@@ -205,7 +205,7 @@ class DisposalController extends Controller
 
             // Finish the batch
             $stock->update([
-                'qty' => 0
+                'quantity' => 0
             ]);
 
             $actor = $this->getCurrentActor();

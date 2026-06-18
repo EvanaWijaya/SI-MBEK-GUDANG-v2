@@ -254,7 +254,7 @@ class DashboardController extends Controller
         ]);
 
         Perjanjian::create($request->all());
-        // return redirect()->route('admin.perjanjian');
+        // return redirect()->route('owner.perjanjian');
     }
     public function updateNotes(Request $request, $orderId)
     {

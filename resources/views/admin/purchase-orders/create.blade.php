@@ -157,8 +157,7 @@
                                             @else
                                                 <option value="">-- Pilih Obat --</option>
                                                 @foreach($products as $p)
-                                                    <option value="{{ $p->id }}" {{ (isset($oldItem['product_id']) && $oldItem['product_id'] == $p->id) ? 'selected' : '' }}>{{ $p->product_name }}
-                                                    </option>
+                                                    <option value="{{ $p->id }}" {{ (isset($oldItem['product_id']) && $oldItem['product_id'] == $p->id) ? 'selected' : '' }}>{{ $p->product_name }}</option>
                                                 @endforeach
                                             @endif
                                         </select>
@@ -228,8 +227,9 @@
 
     @push('scripts')
         <script>
+
             const materials = @json($materials->map(fn($m) => ['id' => $m->id, 'material_name' => $m->material_name, 'unit' => $m->unit]));
-            const products = @json($products ?? []);
+            const products = @json($products->map(fn($p) => ['id' => $p->id, 'product_name' => $p->product_name]));
 
             // Set indeks awal dinamis mendeteksi keberadaan old data
             let itemIndex = {{ old('items') ? count(old('items')) : 0 }};
@@ -244,7 +244,7 @@
 
             function addItem() {
                 const container = document.getElementById('items-container');
-                const purchaseOrderType = document.getElementById('po-type').value;
+                const purchaseOrderType = document.getElementById('purchaseOrder-type').value;
 
                 if (!purchaseOrderType) {
                     alert('Silakan pilih Tipe PO terlebih dahulu');
@@ -315,13 +315,13 @@
             }
 
             function updateUnit(select, idx) {
-                const poType = document.getElementById('po-type').value;
+                const poType = document.getElementById('purchaseOrder-type').value;
                 const label = document.getElementById(`unit-label-${idx}`);
                 if (!select.value) { if (label) label.textContent = ''; return; }
 
                 if (poType === 'material') {
                     const mat = materials.find(m => m.id == select.value);
-                    if (label) label.textContent = mat ? `Unit: ${mat.unit}` : '';
+                    if (label) label.textContent = mat ? `Satuan: ${mat.unit}` : '';
                 } else {
                     const prod = products.find(p => p.id == select.value);
                     if (label) label.textContent = prod ? `Tipe: ${prod.type}` : '';
@@ -337,6 +337,7 @@
             function calcRow(idx) {
                 const row = document.querySelector(`[data-index="${idx}"]`);
                 if (!row) return;
+
                 const quantity = parseFloat(row.querySelector(`[name*="[quantity]"]`).value) || 0;
                 const priceInput = row.querySelector(`[name*="[unit_price]"]`).value;
                 const price = parseFloat(priceInput.replace(/\D/g, '')) || 0;
@@ -391,7 +392,7 @@
             }
 
             // Bersihkan format Rp saat form dikirim ke controller
-            document.getElementById('po-form').addEventListener('submit', function () {
+            document.getElementById('purchaseOrder-form').addEventListener('submit', function () {
                 document.querySelectorAll('input[name*="[unit_price]"]').forEach(input => {
                     input.value = input.value.replace(/\D/g, '');
                 });

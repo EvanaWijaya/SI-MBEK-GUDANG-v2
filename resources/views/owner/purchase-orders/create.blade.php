@@ -49,7 +49,7 @@
                                 <option value="">-- Pilih Supplier --</option>
                                 @foreach($suppliers as $supplier)
                                     <option value="{{ $supplier->id }}" {{ old('supplier_id') == $supplier->id ? 'selected' : '' }}>
-                                        {{ $supplier->nama_supplier }}
+                                        {{ $supplier->supplier_name }}
                                     </option>
                                 @endforeach
                             </select>
@@ -68,9 +68,9 @@
 
                         {{-- Tanggal Pesan --}}
                         <div>
-                            <label class="block text-sm font-medium mb-1.5 {{ $errors->has('tanggal_pesan') ? 'text-red-600' : 'text-gray-700' }}">Tanggal Pesan <span class="text-red-500">*</span></label>
-                            <input type="date" name="tanggal_pesan" value="{{ old('tanggal_pesan', date('Y-m-d')) }}" required
-                                class="w-full border {{ $errors->has('tanggal_pesan') ? 'border-red-400 bg-red-50 focus:ring-red-500' : 'border-gray-300 focus:ring-orange-400' }} rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none transition">
+                            <label class="block text-sm font-medium mb-1.5 {{ $errors->has('order_date') ? 'text-red-600' : 'text-gray-700' }}">Tanggal Pesan <span class="text-red-500">*</span></label>
+                            <input type="date" name="order_date" value="{{ old('order_date', date('Y-m-d')) }}" required
+                                class="w-full border {{ $errors->has('order_date') ? 'border-red-400 bg-red-50 focus:ring-red-500' : 'border-gray-300 focus:ring-orange-400' }} rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none transition">
                         </div>
 
                         {{-- Dipesan Atas Nama --}}
@@ -80,8 +80,8 @@
                                     <label class="block text-sm font-medium text-gray-700 mb-1.5">Dipesan Atas Nama <span class="text-red-500">*</span></label>
                                     <div class="flex gap-4 p-2.5 bg-gray-50 rounded-lg border border-gray-200">
                                         <label class="flex items-center gap-2 cursor-pointer group">
-                                            <input type="radio" name="dipesan_oleh_type" value="Owner"
-                                                class="text-orange-500 focus:ring-orange-400" {{ old('dipesan_oleh_type', 'Owner') === 'Owner' ? 'checked' : '' }}
+                                            <input type="radio" name="ordered_by_type" value="Owner"
+                                                class="text-orange-500 focus:ring-orange-400" {{ old('ordered_by_type', 'Owner') === 'Owner' ? 'checked' : '' }}
                                                 onchange="toggleOwnerSelect(false)">
                                             <span class="text-sm text-gray-700 group-hover:text-gray-900">Owner (Saya)</span>
                                         </label>
@@ -94,8 +94,8 @@
                     {{-- Catatan --}}
                     <div class="mt-5">
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">Catatan</label>
-                        <textarea name="catatan_owner" rows="3" placeholder="Tambahkan catatan opsional..."
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-400 transition resize-none">{{ old('catatan_owner') }}</textarea>
+                        <textarea name="notes" rows="3" placeholder="Tambahkan catatan opsional..."
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-400 transition resize-none">{{ old('notes') }}</textarea>
                     </div>
                 </div>
 
@@ -130,25 +130,25 @@
                                             @if($poType === 'material')
                                                 <option value="">-- Pilih Material --</option>
                                                 @foreach($materials as $m)
-                                                    <option value="{{ $m->id }}" {{ (isset($oldItem['material_id']) && $oldItem['material_id'] == $m->id) ? 'selected' : '' }}>{{ $m->nama_bahan }} ({{ $m->satuan }})</option>
+                                                    <option value="{{ $m->id }}" {{ (isset($oldItem['material_id']) && $oldItem['material_id'] == $m->id) ? 'selected' : '' }}>{{ $m->material_name }} ({{ $m->unit }})</option>
                                                 @endforeach
                                             @else
                                                 <option value="">-- Pilih Obat --</option>
                                                 @foreach($products as $p)
-                                                    <option value="{{ $p->id }}" {{ (isset($oldItem['product_id']) && $oldItem['product_id'] == $p->id) ? 'selected' : '' }}>{{ $p->nama }}</option>
+                                                    <option value="{{ $p->id }}" {{ (isset($oldItem['product_id']) && $oldItem['product_id'] == $p->id) ? 'selected' : '' }}>{{ $p->product_name }}</option>
                                                 @endforeach
                                             @endif
                                         </select>
                                     </div>
                                     <div class="col-span-4 sm:col-span-2">
-                                        <label class="block text-xs font-medium mb-1 {{ $errors->has("items.$index.jumlah") ? 'text-red-600 font-bold' : 'text-gray-500' }}">Jumlah</label>
-                                        <input type="number" name="items[{{ $index }}][jumlah]" value="{{ $oldItem['jumlah'] ?? '' }}" min="1" placeholder="0" required oninput="calcRow({{ $index }})"
-                                            class="w-full border {{ $errors->has("items.$index.jumlah") ? 'border-red-400 bg-red-50' : 'border-gray-300' }} bg-white rounded-lg px-3 py-2 text-sm">
+                                        <label class="block text-xs font-medium mb-1 {{ $errors->has("items.$index.quantity") ? 'text-red-600 font-bold' : 'text-gray-500' }}">Jumlah</label>
+                                        <input type="number" name="items[{{ $index }}][quantity]" value="{{ $oldItem['quantity'] ?? '' }}" min="1" placeholder="0" required oninput="calcRow({{ $index }})"
+                                            class="w-full border {{ $errors->has("items.$index.quantity") ? 'border-red-400 bg-red-50' : 'border-gray-300' }} bg-white rounded-lg px-3 py-2 text-sm">
                                     </div>
                                     <div class="col-span-8 sm:col-span-4">
-                                        <label class="block text-xs font-medium mb-1 {{ $errors->has("items.$index.harga_satuan") ? 'text-red-600 font-bold' : 'text-gray-500' }}">Harga Satuan (Rp)</label>
-                                        <input type="text" name="items[{{ $index }}][harga_satuan]" value="{{ isset($oldItem['harga_satuan']) ? 'Rp ' . number_format($oldItem['harga_satuan'], 0, ',', '.') : '' }}" placeholder="Rp 0" required oninput="formatRupiah(this); calcRow({{ $index }})"
-                                            class="w-full border {{ $errors->has("items.$index.harga_satuan") ? 'border-red-400 bg-red-50' : 'border-gray-300' }} bg-white rounded-lg px-3 py-2 text-sm">
+                                        <label class="block text-xs font-medium mb-1 {{ $errors->has("items.$index.unit_price") ? 'text-red-600 font-bold' : 'text-gray-500' }}">Harga Satuan (Rp)</label>
+                                        <input type="text" name="items[{{ $index }}][unit_price]" value="{{ isset($oldItem['unit_price']) ? 'Rp ' . number_format($oldItem['unit_price'], 0, ',', '.') : '' }}" placeholder="Rp 0" required oninput="formatRupiah(this); calcRow({{ $index }})"
+                                            class="w-full border {{ $errors->has("items.$index.unit_price") ? 'border-red-400 bg-red-50' : 'border-gray-300' }} bg-white rounded-lg px-3 py-2 text-sm">
                                     </div>
                                     <div class="col-span-12 sm:col-span-1 flex items-end sm:pt-5">
                                         <button type="button" onclick="removeItem(this)" class="p-2 text-gray-400 hover:text-red-500">
@@ -157,7 +157,7 @@
                                     </div>
                                     <div class="col-span-12">
                                         <div class="flex items-center justify-between text-xs text-gray-400">
-                                            <span id="satuan-label-{{ $index }}"></span>
+                                            <span id="unit-label-{{ $index }}"></span>
                                             <span>Subtotal: <strong class="text-gray-700" id="subtotal-{{ $index }}">Rp 0</strong></span>
                                         </div>
                                     </div>
@@ -193,9 +193,8 @@
 
     @push('scripts')
         <script>
-            const materials = @json($materials->map(fn($m) => ['id' => $m->id, 'nama' => $m->nama_bahan, 'satuan' => $m->satuan]));
-            const products = @json($products ?? []);
-
+            const materials = @json($materials->map(fn($m) => ['id' => $m->id, 'nama' => $m->material_name, 'unit' => $m->unit]));
+const products = @json($products->map(fn($p) => ['id' => $p->id, 'product_name' => $p->product_name]));
             // Set indeks awal dinamis mendeteksi keberadaan old data
             let itemIndex = {{ old('items') ? count(old('items')) : 0 }};
 
@@ -234,11 +233,11 @@
 
                 if (poType === 'material') {
                     options = `<option value="">-- Pilih Material --</option>` +
-                        materials.map(m => `<option value="${m.id}">${m.nama} (${m.satuan})</option>`).join('');
+                        materials.map(m => `<option value="${m.id}">${m.nama} (${m.unit})</option>`).join('');
                 } else {
                     options = `<option value="">-- Pilih Obat --</option>` +
-                        products.map(p => `<option value="${p.id}">${p.nama}</option>`).join('');
-                }
+                        products.map(p => `<option value="${p.id}">${p.product_name}</option>`).join('');
+}
 
                 row.innerHTML = `
                     <div class="col-span-12 sm:col-span-5">
@@ -252,12 +251,12 @@
                     </div>
                     <div class="col-span-4 sm:col-span-2">
                         <label class="block text-xs font-medium text-gray-500 mb-1">Jumlah</label>
-                        <input type="number" name="items[${idx}][jumlah]" min="1" placeholder="0" required oninput="calcRow(${idx})"
+                        <input type="number" name="items[${idx}][quantity]" min="1" placeholder="0" required oninput="calcRow(${idx})"
                             class="w-full border border-gray-300 bg-white rounded-lg px-3 py-2 text-sm">
                     </div>
                     <div class="col-span-8 sm:col-span-4">
                         <label class="block text-xs font-medium text-gray-500 mb-1">Harga Satuan (Rp)</label>
-                        <input type="text" name="items[${idx}][harga_satuan]" placeholder="Rp 0" required oninput="formatRupiah(this); calcRow(${idx})"
+                        <input type="text" name="items[${idx}][unit_price]" placeholder="Rp 0" required oninput="formatRupiah(this); calcRow(${idx})"
                             class="w-full border border-gray-300 bg-white rounded-lg px-3 py-2 text-sm">
                     </div>
                     <div class="col-span-12 sm:col-span-1 flex items-end sm:pt-5">
@@ -267,7 +266,7 @@
                     </div>
                     <div class="col-span-12">
                         <div class="flex items-center justify-between text-xs text-gray-400">
-                            <span id="satuan-label-${idx}"></span>
+                            <span id="unit-label-${idx}"></span>
                             <span>Subtotal: <strong class="text-gray-700" id="subtotal-${idx}">Rp 0</strong></span>
                         </div>
                     </div>
@@ -289,12 +288,12 @@
 
             function updateSatuan(select, idx) {
                 const poType = document.getElementById('po-type').value;
-                const label = document.getElementById(`satuan-label-${idx}`);
+                const label = document.getElementById(`unit-label-${idx}`);
                 if (!select.value) { if (label) label.textContent = ''; return; }
 
                 if (poType === 'material') {
                     const mat = materials.find(m => m.id == select.value);
-                    if (label) label.textContent = mat ? `Satuan: ${mat.satuan}` : '';
+                    if (label) label.textContent = mat ? `Satuan: ${mat.unit}` : '';
                 } else {
                     const prod = products.find(p => p.id == select.value);
                     if (label) label.textContent = prod ? `Tipe: ${prod.type}` : '';
@@ -310,8 +309,8 @@
             function calcRow(idx) {
                 const row = document.querySelector(`[data-index="${idx}"]`);
                 if(!row) return;
-                const qty = parseFloat(row.querySelector(`[name*="[jumlah]"]`).value) || 0;
-                const priceInput = row.querySelector(`[name*="[harga_satuan]"]`).value;
+                const qty = parseFloat(row.querySelector(`[name*="[quantity]"]`).value) || 0;
+                const priceInput = row.querySelector(`[name*="[unit_price]"]`).value;
                 const price = parseFloat(priceInput.replace(/\D/g, '')) || 0;
                 const subtotal = qty * price;
                 const el = document.getElementById(`subtotal-${idx}`);
@@ -323,8 +322,8 @@
                 let total = 0;
                 document.querySelectorAll('.item-row').forEach(row => {
                     const idx = row.dataset.index;
-                    const qty = parseFloat(row.querySelector(`[name*="[jumlah]"]`)?.value) || 0;
-                    const priceInput = row.querySelector(`[name*="[harga_satuan]"]`)?.value || '';
+                    const qty = parseFloat(row.querySelector(`[name*="[quantity]"]`)?.value) || 0;
+                    const priceInput = row.querySelector(`[name*="[unit_price]"]`)?.value || '';
                     const price = parseFloat(priceInput.replace(/\D/g, '')) || 0;
                     total += qty * price;
                 });
@@ -365,7 +364,7 @@
 
             // Bersihkan format Rp saat form dikirim ke controller
             document.getElementById('po-form').addEventListener('submit', function() {
-                document.querySelectorAll('input[name*="[harga_satuan]"]').forEach(input => {
+                document.querySelectorAll('input[name*="[unit_price]"]').forEach(input => {
                     input.value = input.value.replace(/\D/g, '');
                 });
             });

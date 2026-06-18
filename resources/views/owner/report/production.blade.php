@@ -50,7 +50,7 @@
                 <select name="product_id" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-300">
                     <option value="">Semua Produk</option>
                     @foreach($products as $p)
-                        <option value="{{ $p->id }}" {{ request('product_id')==$p->id?'selected':'' }}>{{ $p->nama }}</option>
+                        <option value="{{ $p->id }}" {{ request('product_id')==$p->id?'selected':'' }}>{{ $p->product_name }}</option>
                     @endforeach
                 </select>
             </div>
@@ -123,21 +123,21 @@
                             <tr class="hover:bg-gray-50/60 transition-colors">
                                 <td class="px-4 py-3 whitespace-nowrap">
                                     <p class="text-xs font-medium text-gray-700">{{ \Carbon\Carbon::parse($prod->production_date)->format('d M Y') }}</p>
-                                    @if($prod->expired_date)
-                                        <p class="text-xs text-gray-400">Exp: {{ \Carbon\Carbon::parse($prod->expired_date)->format('d M Y') }}</p>
+                                    @if($prod->expiration_date)
+                                        <p class="text-xs text-gray-400">Exp: {{ \Carbon\Carbon::parse($prod->expiration_date)->format('d M Y') }}</p>
                                     @endif
                                 </td>
                                 <td class="px-4 py-3">
-                                    <p class="font-medium text-gray-800">{{ $prod->product?->nama ?? '-' }}</p>
-                                    @if($prod->product?->type)
+                                    <p class="font-medium text-gray-800">{{ $prod->product?->product_name ?? '-' }}</p>
+                                    @if($prod->product?->category)
                                         <span class="text-xs px-1.5 py-0.5 rounded font-medium
-                                            {{ $prod->product->type === 'pakan' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700' }}">
-                                            {{ $prod->product->type === 'pakan' ? '🌾 Pakan' : '💊 Obat' }}
+                                            {{ $prod->product->category === 'pakan' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700' }}">
+                                            {{ $prod->product->category === 'pakan' ? '🌾 Pakan' : '💊 Obat' }}
                                         </span>
                                     @endif
                                 </td>
-                                <td class="px-4 py-3 text-gray-600 text-xs">{{ $prod->formula?->nama_formula ?? '-' }}</td>
-                                <td class="px-4 py-3 text-center font-bold text-gray-700">{{ number_format($prod->qty_produksi) }}</td>
+                                <td class="px-4 py-3 text-gray-600 text-xs">{{ $prod->formula?->formula_name ?? '-' }}</td>
+                                <td class="px-4 py-3 text-center font-bold text-gray-700">{{ number_format($prod->production_quantity) }}</td>
                                 <td class="px-4 py-3 text-center">
                                     <span class="text-xs px-2 py-0.5 rounded-full font-semibold
                                         {{ $prod->status === 'selesai' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' }}">

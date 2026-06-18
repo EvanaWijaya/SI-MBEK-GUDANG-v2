@@ -45,7 +45,7 @@
                     <h3 class="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">Pengaturan Parameter ROP</h3>
                     <form method="POST" novalidate action="{{ route('admin.materials.update', $material->id) }}" class="space-y-4">
                         @csrf @method('PUT')
-                        <input type="hidden" name="material_name" value="{{ $material->material_name }}">
+                        <input type="hidden" name="name" value="{{ $material->material_name }}">
                         <input type="hidden" name="unit" value="{{ $material->unit }}">
                         <input type="hidden" name="category" value="{{ $material->category }}">
                         <input type="hidden" name="source" value="inventory">
@@ -76,7 +76,7 @@
                     <h3 class="text-sm font-semibold text-gray-700 mb-4">Informasi Bahan</h3>
                     <dl class="space-y-3 text-sm">
                         <div class="flex justify-between"><dt class="text-gray-400">Satuan</dt><dd class="font-medium text-gray-700">{{ $material->unit }}</dd></div>
-                        <div class="flex justify-between"><dt class="text-gray-400">Harga Rata-rata</dt><dd class="font-medium text-gray-700">Rp {{ number_format($material->harga_rata_rata, 0, ',', '.') }}</dd></div>
+                        <div class="flex justify-between"><dt class="text-gray-400">Harga Rata-rata</dt><dd class="font-medium text-gray-700">Rp {{ number_format($material->average_price, 0, ',', '.') }}</dd></div>
                         <div class="flex justify-between"><dt class="text-gray-400">Total Batch</dt><dd class="font-medium text-gray-700">{{ $batches->count() }} batch</dd></div>
                     </dl>
                 </div>
@@ -112,7 +112,7 @@
     <input type="date" name="expiration_date" id="adj-expired-input" 
         class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-orange-400">
 </div>
-                    <div><label class="block text-xs text-gray-500 mb-1.5">Catatan</label><input type="text" name="note" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm"></div>
+                    <div><label class="block text-xs text-gray-500 mb-1.5">Catatan</label><input type="text" name="notes" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm"></div>
                     <div><button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-lg text-sm">Simpan</button></div>
                 </form>
             </div>

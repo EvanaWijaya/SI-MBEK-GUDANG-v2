@@ -60,7 +60,7 @@ class MaterialInventoryController extends Controller
                 // Tambah batch baru
                 MaterialStock::create([
                     'material_id' => $material->id,
-                    'qty' => $request->quantity,
+                    'quantity' => $request->quantity,
                     'received_date' => now(),
                     'expiration_date' => $request->expiration_date,
                     'created_by' => auth('admin')->id(),
@@ -72,7 +72,7 @@ class MaterialInventoryController extends Controller
 
                 /** @var \Illuminate\Database\Eloquent\Collection<int, MaterialStock> $batches */
                 $batches = MaterialStock::where('material_id', $material->id)
-                    ->where('qty', '>', 0)
+                    ->where('quantity', '>', 0)
                     ->orderBy('received_date', 'asc')
                     ->lockForUpdate()
                     ->get();
@@ -82,12 +82,12 @@ class MaterialInventoryController extends Controller
                     if ($remaining <= 0)
                         break;
 
-                    if ($batch->qty >= $remaining) {
+                    if ($batch->quantity >= $remaining) {
                         $batch->decrement('qty', $remaining);
                         $remaining = 0;
                     } else {
-                        $remaining -= $batch->qty;
-                        $batch->update(['qty' => 0]);
+                        $remaining -= $batch->quantity;
+                        $batch->update(['quantity' => 0]);
                     }
                 }
 
@@ -97,7 +97,7 @@ class MaterialInventoryController extends Controller
             }
 
             // 🔥 Sync summary stok
-            $material->stock = $material->materialStocks()->sum('qty');
+            $material->stock = $material->materialStocks()->sum('quantity');
             $material->save();
 
             // Catat movement
@@ -108,7 +108,7 @@ class MaterialInventoryController extends Controller
                 'quantity' => $request->quantity,
                 'source' => 'adjustment',
                 'movement_date' => now(),
-                'catatan' => $request->note,
+                'notes' => $request->notes,
                 'created_by' => auth('admin')->id(),
             ]);
         });
@@ -121,7 +121,7 @@ class MaterialInventoryController extends Controller
      */
     public function sync(Material $material)
     {
-        $material->stock = $material->materialStocks()->sum('qty');
+        $material->stock = $material->materialStocks()->sum('quantity');
         $material->save();
 
         return redirect()->back()->with('success', 'Stok berhasil disinkronisasi');

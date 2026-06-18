@@ -225,7 +225,7 @@ class WarehouseDashboardController extends Controller
             ->values();
 
         return view(
-            'warehouse.activity-log',
+            'owner.warehouse.activity-log',
             compact('logs', 'types', 'modules')
         );
     }

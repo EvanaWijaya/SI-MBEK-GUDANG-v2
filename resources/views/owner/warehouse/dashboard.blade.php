@@ -158,18 +158,18 @@
                         @foreach($materialsLow as $m)
                             <div class="px-5 py-3.5 hover:bg-gray-50 transition-colors">
                                 <div class="flex items-center justify-between mb-2">
-                                    <p class="text-sm font-bold text-gray-800">{{ $m->nama_bahan }}</p>
+                                    <p class="text-sm font-bold text-gray-800">{{ $m->material_name}}</p>
                                     <span class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded font-medium uppercase tracking-wider">Material</span>
                                 </div>
                                 <div class="flex items-center gap-3">
                                     <div class="flex-1 bg-gray-100 rounded-full h-2">
                                         @php
-                                            $safeStock = ($m->pemakaian_rata_rata * $m->lead_time) + ($m->safety_stock ?? 0);
-                                            $pct = $safeStock > 0 ? min(($m->stok / $safeStock) * 100, 100) : 0;
+                                            $safeStock = ($m->average_usage * $m->lead_time) + ($m->safety_stock ?? 0);
+                                            $pct = $safeStock > 0 ? min(($m->stock / $safeStock) * 100, 100) : 0;
                                         @endphp
                                         <div class="rop-bar h-2 rounded-full bg-red-400" style="width: {{ $pct }}%"></div>
                                     </div>
-                                    <span class="text-xs font-bold text-red-500 whitespace-nowrap">{{ $m->stok }} Tersisa</span>
+                                    <span class="text-xs font-bold text-red-500 whitespace-nowrap">{{ $m->stock }} Tersisa</span>
                                 </div>
                             </div>
                         @endforeach
@@ -178,17 +178,17 @@
                         @foreach($productsLow as $p)
                             <div class="px-5 py-3.5 hover:bg-gray-50 transition-colors">
                                 <div class="flex items-center justify-between mb-2">
-                                    <p class="text-sm font-bold text-gray-800">{{ $p->nama }}</p>
+                                    <p class="text-sm font-bold text-gray-800">{{ $p->product_name }}</p>
                                     <span class="text-[10px] px-2 py-0.5 rounded font-medium uppercase tracking-wider {{ $p->type === 'pakan' ? 'bg-green-50 text-green-600' : 'bg-purple-50 text-purple-600' }}">
-                                        Produk {{ ucfirst($p->type) }}
+                                        Produk {{ ucfirst($p->category) }}
                                     </span>
                                 </div>
                                 <div class="flex items-center gap-3">
                                     <div class="flex-1 bg-gray-100 rounded-full h-2">
-                                        @php $pct = $p->rop > 0 ? min(($p->stok / $p->rop) * 100, 100) : 0; @endphp
+                                        @php $pct = $p->reorder_point > 0 ? min(($p->stock / $p->reorder_point) * 100, 100) : 0; @endphp
                                         <div class="rop-bar h-2 rounded-full bg-orange-400" style="width: {{ $pct }}%"></div>
                                     </div>
-                                    <span class="text-xs font-bold text-orange-500 whitespace-nowrap">{{ $p->stok }} / {{ $p->rop }} (Batas)</span>
+                                    <span class="text-xs font-bold text-orange-500 whitespace-nowrap">{{ $p->stock }} / {{ $p->reorder_point }} (Batas)</span>
                                 </div>
                             </div>
                         @endforeach
@@ -228,7 +228,7 @@
                             @foreach($supplierDistribution->sortByDesc('total')->take(4) as $sd)
                                 <div>
                                     <div class="flex justify-between text-xs mb-1.5">
-                                        <span class="font-medium text-gray-700 truncate max-w-[150px]">{{ $sd->supplier?->nama_supplier ?? 'Supplier #'.$sd->supplier_id }}</span>
+                                        <span class="font-medium text-gray-700 truncate max-w-[150px]">{{ $sd->supplier?->supplier_name ?? 'Supplier #'.$sd->supplier_id }}</span>
                                         <span class="font-bold text-gray-800">{{ $sd->total }} PO</span>
                                     </div>
                                     <div class="w-full bg-gray-100 rounded-full h-1.5">
@@ -255,10 +255,10 @@
                             ->get();
 
                         $allBuyerData = $ordersSukses->groupBy(function($order) {
-                            return ($order->user && $order->user->kota) ? $order->user->kota : 'Lainnya';
-                        })->map(function($group, $kota) {
+                            return ($order->user && $order->user->city) ? $order->user->city : 'Lainnya';
+                        })->map(function($group, $city) {
                             return [
-                                'daerah' => (string) $kota,
+                                'daerah' => (string) $city,
                                 'total'  => $group->count()
                             ];
                         })->sortByDesc('total')->values();
@@ -328,8 +328,8 @@
                         @foreach($recentActivities as $log)
                             @php
                                 $iconCfg = match(true) {
-                                    str_contains($log->type, 'po_')         => ['bg'=>'bg-blue-50',  'text'=>'text-blue-500',   'icon'=>'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'],
-                                    str_contains($log->type, 'production_') => ['bg'=>'bg-purple-50','text'=>'text-purple-500', 'icon'=>'M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z'],
+                                    str_contains($log->category, 'po_')         => ['bg'=>'bg-blue-50',  'text'=>'text-blue-500',   'icon'=>'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'],
+                                    str_contains($log->category, 'production_') => ['bg'=>'bg-purple-50','text'=>'text-purple-500', 'icon'=>'M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z'],
                                     str_contains($log->type, 'order_')      => ['bg'=>'bg-green-50', 'text'=>'text-green-500',  'icon'=>'M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z'],
                                     str_contains($log->type, 'disposal_')   => ['bg'=>'bg-red-50',   'text'=>'text-red-400',   'icon'=>'M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16'],
                                     str_contains($log->type, 'qc_')         => ['bg'=>'bg-yellow-50','text'=>'text-yellow-500','icon'=>'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'],

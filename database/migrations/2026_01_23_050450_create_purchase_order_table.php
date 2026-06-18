@@ -10,7 +10,7 @@ return new class extends Migration {
         Schema::create('purchase_orders', function (Blueprint $table) {
             $table->id();
 
-            $table->string('po_code')->unique();
+            $table->string('purchase_order_code')->unique();
 
             $table->foreignId('supplier_id')
                 ->constrained()

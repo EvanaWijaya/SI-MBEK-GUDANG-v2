@@ -125,7 +125,7 @@
                                 <td class="px-4 py-3">
                                     @if($d->disposable)
                                         <p class="font-medium text-gray-800">
-                                            {{ $d->disposable->nama ?? $d->disposable->name ?? '#' . $d->disposable_id }}
+                                            {{ $d->disposable->material_name ?? $d->disposable->product_name ?? '#' . $d->disposable_id }}
                                         </p>
                                         <p class="text-xs text-gray-400">{{ class_basename($d->disposable_type) }}</p>
                                     @else

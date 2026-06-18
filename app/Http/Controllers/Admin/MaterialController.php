@@ -32,7 +32,7 @@ class MaterialController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255|unique:materials,name',
+            'material_name' => 'required|string|max:255|unique:materials,material_name',
             'category' => 'required|in:feed,medicine',
             'unit' => 'required|string|max:50',
             'average_usage' => 'nullable|numeric|min:0',
@@ -42,7 +42,7 @@ class MaterialController extends Controller
         ]);
 
         Material::create([
-            'name' => $request->name,
+            'material_name' => $request->material_name,
             'category' => $request->category,
             'unit' => $request->unit,
             'stock' => 0,
@@ -71,7 +71,7 @@ class MaterialController extends Controller
     public function update(Request $request, Material $material)
     {
         $request->validate([
-            'name' => 'required|string|max:255|unique:materials,name,' . $material->id,
+            'material_name' => 'required|string|max:255|unique:materials,material_name,' . $material->id,
             'category' => 'required|in:feed,medicine',
             'unit' => 'required|string|max:50',
             'average_usage' => 'nullable|numeric|min:0',
@@ -81,8 +81,8 @@ class MaterialController extends Controller
         ]);
 
         $material->update([
-            'name' => $request->name,
-            'category' => $request->category,
+'material_name' => $request->material_name,            
+'category' => $request->category,
             'unit' => $request->unit,
             'average_usage' => $request->average_usage ?? 0,
             'lead_time' => $request->lead_time ?? 0,

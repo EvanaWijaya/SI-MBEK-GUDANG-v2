@@ -39,14 +39,6 @@ class Material extends Model
     }
 
     /**
-     * Average purchase price
-     */
-    public function getAveragePriceAttribute()
-    {
-        return $this->purchaseOrderItems()->avg('unit_price') ?? 0;
-    }
-
-    /**
      * Reorder Point (ROP)
      */
     public function getReorderPointAttribute(): float
@@ -102,5 +94,20 @@ class Material extends Model
     public function stockMovements(): MorphMany
     {
         return $this->morphMany(StockMovement::class, 'stockable');
+    }
+
+    public function getAveragePriceAttribute()
+    {
+        $totalQty = $this->materialStocks->sum('quantity');
+
+        if ($totalQty <= 0) {
+            return 0;
+        }
+
+        $totalValue = $this->materialStocks->sum(function ($stock) {
+            return $stock->quantity * $stock->price_per_unit;
+        });
+
+        return $totalValue / $totalQty;
     }
 }

@@ -16,7 +16,7 @@ class MaterialInventoryController extends Controller
      */
     public function index()
     {
-        $materials = Material::orderBy('nama_bahan')->get();
+        $materials = Material::orderBy('material_name')->get();
 
        return view('owner.inventory.material.index', compact('materials'));
     }
