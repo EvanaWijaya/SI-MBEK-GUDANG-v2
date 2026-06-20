@@ -35,7 +35,7 @@ class ProfileController extends Controller
         // Validasi input manual karena kita menambahkan profile_picture
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:owners,email,'.$owner->id],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:owners,email,' . $owner->id],
             'profile_picture' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'], // Maks 2MB
         ]);
 
@@ -57,10 +57,10 @@ class ProfileController extends Controller
 
             $file = $request->file('profile_picture');
             $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-            
+
             // Simpan ke storage/app/public/owner_avatars
             $file->storeAs('owner_avatars', $fileName, 'public');
-            
+
             $owner->profile_picture = $fileName;
         }
 
@@ -149,19 +149,19 @@ class ProfileController extends Controller
      * List penitip users
      */
     public function penitip(Request $request, $type = null)
-{
-    $query = User::with(['kambings', 'domba']) 
-                ->withCount(['kambings', 'domba']);
+    {
+        $query = User::with(['kambings', 'dombas'])
+            ->withCount(['kambings', 'dombas']);
 
-    if ($type) {
-        $relation = $type === 'kambing' ? 'kambings' : 'domba';
-        $query->has($relation);
+        if ($type) {
+            $relation = $type === 'kambing' ? 'kambings' : 'dombas';
+            $query->has($relation);
+        }
+
+        return view('owner.pengguna', [
+            'users' => $query->paginate(10),
+            'currentType' => $type
+        ]);
     }
-
-    return view('owner.pengguna', [
-        'users' => $query->paginate(10),
-        'currentType' => $type
-    ]);
-}
 
 }

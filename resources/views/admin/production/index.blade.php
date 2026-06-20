@@ -53,7 +53,7 @@
                     </div>
                     <div>
                         <p class="text-xs text-yellow-600 font-medium">Sedang Diproses</p>
-                        <p class="text-2xl font-bold text-yellow-700">{{ $productions->where('status', 'diproses')->count() }}</p>
+                        <p class="text-2xl font-bold text-yellow-700">{{ $productions->where('status', 'progress')->count() }}</p>
                     </div>
                 </div>
             </div>
@@ -66,7 +66,7 @@
                     </div>
                     <div>
                         <p class="text-xs text-green-600 font-medium">Selesai</p>
-                        <p class="text-2xl font-bold text-green-700">{{ $productions->where('status', 'selesai')->count() }}</p>
+                        <p class="text-2xl font-bold text-green-700">{{ $productions->where('status', 'complete')->count() }}</p>
                     </div>
                 </div>
             </div>
@@ -104,14 +104,14 @@
                 <table class="w-full text-sm text-left">
                     <thead class="bg-gray-50 border-b border-gray-200">
                         <tr>
-                            <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide">#</th>
+                            <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide">ID</th>
                             <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide">Produk</th>
                             <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide">Formula</th>
-                            <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide text-right">Qty</th>
-                            <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide">Tgl Produksi</th>
+                            <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide text-center">Qty</th>
+                            <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide text-center">Tgl Produksi</th>
                             <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide text-center">Status</th>
                             <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide text-center">QC</th>
-                            <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide text-right">Aksi</th>
+                            <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-50">
@@ -119,29 +119,29 @@
                         <tr class="hover:bg-gray-50 transition-colors">
                             <td class="px-5 py-4 text-xs text-gray-400">{{ $index + 1 }}</td>
                             <td class="px-5 py-4">
-                                <p class="font-semibold text-gray-800">{{ $production->product->nama ?? '-' }}</p>
-                                <p class="text-xs text-gray-400 mt-0.5 font-mono">{{ $production->product->kode ?? '' }}</p>
+                                <p class="font-semibold text-gray-800">{{ $production->product->product_name ?? '-' }}</p>
+                                <p class="text-xs text-gray-400 mt-0.5 font-mono">{{ $production->product->product_code ?? '' }}</p>
                             </td>
                             <td class="px-5 py-4">
                                 <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-mono font-semibold bg-gray-100 text-gray-700">
-                                    {{ $production->formula->kode_formula ?? '-' }}
+                                    {{ $production->formula->formula_code ?? '-' }}
                                 </span>
-                                <p class="text-xs text-gray-400 mt-0.5">{{ $production->formula->nama_formula ?? '' }}</p>
+                                <p class="text-xs text-gray-400 mt-0.5">{{ $production->formula->formula_name ?? '' }}</p>
                             </td>
-                            <td class="px-5 py-4 text-right">
+                            <td class="px-5 py-4 text-center">
                                 <span class="font-bold text-gray-800">{{ number_format($production->production_quantity) }}</span>
                                 <span class="text-xs text-gray-400 ml-0.5">kg</span>
                             </td>
-                            <td class="px-5 py-4 text-xs text-gray-500">
+                            <td class="px-5 py-4 text-center text-gray-500">
                                 {{ \Carbon\Carbon::parse($production->production_date)->format('d M Y') }}
                             </td>
                             <td class="px-5 py-4 text-center">
-                                @if($production->status === 'diproses')
+                                @if($production->status === 'progress')
                                     <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">
                                         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                         Diproses
                                     </span>
-                                @elseif($production->status === 'selesai')
+                                @elseif($production->status === 'completed')
                                     <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
                                         <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
                                         Selesai
@@ -154,17 +154,17 @@
                                 @endif
                             </td>
                             <td class="px-5 py-4 text-center">
-                                @if($production->qc_status === 'layak')
+                                @if($production->qc_status === 'passed')
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
                                         Layak {{ $production->qc_percentage ? '('.$production->qc_percentage.'%)' : '' }}
                                     </span>
-                                @elseif($production->qc_status === 'tidak_layak')
+                                @elseif($production->qc_status === 'failed')
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">Tidak Layak</span>
                                 @else
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-400">Belum QC</span>
                                 @endif
                             </td>
-                            <td class="px-5 py-4 text-right">
+                            <td class="px-5 py-4 text-center">
                                 <a href="{{ route('admin.productions.show', $production) }}"
                                     class="inline-flex items-center gap-1.5 text-orange-600 hover:text-orange-800 font-medium text-xs transition-colors">
                                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

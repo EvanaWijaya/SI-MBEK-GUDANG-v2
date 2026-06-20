@@ -4,7 +4,7 @@
     </x-slot>
 
     <div class="px-4 sm:px-6 lg:px-8 mt-10">
-        
+
         <div class="mb-4">
             <h3 class="text-lg font-bold text-gray-800">Daftar Admin Sistem</h3>
             <p class="text-sm text-gray-500">Berikut adalah daftar admin yang mengelola sistem SI MBEK.</p>
@@ -15,15 +15,19 @@
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                     </div>
-                    <input type="text" id="searchInput" class="pl-10 w-full border-gray-300 rounded-lg shadow-sm focus:ring-brand-orange focus:border-brand-orange text-sm" placeholder="Cari nama...">
+                    <input type="text" id="searchInput"
+                        class="pl-10 w-full border-gray-300 rounded-lg shadow-sm focus:ring-brand-orange focus:border-brand-orange text-sm"
+                        placeholder="Cari nama...">
                 </div>
             </div>
             <div class="w-full sm:w-auto flex items-center gap-2">
                 <label class="text-sm text-gray-600 font-medium">Urutkan:</label>
-                <select id="sortSelect" class="border-gray-300 rounded-lg shadow-sm focus:ring-brand-orange focus:border-brand-orange text-sm py-2">
+                <select id="sortSelect"
+                    class="border-gray-300 rounded-lg shadow-sm focus:ring-brand-orange focus:border-brand-orange text-sm py-2">
                     <option value="terbaru">Data Terbaru</option>
                     <option value="terlama">Data Terlama</option>
                     <option value="az">Abjad (A - Z)</option>
@@ -34,10 +38,11 @@
 
         <div class="flex flex-col mt-4">
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-300 shadow-sm rounded-lg overflow-hidden border border-gray-200">
+                <table
+                    class="min-w-full divide-y divide-gray-300 shadow-sm rounded-lg overflow-hidden border border-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">#</th>
+                            <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">ID</th>
                             <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Nama Lengkap</th>
                             <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Email</th>
                             <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status Role</th>
@@ -48,10 +53,12 @@
                         @forelse ($admins as $index => $admin)
                             <tr class="hover:bg-gray-50 transition-colors">
                                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-400">{{ $index + 1 }}</td>
-                                <td class="whitespace-nowrap px-3 py-4 text-sm font-medium text-gray-900">{{ $admin->name }}</td>
+                                <td class="whitespace-nowrap px-3 py-4 text-sm font-medium text-gray-900">{{ $admin->name }}
+                                </td>
                                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $admin->email }}</td>
                                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                    <span class="px-2 py-1 rounded text-xs bg-blue-100 text-blue-800 uppercase font-semibold">
+                                    <span
+                                        class="px-2 py-1 rounded text-xs bg-blue-100 text-blue-800 uppercase font-semibold">
                                         {{ $admin->role }}
                                     </span>
                                 </td>
@@ -74,7 +81,7 @@
             const searchInput = document.getElementById('searchInput');
             const sortSelect = document.getElementById('sortSelect');
             const tbody = document.querySelector('table tbody');
-            
+
             // Simpan urutan asli (kecuali baris "kosong" kalau udah keburu ada)
             let originalRows = Array.from(tbody.querySelectorAll('tr:not(#noDataRow)'));
 
@@ -82,7 +89,7 @@
             function checkEmptyState(visibleCount) {
                 let noDataRow = document.getElementById('noDataRow');
                 // Otomatis hitung jumlah kolom dari thead biar teksnya rata tengah sempurna
-                const colCount = document.querySelector('thead tr').children.length; 
+                const colCount = document.querySelector('thead tr').children.length;
 
                 if (visibleCount === 0) {
                     if (!noDataRow) {
@@ -98,7 +105,7 @@
             }
 
             // 1. Logika Live Search / Pencarian
-            searchInput.addEventListener('input', function() {
+            searchInput.addEventListener('input', function () {
                 const searchTerm = this.value.toLowerCase();
                 const rows = tbody.querySelectorAll('tr:not(#noDataRow)');
                 let visibleCount = 0;
@@ -118,7 +125,7 @@
             });
 
             // 2. Logika Sorting
-            sortSelect.addEventListener('change', function() {
+            sortSelect.addEventListener('change', function () {
                 const sortBy = this.value;
                 let rowsArray = Array.from(tbody.querySelectorAll('tr:not(#noDataRow)'));
 
@@ -129,9 +136,9 @@
                 } else if (sortBy === 'az' || sortBy === 'za') {
                     rowsArray.sort((a, b) => {
                         // Ambil teks dari kolom pertama (Nama/Kode)
-                       const textA = a.cells[1].textContent.trim().toLowerCase();
+                        const textA = a.cells[1].textContent.trim().toLowerCase();
                         const textB = b.cells[1].textContent.trim().toLowerCase();
-                        
+
                         if (sortBy === 'az') return textA.localeCompare(textB);
                         return textB.localeCompare(textA);
                     });
@@ -139,10 +146,10 @@
 
                 // Hapus isi tabel lama
                 tbody.innerHTML = '';
-                
+
                 // Masukkan hasil sorting yang baru
                 rowsArray.forEach(row => tbody.appendChild(row));
-                
+
                 // Trigger ulang pencarian biar nggak bentrok kalau lagi nge-search terus diganti sort-nya
                 searchInput.dispatchEvent(new Event('input'));
             });

@@ -33,7 +33,7 @@ class MaterialController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255|unique:materials,name',
-            'category' => 'required|in:feed,medicine',
+            'category' => 'required|in:pakan,obat',
             'unit' => 'required|string|max:50',
             'average_usage' => 'nullable|numeric|min:0',
             'lead_time' => 'nullable|integer|min:0',
@@ -72,7 +72,7 @@ class MaterialController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255|unique:materials,name,' . $material->id,
-            'category' => 'required|in:feed,medicine',
+            'category' => 'required|in:pakan,obat',
             'unit' => 'required|string|max:50',
             'average_usage' => 'nullable|numeric|min:0',
             'lead_time' => 'nullable|integer|min:0',

@@ -87,13 +87,15 @@
                     <tbody class="divide-y divide-gray-100">
                         @forelse($purchaseOrders as $purchaseOrder)
                             <tr class="hover:bg-gray-50 transition-colors">
-                                <td class="px-5 py-4 font-mono text-orange-600 font-semibold text-xs">{{ $purchaseOrder->po_code }}
+                                <td class="px-5 py-4 font-mono text-orange-600 font-semibold text-xs">
+                                    {{ $purchaseOrder->po_code }}
                                 </td>
-                                <td class="px-5 py-4 text-gray-800">{{ $purchaseOrder->supplier->supplier_name ?? '-' }}</td>
+                                <td class="px-5 py-4 text-gray-800">{{ $purchaseOrder->supplier->supplier_name ?? '-' }}
+                                </td>
                                 <td class="px-5 py-4">
                                     <span
                                         class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium
-                                            {{ $purchaseOrder->type === 'material' ? 'bg-purple-50 text-purple-700' : 'bg-cyan-50 text-cyan-700' }}">
+                                                    {{ $purchaseOrder->type === 'material' ? 'bg-purple-50 text-purple-700' : 'bg-cyan-50 text-cyan-700' }}">
                                         {{ ucfirst($purchaseOrder->type ?? '-') }}
                                     </span>
                                 </td>
@@ -113,11 +115,16 @@
                                             'ordered' => 'bg-blue-100 text-blue-700',
                                             'received' => 'bg-green-100 text-green-700',
                                         ];
+                                        $statusLabel = [
+                                            'draft' => 'Draft',
+                                            'ordered' => 'Dipesan',
+                                            'received' => 'Diterima',
+                                        ];
                                         $cls = $statusConfig[$purchaseOrder->status] ?? 'bg-gray-100 text-gray-600';
                                     @endphp
                                     <span
                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold {{ $cls }}">
-                                        {{ ucfirst($purchaseOrder->status) }}
+                                        {{ $statusLabel[$purchaseOrder->status] ?? ucfirst($purchaseOrder->status)}}
                                     </span>
                                 </td>
                                 <td class="px-5 py-4 text-right">

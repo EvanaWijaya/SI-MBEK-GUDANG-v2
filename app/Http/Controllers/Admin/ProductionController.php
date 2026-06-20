@@ -20,6 +20,7 @@ class ProductionController extends Controller
     /**
      * Create new production process
      */
+
     public function store(Request $request)
     {
         $request->validate([
@@ -119,6 +120,7 @@ class ProductionController extends Controller
                     'type' => 'out',
                     'quantity' => $kebutuhan,
                     'source' => 'production',
+                    'notes' => $production->latestQc->notes ?? null,
                     'reference_id' => $production->id,
                     'movement_date' => now(),
                 ]);
@@ -180,7 +182,7 @@ class ProductionController extends Controller
             if (!$indicator->is_critical) {
                 $totalNonCritical++;
 
-                if ($result === 'lulus') {
+                if ($result === 'passed') {
                     $lulusNonCritical++;
                 }
             }
@@ -209,9 +211,9 @@ class ProductionController extends Controller
             ProductionQc::create([
                 'production_id' => $production->id,
                 'status' => $status,
-                'score_non_kritis' => $percentage,
+                'non_critical_score' => $percentage,
                 'threshold' => $request->qc_threshold,
-                'catatan' => $request->catatan ?? null,
+                'notes' => $request->catatan ?? null,
                 'created_by' => auth('admin')->id(),
             ]);
 
@@ -301,6 +303,7 @@ class ProductionController extends Controller
                 'type' => 'in',
                 'quantity' => $production->production_quantity,
                 'source' => 'production',
+                'notes' => $production->latestQc->notes ?? null,
                 'reference_id' => $production->id,
                 'movement_date' => now(),
             ]);
@@ -320,7 +323,7 @@ class ProductionController extends Controller
                     'actor_type' => get_class($actor),
                     'type' => 'production_finished',
                     'module' => 'production',
-                    'description' => 'Menyelesaikan Produksi #' . $production->id
+                    'description' => 'Menyelesaikan Produksi dengan ID' . $production->id
                 ]);
             }
 
@@ -365,7 +368,7 @@ class ProductionController extends Controller
             $formulaMaterials[$formula->id] = $formula->materials
                 ->map(fn($m) => [
                     'material_name' => $m->material_name,
-                    'satuan' => $m->unit,
+                    'unit' => $m->unit,
                     'percentage' => $m->pivot->percentage,
                 ])
                 ->toArray();

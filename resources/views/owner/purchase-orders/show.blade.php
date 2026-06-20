@@ -19,11 +19,16 @@
                                 'ordered' => 'bg-blue-100 text-blue-700 border-blue-200',
                                 'received' => 'bg-green-100 text-green-700 border-green-200',
                             ];
-                            $cls = $statusConfig[$purchaseOrder->status] ?? 'bg-gray-100 text-gray-600 border-gray-200';
+                            $statusLabel = [
+                                'draft' => 'Draft',
+                                'ordered' => 'Dipesan',
+                                'received' => 'Diterima',
+                            ];
+                            $cls = $statusConfig[$purchaseOrder->status] ?? 'bg-gray-100 text-gray-600';
                         @endphp
                         <span
-                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border {{ $cls }}">
-                            {{ ucfirst($purchaseOrder->status) }}
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold {{ $cls }}">
+                            {{ $statusLabel[$purchaseOrder->status] ?? ucfirst($purchaseOrder->status)}}
                         </span>
                     </div>
                     <p class="text-sm text-gray-500 mt-0.5">Detail Pesanan</p>

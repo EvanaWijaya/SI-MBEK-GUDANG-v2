@@ -101,7 +101,7 @@ class PurchaseOrderController extends Controller
             $purchaseOrderCode = 'PO-' . date('Ymd') . '-' . rand(1000, 9999);
 
             $purchaseOrder = PurchaseOrder::create([
-                'purchase_order_code' => $purchaseOrderCode,
+                'po_code' => $purchaseOrderCode,
                 'supplier_id' => $request->supplier_id,
                 'type' => $request->type,
                 'order_date' => $request->order_date,
@@ -150,7 +150,7 @@ class PurchaseOrderController extends Controller
                 'actor_type' => get_class($actor),
                 'type' => 'po_created',
                 'module' => 'purchase_order',
-                'description' => 'Membuat Purchase Order #' . $purchaseOrder->purchase_order_code
+                'description' => 'Membuat Purchase Order #' . $purchaseOrder->po_code
             ]);
         }
 
@@ -202,7 +202,7 @@ class PurchaseOrderController extends Controller
             'type' => 'po_approved',
             'module' => 'purchase_order',
             'description' => 'Owner Menyetujui Purchase Order #' .
-                $purchaseOrder->purchase_order_code,
+                $purchaseOrder->po_code,
         ]);
 
         return back()->with(

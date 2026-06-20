@@ -21,7 +21,7 @@
             <table class="w-full text-sm">
                 <thead class="bg-gray-50 border-b border-gray-100">
                     <tr>
-                        <th class="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">#</th>
+                        <th class="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">ID</th>
                         <th class="px-5 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wide">Qty Tersisa</th>
                         <th class="px-5 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wide">Tgl Diterima</th>
                         <th class="px-5 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wide">Expired Date</th>
@@ -68,7 +68,7 @@
                             <td class="px-5 py-3.5 text-right text-gray-600 font-medium">
                                 @php
                                     $lastPurchase = \App\Models\PurchaseOrderItem::where('material_id', $material->id)->whereHas('purchaseOrder', function($q) { $q->where('status', 'received'); })->latest()->first();
-                                    $hargaTampil = ($batch->source == 'PO') ? ($batch->purchaseOrderItems->subtotal ?? 0) : ($lastPurchase ? ($batch->quantity * $lastPurchase->unit_price) : 0);
+                                    $hargaTampil = ($batch->source == 'purchaseOrder') ? ($batch->purchaseOrderItems->subtotal ?? 0) : ($lastPurchase ? ($batch->quantity * $lastPurchase->unit_price) : 0);
                                 @endphp
                                 Rp {{ number_format($hargaTampil, 0, ',', '.') }}
                                 <p class="text-[10px] text-gray-400">(Est. Rp {{ number_format($lastPurchase->unit_price ?? 0, 0, ',', '.') }}/unit)</p>

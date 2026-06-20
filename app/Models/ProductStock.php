@@ -59,7 +59,7 @@ class ProductStock extends Model
         return match ($this->source) {
             'production' => $this->production,
             'purchase' => $this->purchaseOrder,
-            'manual_adjustment' => null,
+            'adjustment' => null,
             default => null,
         };
     }

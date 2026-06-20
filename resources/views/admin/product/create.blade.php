@@ -85,11 +85,12 @@
                     @enderror
 
                     {{-- Foto Produk --}}
-                    <label class="mt-4 {{ $errors->has('image') ? $labelError : $labelOk }}">Foto Produk</label>
-                    <input type="file" name="images[]" multiple accept=".jpg,.jpeg,.png,.webp" class="w-full rounded border p-1 text-sm transition-all
-                            {{ $errors->has('images') ? 'border-red-400 bg-red-50' : 'border-gray-300' }}">
+                    <label class="mt-4 {{ $errors->has('images') ? $labelError : $labelOk }}">Foto Produk</label>
+                    <input type="file" name="images[]" multiple accept=".jpg,.jpeg,.png,.webp"
+                        class="w-full rounded border p-1 text-sm transition-all
+                            {{ ($errors->has('images') || $errors->has('images.*')) ? 'border-red-400 bg-red-50' : 'border-gray-300' }}">
                     <p class="text-xs text-gray-500 mt-1">Maksimal 2MB (JPG, PNG, WEBP)</p>
-                    @error('image')
+                    @error('images')
                         <p class="mt-1 text-xs text-red-500 font-semibold">{{ $message }}</p>
                     @enderror
 
@@ -110,9 +111,10 @@
                     @enderror
 
                     {{-- Harga Jual --}}
-                    <label class="mt-4 {{ $errors->has('selling_price') ? $labelError : $labelOk }}">Harga Jual
-                        (Rp)</label>
-                    <input type="number" name="selling_price" value="{{ old('selling_price') }}" placeholder="0"
+                    <label class="mt-4 {{ $errors->has('selling_price') ? $labelError : $labelOk }}">Harga Jual</label>
+                    <input type="text" name="selling_price"
+                        value="{{ old('selling_price') ? 'Rp ' . number_format(old('selling_price'), 0, ',', '.') : '' }}"
+                        placeholder="Rp 0" oninput="formatRupiah(this)"
                         class="{{ $inputBase }} {{ $errors->has('selling_price') ? $inputError : $inputOk }}">
                     @error('selling_price')
                         <p class="mt-1 text-xs text-red-500 font-semibold">{{ $message }}</p>
@@ -167,5 +169,25 @@
             });
 
         });
+        function formatRupiah(input) {
+            let angka = input.value.replace(/[^,\d]/g, '');
+
+            let split = angka.split(',');
+            let sisa = split[0].length % 3;
+            let rupiah = split[0].substr(0, sisa);
+            let ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+            if (ribuan) {
+                let separator = sisa ? '.' : '';
+                rupiah += separator + ribuan.join('.');
+            }
+
+            rupiah = split[1] !== undefined
+                ? rupiah + ',' + split[1]
+                : rupiah;
+
+            input.value = rupiah ? 'Rp ' + rupiah : '';
+        }
     </script>
+
 </x-admin-app-layout>

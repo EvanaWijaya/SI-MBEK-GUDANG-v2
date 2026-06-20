@@ -87,7 +87,7 @@
                         {{-- ID Domba --}}
                         <td class="px-6 py-4">
                             <select class="form-select rounded-md">
-                                @forelse ($user->domba as $db)
+                                @forelse ($user->dombas as $db)
                                     <option value="{{ $db->id }}">{{ $db->id }}</option>
                                 @empty
                                     <option>-</option>
@@ -97,11 +97,11 @@
 
                         {{-- Jumlah Domba --}}
                         <td class="px-6 py-4">
-                            {{ $user->domba->count() }}
+                            {{ $user->dombas->count() }}
                         </td>
 
                         {{-- Alamat --}}
-                        <td class="px-6 py-4">{{ $user->alamat }}</td>
+                        <td class="px-6 py-4">{{ $user->address }}</td>
 
                     </tr>
                 @endforeach

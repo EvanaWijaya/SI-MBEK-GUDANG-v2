@@ -77,4 +77,9 @@ class Production extends Model
     {
         return $this->qc_status === 'failed';
     }
+
+    public function latestQc()
+    {
+        return $this->hasOne(ProductionQc::class)->latestOfMany();
+    }
 }

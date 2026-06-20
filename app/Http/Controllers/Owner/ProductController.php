@@ -41,6 +41,10 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        $request->merge([
+            'selling_price' => preg_replace('/[^0-9]/', '', $request->selling_price)
+        ]);
+
         $request->validate([
             'product_name' => 'required|string|max:255',
             'selling_price' => 'nullable|numeric|min:0',
@@ -49,7 +53,8 @@ class ProductController extends Controller
             'category' => 'required|in:pakan,obat',
             'source' => 'required|in:production,purchase',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'images' => 'nullable|array',
+            'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         if ($request->source === 'production' && !$request->formula_id) {
@@ -74,21 +79,22 @@ class ProductController extends Controller
                 'created_by' => auth('owner')->id(),
             ]);
 
-            if ($request->hasFile('image')) {
+            if ($request->hasFile('images')) {
 
-                $file = $request->file('image');
+                foreach ($request->file('images') as $index => $file) {
 
-                $path = $file->store('products', 'public');
+                    $path = $file->store('products', 'public');
 
-                $product->media()->create([
-                    'file_name' => $file->getClientOriginalName(),
-                    'file_path' => $path,
-                    'mime_type' => $file->getMimeType(),
-                    'file_size' => $file->getSize(),
-                    'type' => 'image',
-                    'is_primary' => true,
-                    'sort_order' => 1,
-                ]);
+                    $product->media()->create([
+                        'file_name' => $file->getClientOriginalName(),
+                        'file_path' => $path,
+                        'mime_type' => $file->getMimeType(),
+                        'file_size' => $file->getSize(),
+                        'type' => 'image',
+                        'is_primary' => $index === 0,
+                        'sort_order' => $index + 1,
+                    ]);
+                }
             }
         });
 
@@ -122,6 +128,10 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
+        $request->merge([
+            'selling_price' => preg_replace('/[^0-9]/', '', $request->selling_price)
+        ]);
+
         $request->validate([
             'product_code' => 'required|string|max:50|unique:products,product_code,' . $product->id,
             'product_name' => 'required|string|max:255',
@@ -131,7 +141,8 @@ class ProductController extends Controller
             'category' => 'required|string|max:100',
             'source' => 'required|in:production,purchase',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'images' => 'nullable|array',
+            'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         if ($request->source === 'production' && !$request->formula_id) {
@@ -154,30 +165,24 @@ class ProductController extends Controller
                 'source' => $request->source,
             ]);
 
-            if ($request->hasFile('image')) {
+            if ($request->hasFile('images')) {
 
-                $oldImage = $product->primaryImage;
+                $lastSortOrder = $product->media()->max('sort_order') ?? 0;
 
-                if ($oldImage) {
+                foreach ($request->file('images') as $index => $file) {
 
-                    Storage::disk('public')->delete($oldImage->file_path);
+                    $path = $file->store('products', 'public');
 
-                    $oldImage->delete();
+                    $product->media()->create([
+                        'file_name' => $file->getClientOriginalName(),
+                        'file_path' => $path,
+                        'mime_type' => $file->getMimeType(),
+                        'file_size' => $file->getSize(),
+                        'type' => 'image',
+                        'is_primary' => $product->media()->count() === 0 && $index === 0,
+                        'sort_order' => $lastSortOrder + $index + 1,
+                    ]);
                 }
-
-                $file = $request->file('image');
-
-                $path = $file->store('products', 'public');
-
-                $product->media()->create([
-                    'file_name' => $file->getClientOriginalName(),
-                    'file_path' => $path,
-                    'mime_type' => $file->getMimeType(),
-                    'file_size' => $file->getSize(),
-                    'type' => 'image',
-                    'is_primary' => true,
-                    'sort_order' => 1,
-                ]);
             }
         });
 
@@ -189,8 +194,18 @@ class ProductController extends Controller
     public function destroyMedia(Media $media)
     {
 
-        if ($media->file_path) {
-            Storage::disk('public')->delete($media->file_path);
+        if ($media->is_primary) {
+
+            $nextImage = $media->product
+                ->media()
+                ->where('id', '!=', $media->id)
+                ->first();
+
+            if ($nextImage) {
+                $nextImage->update([
+                    'is_primary' => true
+                ]);
+            }
         }
 
         $media->delete();
@@ -206,7 +221,6 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        dd('destroy product terpanggil', $product->id);
 
         if ($product->stock > 0) {
             return redirect()->back()

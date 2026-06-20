@@ -41,6 +41,7 @@
                         class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-300">
                         <option value="">Semua</option>
                         <option value="progress" {{ request('status') === 'progress' ? 'selected' : '' }}>Diproses</option>
+                        <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>Ditolak</option>
                         <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>Selesai</option>
                     </select>
                 </div>
@@ -49,8 +50,8 @@
                     <select name="qc_status"
                         class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-300">
                         <option value="">Semua</option>
-                        <option value="layak" {{ request('qc_status') === 'passed' ? 'selected' : '' }}>Lulus / Layak</option>
-                        <option value="tidak_layak" {{ request('qc_status') === 'failed' ? 'selected' : '' }}>Gagal / Tidak
+                        <option value="passed" {{ request('qc_status') === 'passed' ? 'selected' : '' }}>Lulus / Layak</option>
+                        <option value="failed" {{ request('qc_status') === 'failed' ? 'selected' : '' }}>Gagal / Tidak
                             Layak</option>
                         <option value="pending" {{ request('qc_status') === 'pending' ? 'selected' : '' }}>Pending</option>
                     </select>
@@ -180,7 +181,7 @@
                                             <span
                                                 class="text-xs px-2 py-0.5 rounded-full font-semibold
                                                         {{ $prod->qc_status === 'passed' ? 'bg-green-100 text-green-700' : ($prod->qc_status === 'failed' ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-500') }}">
-                                                {{ $prod->qc_status === 'passed' ? 'Lulus' : ($prod->qc_status === 'failed' ? 'Gagal' : ucfirst($prod->qc_status)) }}
+                                                {{ $prod->qc_status === 'passed' ? 'passed' : ($prod->qc_status === 'failed' ? 'failed' : ucfirst($prod->qc_status)) }}
                                             </span>
                                         @else
                                             <span class="text-xs text-gray-300">—</span>
@@ -228,7 +229,7 @@
                             },
                             {
                                 label: 'Lulus QC',
-                                data: {!! $chartData->pluck('lulus')->toJson() !!},
+                                data: {!! $chartData->pluck('passed')->toJson() !!},
                                 backgroundColor: 'rgba(34,197,94,0.7)',
                                 borderRadius: 4,
                                 yAxisID: 'y1',

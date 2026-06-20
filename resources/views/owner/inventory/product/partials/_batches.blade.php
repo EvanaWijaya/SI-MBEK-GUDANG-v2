@@ -44,7 +44,7 @@ $expiringSoon = $batches->filter(fn($b) => $b->quantity > 0 && $b->expiration_da
                 <table class="w-full text-sm">
                     <thead class="bg-gray-50 border-b border-gray-100">
                         <tr>
-                            <th class="px-5 py-3 text-left   text-xs font-semibold text-gray-500 uppercase tracking-wide">#</th>
+                            <th class="px-5 py-3 text-left   text-xs font-semibold text-gray-500 uppercase tracking-wide">ID</th>
                             <th class="px-5 py-3 text-right  text-xs font-semibold text-gray-500 uppercase tracking-wide">Qty</th>
                             <th class="px-5 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wide">Tgl Terima</th>
                             <th class="px-5 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wide">Expired</th>
@@ -92,7 +92,7 @@ $expiringSoon = $batches->filter(fn($b) => $b->quantity > 0 && $b->expiration_da
                                         $srcMap = [
                                             'production'        => ['bg-orange-100 text-orange-700', 'Produksi'],
                                             'manual_adjustment' => ['bg-gray-100 text-gray-500',     'Adjustment'],
-                                            'purchase'          => ['bg-purple-100 text-purple-700', 'PO'],
+                                            'purchase'          => ['bg-purple-100 text-purple-700', 'Pembelian'],
                                         ];
                                         [$sc, $sl] = $srcMap[$batch->source] ?? ['bg-gray-100 text-gray-500', ucfirst($batch->source ?? '—')];
                                     @endphp
@@ -155,7 +155,7 @@ $expiringSoon = $batches->filter(fn($b) => $b->quantity > 0 && $b->expiration_da
                                     {{ \Carbon\Carbon::parse($mov->movement_date)->format('d M Y, H:i') }}
                                 </td>
                                 <td class="px-5 py-3.5 text-center">
-                                    @if($mov->category === 'in')
+                                    @if($mov->type === 'in')
                                         <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">
                                             <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/></svg>
                                             Masuk
@@ -167,17 +167,17 @@ $expiringSoon = $batches->filter(fn($b) => $b->quantity > 0 && $b->expiration_da
                                         </span>
                                     @endif
                                 </td>
-                                <td class="px-5 py-3.5 text-right font-bold {{ $mov->category === 'in' ? 'text-green-700' : 'text-red-600' }}">
-                                    {{ $mov->category === 'in' ? '+' : '-' }}{{ number_format($mov->quantity) }}
+                                <td class="px-5 py-3.5 text-right font-bold {{ $mov->type === 'in' ? 'text-green-700' : 'text-red-600' }}">
+                                    {{ $mov->type === 'in' ? '+' : '-' }}{{ number_format($mov->quantity) }}
                                 </td>
                                 <td class="px-5 py-3.5 text-center">
                                     @php
                                         $sMap = [
-                                            'production'         => ['bg-orange-100 text-orange-700', 'Produksi'],
-                                            'sale'               => ['bg-blue-100 text-blue-700',     'Penjualan'],
-                                            'internal' => ['bg-purple-100 text-purple-700', 'Internal'],
-                                            'manual_adjustment'  => ['bg-gray-100 text-gray-600',     'Adjustment'],
-                                            'PO'                 => ['bg-indigo-100 text-indigo-700', 'Purchase Order'],
+                                            'production'        => ['bg-orange-100 text-orange-700', 'Produksi'],
+                                            'sale'              => ['bg-blue-100 text-blue-700', 'Penjualan'],
+                                            'internal'          => ['bg-purple-100 text-purple-700', 'Internal'],
+                                            'manual_adjustment' => ['bg-gray-100 text-gray-600', 'Penyesuaian'],
+                                            'purchaseOrder'          => ['bg-indigo-100 text-indigo-700', 'Pembelian'],
                                         ];
                                         [$sc, $sl] = $sMap[$mov->source] ?? ['bg-gray-100 text-gray-500', ucfirst($mov->source ?? '—')];
                                     @endphp

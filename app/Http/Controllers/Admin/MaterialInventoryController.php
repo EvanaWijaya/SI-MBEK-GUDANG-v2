@@ -47,7 +47,7 @@ class MaterialInventoryController extends Controller
             'quantity' => 'required|integer|min:1',
 
             'expiration_date' => 'required_if:type,in|nullable|date|after_or_equal:today',
-            'note' => 'nullable|string|max:255',
+            'notes' => 'nullable|string|max:255',
         ], [
             // Custom pesan error biar lebih jelas
             'expiration_date.required_if' => 'Expired date wajib diisi untuk penambahan stok barang baru.',
@@ -83,7 +83,7 @@ class MaterialInventoryController extends Controller
                         break;
 
                     if ($batch->quantity >= $remaining) {
-                        $batch->decrement('qty', $remaining);
+                        $batch->decrement('quantity', $remaining);
                         $remaining = 0;
                     } else {
                         $remaining -= $batch->quantity;
@@ -106,7 +106,7 @@ class MaterialInventoryController extends Controller
                 'stockable_type' => Material::class,
                 'type' => $request->type,
                 'quantity' => $request->quantity,
-                'source' => 'adjustment',
+                'source' => 'manual_adjustment',
                 'movement_date' => now(),
                 'notes' => $request->notes,
                 'created_by' => auth('admin')->id(),

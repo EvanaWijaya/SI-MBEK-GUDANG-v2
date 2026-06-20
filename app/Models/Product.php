@@ -129,4 +129,14 @@ class Product extends Model
             ->where('type', 'image')
             ->orderBy('sort_order');
     }
+
+    public function getSourceLabelAttribute()
+    {
+        return match ($this->source) {
+            'production' => 'Produksi',
+            'purchase' => 'Pembelian',
+            'manual_adjustment' => 'Penyesuaian Stok',
+            default => ucfirst($this->source),
+        };
+    }
 }

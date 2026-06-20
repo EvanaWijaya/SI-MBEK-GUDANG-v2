@@ -11,13 +11,13 @@
             </a>
             <div class="flex-1">
                 <div class="flex items-center gap-3 flex-wrap">
-                    <h1 class="text-2xl font-bold text-gray-800">Detail Produksi #{{ $production->id }}</h1>
-                    @if($production->status === 'diproses')
+                    <h1 class="text-2xl font-bold text-gray-800">Detail Produksi ID {{ $production->id }}</h1>
+                    @if($production->status === 'progress')
                         <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">
                             <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             Diproses
                         </span>
-                    @elseif($production->status === 'selesai')
+                    @elseif($production->status === 'completed')
                         <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
                             <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
                             Selesai
@@ -30,7 +30,7 @@
                     @endif
                 </div>
                 <p class="text-sm text-gray-500 mt-0.5">
-                    {{ $production->product->nama ?? '-' }} — {{ $production->formula->nama_formula ?? '-' }}
+                    {{ $production->product->product_name ?? '-' }} — {{ $production->formula->formula_name ?? '-' }}
                 </p>
             </div>
         </div>
@@ -63,9 +63,9 @@
         {{-- ── STEP INDICATOR ── --}}
         @php
             $qcSudahDilakukan = !is_null($production->qc_status) && $production->qc_status !== 'pending';
-            $qcLayak          = $production->qc_status === 'layak';
-            $qcTidakLayak     = $production->qc_status === 'tidak_layak';
-            $sudahSelesai     = $production->status === 'selesai';
+            $qcLayak          = $production->qc_status === 'passed';
+            $qcTidakLayak     = $production->qc_status === 'failed';
+            $sudahSelesai     = $production->status === 'completed';
             $sudahRejected    = $production->status === 'rejected';
         @endphp
 
@@ -150,15 +150,15 @@
                     <dl class="space-y-3 text-sm">
                         <div class="flex justify-between py-1.5 border-b border-gray-50">
                             <dt class="text-gray-400">Produk</dt>
-                            <dd class="font-semibold text-gray-800">{{ $production->product->nama ?? '-' }}</dd>
+                            <dd class="font-semibold text-gray-800">{{ $production->product->product_name ?? '-' }}</dd>
                         </div>
                         <div class="flex justify-between py-1.5 border-b border-gray-50">
                             <dt class="text-gray-400">Kode Produk</dt>
-                            <dd class="font-mono text-xs text-gray-700">{{ $production->product->kode ?? '-' }}</dd>
+                            <dd class="font-mono text-xs text-gray-700">{{ $production->product->product_code ?? '-' }}</dd>
                         </div>
                         <div class="flex justify-between py-1.5 border-b border-gray-50">
                             <dt class="text-gray-400">Formula</dt>
-                            <dd class="text-gray-700 text-right">{{ $production->formula->nama_formula ?? '-' }}</dd>
+                            <dd class="text-gray-700 text-right">{{ $production->formula->formula_name ?? '-' }}</dd>
                         </div>
                         <div class="flex justify-between py-1.5 border-b border-gray-50">
                             <dt class="text-gray-400">Qty Produksi</dt>
@@ -187,12 +187,12 @@
                     @if($hasMaterials)
                         <div class="space-y-1">
                             @foreach($production->formula->materials as $material)
-                            @php $kebutuhan = $production->production_quantity * ($material->pivot->persentase / 100); @endphp
+                            @php $kebutuhan = $production->production_quantity * ($material->pivot->percentage / 100); @endphp
                             <div class="flex items-center justify-between py-2 border-b border-gray-50 last:border-0 text-sm">
-                                <span class="text-gray-700">{{ $material->nama_bahan }}</span>
+                                <span class="text-gray-700">{{ $material->material_name }}</span>
                                 <div class="text-right">
-                                    <span class="font-semibold text-gray-800">{{ number_format($kebutuhan, 2) }} {{ $material->satuan }}</span>
-                                    <span class="text-xs text-gray-400 ml-1">({{ $material->pivot->persentase }}%)</span>
+                                    <span class="font-semibold text-gray-800">{{ number_format($kebutuhan, 2) }} {{ $material->unit }}</span>
+                                    <span class="text-xs text-gray-400 ml-1">({{ $material->pivot->percentage }}%)</span>
                                 </div>
                             </div>
                             @endforeach
@@ -212,7 +212,7 @@
             </div>
 
             {{-- ── FORM 1: INPUT QUALITY CONTROL (QC) ── --}}
-            @if($production->status === 'diproses' && !$qcSudahDilakukan)
+            @if($production->status === 'progress' && !$qcSudahDilakukan)
             <div class="bg-white rounded-xl border border-blue-200 shadow-sm overflow-hidden">
                 <div class="px-5 py-4 bg-blue-50 border-b border-blue-200 flex items-center gap-2">
                     <svg class="w-5 h-5 text-blue-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -256,13 +256,13 @@
                                         <span class="text-sm font-medium {{ $hasError ? 'text-red-900 font-bold' : 'text-gray-700' }}">{{ $indicator->name }}</span>
                                         <div class="flex items-center gap-5">
                                             <label class="flex items-center gap-1.5 cursor-pointer select-none">
-                                                <input type="radio" name="indicators[{{ $indicator->id }}]" value="lulus" class="accent-green-600" required
-                                                    {{ old("indicators.{$indicator->id}") === 'lulus' ? 'checked' : '' }}>
+                                                <input type="radio" name="indicators[{{ $indicator->id }}]" value="passed" class="accent-green-600" required
+                                                    {{ old("indicators.{$indicator->id}") === 'passed' ? 'checked' : '' }}>
                                                 <span class="text-xs font-bold text-green-700">Lulus</span>
                                             </label>
                                             <label class="flex items-center gap-1.5 cursor-pointer select-none">
-                                                <input type="radio" name="indicators[{{ $indicator->id }}]" value="gagal" class="accent-red-600"
-                                                    {{ old("indicators.{$indicator->id}") === 'gagal' ? 'checked' : '' }}>
+                                                <input type="radio" name="indicators[{{ $indicator->id }}]" value="failed" class="accent-red-600"
+                                                    {{ old("indicators.{$indicator->id}") === 'failed' ? 'checked' : '' }}>
                                                 <span class="text-xs font-bold text-red-700">Gagal</span>
                                             </label>
                                         </div>
@@ -287,13 +287,13 @@
                                         <span class="text-sm font-medium {{ $hasError ? 'text-red-900 font-bold' : 'text-gray-700' }}">{{ $indicator->name }}</span>
                                         <div class="flex items-center gap-5">
                                             <label class="flex items-center gap-1.5 cursor-pointer select-none">
-                                                <input type="radio" name="indicators[{{ $indicator->id }}]" value="lulus" class="accent-green-600" required
-                                                    {{ old("indicators.{$indicator->id}") === 'lulus' ? 'checked' : '' }}>
+                                                <input type="radio" name="indicators[{{ $indicator->id }}]" value="passed" class="accent-green-600" required
+                                                    {{ old("indicators.{$indicator->id}") === 'passed' ? 'checked' : '' }}>
                                                 <span class="text-xs font-bold text-green-700">Lulus</span>
                                             </label>
                                             <label class="flex items-center gap-1.5 cursor-pointer select-none">
-                                                <input type="radio" name="indicators[{{ $indicator->id }}]" value="gagal" class="accent-red-600"
-                                                    {{ old("indicators.{$indicator->id}") === 'gagal' ? 'checked' : '' }}>
+                                                <input type="radio" name="indicators[{{ $indicator->id }}]" value="failed" class="accent-red-600"
+                                                    {{ old("indicators.{$indicator->id}") === 'failed' ? 'checked' : '' }}>
                                                 <span class="text-xs font-bold text-red-700">Gagal</span>
                                             </label>
                                         </div>
@@ -312,8 +312,8 @@
                         {{-- Input Catatan QC --}}
                         <div>
                             <label class="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-1.5">Catatan QC <span class="text-gray-400 font-normal">(opsional)</span></label>
-                            <textarea name="catatan" rows="2" placeholder="Tambahkan deskripsi atau catatan temuan hasil QC lapangan..."
-                                class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-black focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 resize-none">{{ old('catatan') }}</textarea>
+                            <textarea name="notes" rows="2" placeholder="Tambahkan deskripsi atau catatan temuan hasil QC lapangan..."
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-black focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 resize-none">{{ old('notes') }}</textarea>
                         </div>
                     </div>
 
@@ -357,7 +357,7 @@
             @endif
 
             {{-- ── FORM 2: SELESAIKAN & INPUT EXPIRED DATE ── --}}
-            @if($production->status === 'diproses' && $qcLayak)
+            @if($production->status === 'progress' && $qcLayak)
             <div class="bg-green-50 border border-green-200 rounded-xl p-6">
                 <div class="flex items-center gap-3 mb-5">
                     <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
@@ -429,7 +429,7 @@
                 <div>
                     <p class="font-semibold text-green-800 text-sm">Produksi selesai!</p>
                     <p class="text-xs text-green-600 mt-0.5">
-                        Stok <strong>{{ $production->product->nama ?? 'produk' }}</strong> telah bertambah
+                        Stok <strong>{{ $production->product->product_name ?? 'produk' }}</strong> telah bertambah
                         <strong>{{ number_format($production->production_quantity) }} kg</strong>.
                     </p>
                 </div>

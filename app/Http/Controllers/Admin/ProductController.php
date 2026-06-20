@@ -53,6 +53,10 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        $request->merge([
+            'selling_price' => preg_replace('/[^0-9]/', '', $request->selling_price)
+        ]);
+
         $request->validate([
             'product_name' => 'required|string|max:255',
             'selling_price' => 'nullable|numeric|min:0',
@@ -139,6 +143,10 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
+        $request->merge([
+            'selling_price' => preg_replace('/[^0-9]/', '', $request->selling_price)
+        ]);
+
         $request->validate([
             'product_name' => 'required|string|max:255',
             'selling_price' => 'nullable|numeric|min:0',
@@ -147,14 +155,27 @@ class ProductController extends Controller
             'category' => 'required|in:pakan,obat',
             'source' => 'required|in:production,purchase',
             'description' => 'nullable|string',
-            'images' => 'nullable|array|max:10',
+            'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         if ($request->source === 'production' && !$request->formula_id) {
-            return redirect()->back()
+            return back()
+                ->withInput()
                 ->withErrors([
-                    'formula_id' => 'Produk produksi wajib memiliki formula'
+                    'formula_id' => 'Produk produksi wajib memiliki formula.'
+                ]);
+        }
+
+        // Validasi maksimal total 10 gambar
+        $currentImages = $product->media()->count();
+        $newImages = count($request->file('images', []));
+
+        if (($currentImages + $newImages) > 10) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'images' => 'Total gambar maksimal 10 file.'
                 ]);
         }
 
@@ -172,13 +193,14 @@ class ProductController extends Controller
 
             if ($request->hasFile('images')) {
 
-                $lastOrder = $product->media()
-                    ->max('sort_order') ?? 0;
+                $lastOrder = $product->media()->max('sort_order') ?? 0;
+
+                // Cek apakah produk masih punya gambar
+                $hasImage = $product->media()->exists();
 
                 foreach ($request->file('images') as $index => $file) {
 
                     $path = $file->store('products', 'public');
-                    $isFirstImage = $product->media()->count() === 0;
 
                     $product->media()->create([
                         'file_name' => $file->getClientOriginalName(),
@@ -186,7 +208,11 @@ class ProductController extends Controller
                         'mime_type' => $file->getMimeType(),
                         'file_size' => $file->getSize(),
                         'type' => 'image',
-                        'is_primary' => $isFirstImage && $index === 0,
+
+                        // hanya gambar pertama menjadi primary
+                        // jika sebelumnya belum ada gambar sama sekali
+                        'is_primary' => !$hasImage && $index === 0,
+
                         'sort_order' => $lastOrder + $index + 1,
                     ]);
                 }
@@ -200,11 +226,30 @@ class ProductController extends Controller
 
     public function destroyMedia(Media $media)
     {
-        if ($media->file_path) {
+        $wasPrimary = $media->is_primary;
+        $product = $media->mediable;
+
+        if (
+            $media->file_path &&
+            Storage::disk('public')->exists($media->file_path)
+        ) {
             Storage::disk('public')->delete($media->file_path);
         }
 
         $media->delete();
+
+        if ($wasPrimary) {
+
+            $newPrimary = $product->media()
+                ->orderBy('sort_order')
+                ->first();
+
+            if ($newPrimary) {
+                $newPrimary->update([
+                    'is_primary' => true
+                ]);
+            }
+        }
 
         return back()->with(
             'success',

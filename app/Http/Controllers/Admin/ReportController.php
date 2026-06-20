@@ -32,34 +32,130 @@ class ReportController extends Controller
             $query->where('type', $request->type);
         }
         if ($request->filled('source')) {
-            $query->where('source', $request->source);
+
+            switch ($request->source) {
+
+                case 'purchase':
+                    $query->whereIn('source', [
+                        'purchase',
+                        'purchaseorder'
+                    ]);
+                    break;
+
+                case 'adjustment':
+                    $query->whereIn('source', [
+                        'adjustment',
+                        'manual_adjustment'
+                    ]);
+                    break;
+
+                default:
+                    $query->where('source', $request->source);
+            }
         }
 
         $movements = $query->latest('movement_date')->paginate(20)->withQueryString();
 
         // Summary
         $summary = StockMovement::whereBetween('movement_date', [$start, $end])
-            ->when($request->filled('source'), fn($q) => $q->where('source', $request->source))
+            ->when(
+                $request->filled('type'),
+                fn($q) => $q->where('type', $request->type)
+            )
+            ->when($request->filled('source'), function ($q) use ($request) {
+
+                if ($request->filled('source')) {
+
+                    switch ($request->source) {
+
+                        case 'purchase':
+                            $q->whereIn('source', [
+                                'purchase',
+                                'purchaseorder'
+                            ]);
+                            break;
+
+                        case 'adjustment':
+                            $q->whereIn('source', [
+                                'adjustment',
+                                'manual_adjustment'
+                            ]);
+                            break;
+
+                        default:
+                            $q->where('source', $request->source);
+                    }
+                }
+
+            })
             ->selectRaw('
-                SUM(CASE WHEN type="in"  THEN quantity ELSE 0 END) as total_masuk,
-                SUM(CASE WHEN type="out" THEN quantity ELSE 0 END) as total_keluar,
-                COUNT(*) as total_transaksi
-            ')
+        SUM(CASE WHEN type="in"  THEN quantity ELSE 0 END) as total_masuk,
+        SUM(CASE WHEN type="out" THEN quantity ELSE 0 END) as total_keluar,
+        COUNT(*) as total_transaksi
+    ')
             ->first();
 
         // Daily chart data for stock movements
         $chartData = StockMovement::whereBetween('movement_date', [$start, $end])
-            ->when($request->filled('source'), fn($q) => $q->where('source', $request->source))
+            ->when(
+                $request->filled('type'),
+                fn($q) => $q->where('type', $request->type)
+            )
+            ->when($request->filled('source'), function ($q) use ($request) {
+
+                if ($request->filled('source')) {
+
+                    switch ($request->source) {
+
+                        case 'purchase':
+                            $q->whereIn('source', [
+                                'purchase',
+                                'purchaseorder'
+                            ]);
+                            break;
+
+                        case 'adjustment':
+                            $q->whereIn('source', [
+                                'adjustment',
+                                'manual_adjustment'
+                            ]);
+                            break;
+
+                        default:
+                            $q->where('source', $request->source);
+                    }
+                }
+
+            })
             ->selectRaw('
-                DATE(movement_date) as tgl,
-                SUM(CASE WHEN type="in"  THEN quantity ELSE 0 END) as masuk,
-                SUM(CASE WHEN type="out" THEN quantity ELSE 0 END) as keluar
-            ')
+        DATE(movement_date) as tgl,
+        SUM(CASE WHEN type="in"  THEN quantity ELSE 0 END) as masuk,
+        SUM(CASE WHEN type="out" THEN quantity ELSE 0 END) as keluar
+    ')
             ->groupBy('tgl')
             ->orderBy('tgl')
             ->get();
 
-        $sources = StockMovement::distinct()->pluck('source')->sort()->values();
+        $sources = StockMovement::distinct()
+            ->pluck('source')
+            ->map(function ($source) {
+
+                $source = strtolower(trim($source));
+
+                return match ($source) {
+                    'purchase',
+                    'purchaseorder' => 'purchase',
+
+                    'adjustment',
+                    'manual_adjustment' => 'adjustment',
+
+                    default => $source,
+                };
+
+            })
+            ->unique()
+            ->sort()
+            ->values();
 
         return view('admin.report.stock', compact(
             'movements',
