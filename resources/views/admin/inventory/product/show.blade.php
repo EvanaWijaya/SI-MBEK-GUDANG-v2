@@ -14,12 +14,12 @@
                     <h1 class="text-2xl font-bold text-gray-800">{{ $product->product_name }}</h1>
                     <span class="font-mono text-sm text-gray-400">{{ $product->product_code }}</span>
                     <span class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold
-                        {{ $product->category === 'pakan' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700' }}">
-                        {{ ucfirst($product->category) }}
+                        {{ $product->category === 'feed' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700' }}">
+                        {{ ucfirst($product->category_label) }}
                     </span>
                     <span class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold
                         {{ $product->source === 'production' ? 'bg-orange-100 text-orange-700' : 'bg-purple-100 text-purple-700' }}">
-                        {{ ucfirst($product->source) }}
+                        {{ ucfirst($product->source_label) }}
                     </span>
                     @if($product->isBelowReorderPoint())
                         <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200">

@@ -139,4 +139,13 @@ class Product extends Model
             default => ucfirst($this->source),
         };
     }
+
+    public function getCategoryLabelAttribute(): string
+    {
+        return match ($this->category) {
+            'feed' => 'Pakan',
+            'medicine' => 'Obat',
+            default => $this->category,
+        };
+    }
 }

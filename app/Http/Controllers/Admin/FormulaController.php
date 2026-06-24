@@ -85,7 +85,7 @@ class FormulaController extends Controller
                 );
             }
 
-            $this->logActivity('formula_created', $formula->id);
+            $this->logActivity('formula_created', $formula->formula_code);
 
             DB::commit();
 
@@ -148,7 +148,7 @@ class FormulaController extends Controller
 
             $formula->materials()->sync($syncData);
 
-            $this->logActivity('formula_updated', $formula->id);
+            $this->logActivity('formula_updated', $formula->formula_code);
         });
 
         return redirect()->route('admin.formula.index')
@@ -171,7 +171,7 @@ class FormulaController extends Controller
             'is_active' => false
         ]);
 
-        $this->logActivity('formula_deactivated', $formula->id);
+        $this->logActivity('formula_deactivated', $formula->formula_code);
 
         return back()->with('success', 'Formula berhasil dinonaktifkan');
     }
@@ -179,18 +179,34 @@ class FormulaController extends Controller
     /**
      * 🔐 Activity Log Helper
      */
-    private function logActivity($type, $formulaId)
+    private function logActivity($type, $formulaCode)
     {
         $actor = $this->getCurrentActor();
 
-        if ($actor) {
-            ActivityLog::create([
-                'actor_id' => $actor->id,
-                'actor_type' => get_class($actor),
-                'type' => $type,
-                'module' => 'formula',
-                'description' => 'Formula #' . $formulaId
-            ]);
+        if (!$actor) {
+            return;
         }
+
+        $description = match ($type) {
+            'formula_created' =>
+            "Membuat formula dengan kode {$formulaCode}",
+
+            'formula_updated' =>
+            "Memperbarui formula dengan kode {$formulaCode}",
+
+            'formula_deactivated' =>
+            "Menonaktifkan formula dengan kode {$formulaCode}",
+
+            default =>
+            "Aktivitas formula dengan kode {$formulaCode}",
+        };
+
+        ActivityLog::create([
+            'actor_id' => $actor->id,
+            'actor_type' => get_class($actor),
+            'type' => $type,
+            'module' => 'formula',
+            'description' => $description,
+        ]);
     }
 }

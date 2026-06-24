@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\ProductStock;
 use App\Models\StockMovement;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -66,6 +67,11 @@ class ProductInventoryController extends Controller
             $product->update([
                 'stock' => $realStock
             ]);
+
+            $this->logActivity(
+                'product_stock_synced',
+                "Sinkronisasi stok produk {$product->product_code} menjadi {$realStock}"
+            );
         });
 
         return redirect()
@@ -157,6 +163,20 @@ class ProductInventoryController extends Controller
                 'notes' => $request->reason,
                 'movement_date' => now(),
             ]);
+
+            $type = $request->type === 'in'
+                ? 'product_stock_in'
+                : 'product_stock_out';
+
+            $action = $request->type === 'in'
+                ? 'menambahkan'
+                : 'mengurangi';
+
+            $this->logActivity(
+                $type,
+                ucfirst($action) .
+                " stok produk {$product->product_code} sebanyak {$adjustQty}"
+            );
         });
 
         return redirect()
@@ -177,11 +197,35 @@ class ProductInventoryController extends Controller
             'reorder_point' => $request->reorder_point
         ]);
 
+        $oldRop = $product->reorder_point;
+
+        $product->update([
+            'reorder_point' => $request->reorder_point
+        ]);
+
+        $this->logActivity(
+            'product_rop_updated',
+            "Mengubah ROP produk {$product->product_code} dari {$oldRop} menjadi {$request->reorder_point}"
+        );
+
         return redirect()
             ->back()
             ->with(
                 'success',
                 'Reorder Point (ROP) berhasil diperbarui'
             );
+    }
+
+    private function logActivity(
+        string $type,
+        string $description
+    ): void {
+        ActivityLog::create([
+            'actor_id' => auth('admin')->id(),
+            'actor_type' => \App\Models\Admin::class,
+            'type' => $type,
+            'module' => 'product_inventory',
+            'description' => $description,
+        ]);
     }
 }

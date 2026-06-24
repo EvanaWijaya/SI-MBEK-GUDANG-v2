@@ -92,7 +92,7 @@
 
                                 {{-- Tipe --}}
                                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 uppercase">
-                                    {{ $p->category }}
+                                    {{ $p->category_label }}
                                 </td>
 
                                 {{-- Sumber --}}

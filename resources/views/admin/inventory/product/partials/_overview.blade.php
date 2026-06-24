@@ -58,11 +58,11 @@
                 </div>
                 <div class="flex justify-between">
                     <dt class="text-gray-400">Tipe Produk</dt>
-                    <dd class="font-semibold text-gray-700">{{ ucfirst($product->category) }}</dd>
+                    <dd class="font-semibold text-gray-700">{{ ucfirst($product->category_label) }}</dd>
                 </div>
                 <div class="flex justify-between">
                     <dt class="text-gray-400">Sumber Stok</dt>
-                    <dd class="font-semibold text-gray-700">{{ ucfirst($product->source) }}</dd>
+                    <dd class="font-semibold text-gray-700">{{ ucfirst($product->source_label) }}</dd>
                 </div>
                 @if($product->formula)
                     <div class="flex justify-between">

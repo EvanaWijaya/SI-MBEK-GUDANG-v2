@@ -129,8 +129,8 @@
                                 <td class="px-5 py-4 text-center align-middle">
                                     <span
                                         class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold
-                                                            {{ $material->category == 'pakan' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800' }}">
-                                        {{ $material->category ?? '-' }}
+                                                                    {{ $material->category == 'feed' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800' }}">
+                                        {{ $material->category_label ?? '-' }}
                                     </span>
                                 </td>
                                 <td class="px-5 py-4 text-center align-middle"><span
@@ -153,7 +153,7 @@
 
                                             </svg>
 
-                                            Perlu Reorder
+                                            Perlu Pesan Ulang
 
                                         </span>
 

@@ -32,7 +32,7 @@ class PurchaseOrder extends Model
         'approved_date',
         'received_date',
 
-        
+
     ];
 
     /**
@@ -77,5 +77,14 @@ class PurchaseOrder extends Model
             StockMovement::class,
             'stockable'
         );
+    }
+
+    public function getTypeLabelAttribute(): string
+    {
+        return match ($this->type) {
+            'material' => 'Bahan Baku',
+            'product' => 'Produk',
+            default => $this->type,
+        };
     }
 }

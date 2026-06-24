@@ -53,7 +53,7 @@ class ProductAllocationController extends Controller
                 'actor_type' => \App\Models\Admin::class,
                 'type' => $allocation->type,
                 'module' => 'product_allocation',
-                'description' => "Membuat alokasi produk id #{$allocation->product_id} sebanyak ({$allocation->quantity})",
+                'description' => "Membuat alokasi produk dengan ID {$allocation->product_id} sebanyak ({$allocation->quantity})",
             ]);
 
             return back()->with(
@@ -181,7 +181,7 @@ class ProductAllocationController extends Controller
                     'actor_type' => \App\Models\Admin::class,
                     'type' => 'internal_usage',
                     'module' => 'product_allocation',
-                    'description' => 'Pemakaian internal produk #' . $product->id,
+                    'description' => 'Pemakaian internal produk dengan ID ' . $product->id,
                 ]);
             });
 
@@ -320,7 +320,7 @@ class ProductAllocationController extends Controller
                     'actor_type' => \App\Models\Admin::class,
                     'type' => 'sale',
                     'module' => 'product_allocation',
-                    'description' => 'Penjualan produk #' . $product->id,
+                    'description' => 'Penjualan produk dengan ID ' . $product->id,
                 ]);
             });
 

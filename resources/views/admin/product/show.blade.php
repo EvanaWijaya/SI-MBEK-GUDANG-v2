@@ -189,7 +189,7 @@
                         {{-- TIPE / KATEGORI --}}
                         <div class="mb-4">
                             <p class="text-xs text-black font-bold uppercase mb-1">Tipe</p>
-                            <p x-show="!editMode" class="text-lg text-gray-800 uppercase">{{ $product->category }}</p>
+                            <p x-show="!editMode" class="text-lg text-gray-800 uppercase">{{ $product->category_label }}</p>
                             <select x-show="editMode" name="category" class="w-full border-gray-300 rounded text-black">
                                 <option value="feed"     {{ $product->category == 'feed'     ? 'selected' : '' }}>PAKAN</option>
                                 <option value="medicine" {{ $product->category == 'medicine' ? 'selected' : '' }}>OBAT</option>

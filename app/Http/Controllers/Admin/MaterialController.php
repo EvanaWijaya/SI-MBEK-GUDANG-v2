@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Material;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 
 class MaterialController extends Controller
@@ -41,7 +42,7 @@ class MaterialController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        Material::create([
+        $material = Material::create([
             'material_name' => $request->material_name,
             'category' => $request->category,
             'unit' => $request->unit,
@@ -51,6 +52,8 @@ class MaterialController extends Controller
             'safety_stock' => $request->safety_stock ?? 5,
             'description' => $request->description,
         ]);
+
+        $this->logActivity('material_created', $material);
 
         return redirect()
             ->route('admin.materials.index')
@@ -90,6 +93,8 @@ class MaterialController extends Controller
             'description' => $request->description,
         ]);
 
+        $this->logActivity('material_updated', $material);
+
         if ($request->source === 'inventory') {
             return back()->with(
                 'success',
@@ -123,10 +128,35 @@ class MaterialController extends Controller
             );
         }
 
+        $this->logActivity('material_deleted', $material);
+
         $material->delete();
 
         return redirect()
             ->route('admin.materials.index')
             ->with('success', 'Material berhasil dihapus');
+    }
+
+    private function logActivity($type, $material)
+    {
+        ActivityLog::create([
+            'actor_id' => auth('admin')->id(),
+            'actor_type' => \App\Models\Admin::class,
+            'type' => $type,
+            'module' => 'material',
+            'description' => match ($type) {
+                'material_created' =>
+                "Menambahkan bahan baku {$material->material_name}",
+
+                'material_updated' =>
+                "Memperbarui bahan baku {$material->material_name}",
+
+                'material_deleted' =>
+                "Menghapus bahan baku {$material->material_name}",
+
+                default =>
+                "Aktivitas material {$material->material_name}",
+            }
+        ]);
     }
 }

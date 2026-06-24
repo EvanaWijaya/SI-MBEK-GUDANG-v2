@@ -134,7 +134,7 @@ class ProductionController extends Controller
                     'actor_type' => get_class($actor),
                     'type' => 'production_created',
                     'module' => 'production',
-                    'description' => 'Membuat Produksi #' . $production->id
+                    'description' => 'Membuat produksi dengan ID ' . $production->id
                 ]);
             }
 
@@ -323,7 +323,7 @@ class ProductionController extends Controller
                     'actor_type' => get_class($actor),
                     'type' => 'production_finished',
                     'module' => 'production',
-                    'description' => 'Menyelesaikan Produksi dengan ID' . $production->id
+                    'description' => 'Menyelesaikan Produksi dengan ID ' . $production->id
                 ]);
             }
 

@@ -172,8 +172,8 @@
                 <label class="block text-xs font-medium text-gray-600 mb-1.5">Tipe <span class="text-red-500">*</span></label>
                 <select name="type" id="adj-type" required
                     class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400">
-                    <option value="in">➕ Tambah Stok</option>
-                    <option value="out">➖ Kurangi Stok (FIFO)</option>
+                    <option value="in">➕ Tambah</option>
+                    <option value="out">➖ Kurangi</option>
                 </select>
             </div>
             <div>

@@ -56,7 +56,7 @@ class ProductAllocationController extends Controller
                     'actor_type' => get_class($actor),
                     'type' => $allocation->type,
                     'module' => 'product_allocation',
-                    'description' => "Membuat alokasi produk id #{$allocation->product_id} sebanyak ({$allocation->quantity})",
+                    'description' => "Membuat alokasi produk dengan ID {$allocation->product_id} sebanyak ({$allocation->quantity})",
                 ]);
             }
 

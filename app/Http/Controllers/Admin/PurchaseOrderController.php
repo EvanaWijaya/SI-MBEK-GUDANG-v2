@@ -150,7 +150,7 @@ class PurchaseOrderController extends Controller
                 'actor_type' => get_class($actor),
                 'type' => 'po_created',
                 'module' => 'purchase_order',
-                'description' => "Membuat Purchase Order #{$purchaseOrder->po_code}",
+                'description' => "Membuat pesanan dengan kode {$purchaseOrder->po_code}",
             ]);
         }
 
@@ -201,7 +201,7 @@ class PurchaseOrderController extends Controller
             'actor_type' => get_class($actor),
             'type' => 'po_approved',
             'module' => 'purchase_order',
-            'description' => 'Owner Menyetujui Purchase Order #' .
+            'description' => 'Owner Menyetujui pesanan dengan kode  ' .
                 $purchaseOrder->po_code,
         ]);
 
@@ -389,7 +389,7 @@ class PurchaseOrderController extends Controller
                     'actor_type' => get_class($actor),
                     'type' => 'po_received',
                     'module' => 'purchase_order',
-                    'description' => 'Menerima Purchase Order #' . $purchaseOrder->po_code
+                    'description' => 'Menerima pesanan dengan kode' . $purchaseOrder->po_code
                 ]);
             }
         }

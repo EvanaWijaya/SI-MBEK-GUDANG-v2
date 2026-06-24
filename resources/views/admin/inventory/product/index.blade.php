@@ -166,14 +166,14 @@
                                 <td class="px-5 py-4 text-center">
                                     <span class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold
                                         {{ $prod->category==='feed' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700' }}">
-                                        {{ ucfirst($prod->category) }}
+                                        {{ ucfirst($prod->category_label) }}
                                     </span>
                                 </td>
 
                                 <td class="px-5 py-4 text-center">
                                     <span class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold
                                         {{ $prod->source==='production' ? 'bg-orange-100 text-orange-700' : 'bg-purple-100 text-purple-700' }}">
-                                        {{ ucfirst($prod->source) }}
+                                        {{ ucfirst($prod->source_label) }}
                                     </span>
                                 </td>
 

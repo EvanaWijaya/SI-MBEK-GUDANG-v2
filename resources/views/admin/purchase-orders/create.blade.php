@@ -66,8 +66,7 @@
                             <select name="type" id="purchaseOrder-type" required
                                 class="w-full border {{ $errors->has('type') ? 'border-red-400 bg-red-50 focus:ring-red-500' : 'border-gray-300 focus:ring-orange-400' }} rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none transition">
                                 <option value="">-- Pilih Tipe --</option>
-                                <option value="material" {{ old('type') === 'material' ? 'selected' : '' }}>Material
-                                    (Bahan Baku)</option>
+                                <option value="material" {{ old('type') === 'material' ? 'selected' : '' }}>Bahan Baku</option>
                                 <option value="product" {{ old('type') === 'product' ? 'selected' : '' }}>Produk Jadi
                                 </option>
                             </select>

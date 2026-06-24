@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Formula;
 use App\Models\Product;
 use App\Models\Media;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -93,6 +94,8 @@ class ProductController extends Controller
                 'source' => $request->source,
                 'created_by' => auth('admin')->id(),
             ]);
+
+            $this->logActivity('product_created', $product);
 
             if ($request->hasFile('images')) {
 
@@ -191,6 +194,8 @@ class ProductController extends Controller
                 'source' => $request->source,
             ]);
 
+            $this->logActivity('product_updated', $product);
+
             if ($request->hasFile('images')) {
 
                 $lastOrder = $product->media()->max('sort_order') ?? 0;
@@ -235,6 +240,15 @@ class ProductController extends Controller
         ) {
             Storage::disk('public')->delete($media->file_path);
         }
+
+        ActivityLog::create([
+            'actor_id' => auth('admin')->id(),
+            'actor_type' => \App\Models\Admin::class,
+            'type' => 'product_image_deleted',
+            'module' => 'product',
+            'description' =>
+                "Menghapus gambar produk {$product->product_code} - {$product->product_name}",
+        ]);
 
         $media->delete();
 
@@ -281,11 +295,34 @@ class ProductController extends Controller
                 $media->delete();
             }
 
+            $this->logActivity('product_deleted', $product);
+
             $product->delete();
         });
 
         return redirect()
             ->route('admin.products.index')
             ->with('success', 'Produk berhasil dihapus');
+    }
+
+    private function logActivity($type, Product $product)
+    {
+        ActivityLog::create([
+            'actor_id' => auth('admin')->id(),
+            'actor_type' => \App\Models\Admin::class,
+            'type' => $type,
+            'module' => 'product',
+            'description' => match ($type) {
+
+                'product_created' =>
+                "Menambahkan produk {$product->product_code} - {$product->product_name}",
+
+                'product_updated' =>
+                "Memperbarui produk {$product->product_code} - {$product->product_name}",
+
+                'product_deleted' =>
+                "Menghapus produk {$product->product_code} - {$product->product_name}",
+            }
+        ]);
     }
 }

@@ -96,7 +96,7 @@
                                     <span
                                         class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium
                                                     {{ $purchaseOrder->type === 'material' ? 'bg-purple-50 text-purple-700' : 'bg-cyan-50 text-cyan-700' }}">
-                                        {{ ucfirst($purchaseOrder->type ?? '-') }}
+                                        {{ ucfirst($purchaseOrder->type_label ?? '-') }}
                                     </span>
                                 </td>
                                 <td class="px-5 py-4 text-gray-700">{{ $purchaseOrder->orderedBy->name ?? '-' }}</td>

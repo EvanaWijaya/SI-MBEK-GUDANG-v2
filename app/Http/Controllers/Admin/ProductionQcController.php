@@ -121,7 +121,7 @@ class ProductionQcController extends Controller
                     'actor_type' => get_class($actor),
                     'type' => 'qc_checked',
                     'module' => 'production_qc',
-                    'description' => 'Melakukan QC untuk Prosedur Produksi #' . $qc->production->id
+                    'description' => 'Melakukan QC untuk Prosedur Produksi dengan ID ' . $qc->production->id
                 ]);
             }
 

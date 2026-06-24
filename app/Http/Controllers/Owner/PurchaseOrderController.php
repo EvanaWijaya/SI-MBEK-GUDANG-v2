@@ -150,7 +150,7 @@ class PurchaseOrderController extends Controller
                 'actor_type' => get_class($actor),
                 'type' => 'po_created',
                 'module' => 'purchase_order',
-                'description' => 'Membuat Purchase Order #' . $purchaseOrder->po_code
+                'description' => 'Membuat pesanan dengan kode ' . $purchaseOrder->po_code
             ]);
         }
 

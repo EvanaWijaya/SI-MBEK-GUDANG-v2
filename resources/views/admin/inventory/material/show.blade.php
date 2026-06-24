@@ -12,8 +12,8 @@
             <div class="flex-1">
                 <div class="flex items-center gap-3 flex-wrap">
                     <h1 class="text-2xl font-bold text-gray-800">{{ $material->material_name }}</h1>
-                    @if($material->category) <span
-                        class="bg-gray-100 text-gray-600 px-2.5 py-0.5 rounded-md text-xs">{{ $material->category }}</span>
+                    @if($material->category_label) <span
+                        class="bg-gray-100 text-gray-600 px-2.5 py-0.5 rounded-md text-xs">{{ $material->category_label }}</span>
                     @endif
                     @if($material->isBelowReorderPoint()) <span
                         class="bg-red-100 text-red-700 border border-red-200 px-2.5 py-0.5 rounded-full text-xs">Di
@@ -85,7 +85,8 @@
                         </div>
                         <div class="flex justify-end pt-4 border-t border-gray-50">
                             <button type="submit"
-                                class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2.5 px-8 rounded-lg text-sm shadow-md transition-all flex items-center gap-2">Hitung Stok Minimum</button>
+                                class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2.5 px-8 rounded-lg text-sm shadow-md transition-all flex items-center gap-2">Hitung
+                                Stok Minimum</button>
                         </div>
                     </form>
                 </div>

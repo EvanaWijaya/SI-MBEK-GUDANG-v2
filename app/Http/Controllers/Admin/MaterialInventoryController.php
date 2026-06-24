@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Material;
 use App\Models\MaterialStock;
 use App\Models\StockMovement;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -100,6 +101,15 @@ class MaterialInventoryController extends Controller
             $material->stock = $material->materialStocks()->sum('quantity');
             $material->save();
 
+            ActivityLog::create([
+                'actor_id' => auth('admin')->id(),
+                'actor_type' => \App\Models\Admin::class,
+                'type' => 'material_stock_sync',
+                'module' => 'inventory_material',
+                'description' =>
+                    "Sinkronisasi stok bahan baku {$material->material_name}. Stok saat ini {$material->stock} {$material->unit}",
+            ]);
+
             // Catat movement
             StockMovement::create([
                 'stockable_id' => $material->id,
@@ -110,6 +120,20 @@ class MaterialInventoryController extends Controller
                 'movement_date' => now(),
                 'notes' => $request->notes,
                 'created_by' => auth('admin')->id(),
+            ]);
+
+            ActivityLog::create([
+                'actor_id' => auth('admin')->id(),
+                'actor_type' => \App\Models\Admin::class,
+                'type' => $request->type === 'in'
+                    ? 'material_stock_in'
+                    : 'material_stock_out',
+                'module' => 'inventory_material',
+                'description' =>
+                    ($request->type === 'in'
+                        ? 'Menambahkan'
+                        : 'Mengurangi')
+                    . " stok bahan baku {$material->material_name} sebanyak {$request->quantity} {$material->unit}",
             ]);
         });
 

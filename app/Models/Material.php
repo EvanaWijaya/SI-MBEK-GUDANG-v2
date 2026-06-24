@@ -96,7 +96,7 @@ class Material extends Model
         return $this->morphMany(StockMovement::class, 'stockable');
     }
 
-public function getAveragePriceAttribute()
+    public function getAveragePriceAttribute()
     {
         // 🔥 Hitung rata-rata HANYA dari Purchase Order yang statusnya 'received' (Diterima)
         $avgPrice = $this->purchaseOrderItems()
@@ -106,5 +106,14 @@ public function getAveragePriceAttribute()
             ->avg('unit_price');
 
         return $avgPrice ?? 0;
+    }
+
+    public function getCategoryLabelAttribute(): string
+    {
+        return match ($this->category) {
+            'feed' => 'Pakan',
+            'medicine' => 'Obat',
+            default => $this->category,
+        };
     }
 }
