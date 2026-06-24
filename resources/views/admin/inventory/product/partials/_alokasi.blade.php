@@ -38,7 +38,7 @@
             <span class="text-gray-400 text-xs">Stok Total</span>
             <span class="font-bold {{ $belowRop ? 'text-red-600' : 'text-gray-800' }}">{{ number_format($product->stock) }}</span>
             @if($belowRop)
-                <span class="text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-semibold">⚠ ROP: {{ $product->reorder_point }}</span>
+                <span class="text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-semibold">⚠ Stok Minimum: {{ $product->reorder_point }}</span>
             @endif
         </div>
         <div class="w-px h-4 bg-gray-200"></div>
@@ -81,7 +81,7 @@
 
                 {{-- Set alokasi --}}
                 <div>
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Set Qty Alokasi</p>
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Set Jumlah Alokasi</p>
                     <form method="POST" novalidate action="{{ route('admin.product.allocations.set', $product->id) }}"
                         class="flex gap-2">
                         @csrf
@@ -113,7 +113,7 @@
 
                 {{-- Set alokasi --}}
                 <div>
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Set Qty Alokasi</p>
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Set Jumlah Alokasi</p>
                     <form method="POST" novalidate action="{{ route('admin.product.allocations.set', $product->id) }}"
                         class="flex gap-2">
                         @csrf
@@ -161,7 +161,7 @@
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
         <h3 class="text-sm font-semibold text-gray-800 mb-1 flex items-center gap-2">
             <span class="w-6 h-6 bg-gray-100 text-gray-600 rounded-md flex items-center justify-center font-bold text-xs">±</span>
-            Adjustment Stok Manual
+           Penyesuaian Stok
         </h3>
         <p class="text-xs text-gray-400 mb-5">Tambah atau kurangi stok secara manual. Pengurangan menggunakan metode FIFO.</p>
 
@@ -183,7 +183,7 @@
             </div>
             <div id="adj-expired-wrap">
     <label class="block text-xs text-gray-500 mb-1.5">
-        Expired Date <span id="exp-required-star" class="text-red-500">*</span>
+        Tanggal Kadaluarsa <span id="exp-required-star" class="text-red-500">*</span>
     </label>
     <input type="date" name="expiration_date" id="adj-expired-input" 
         class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-orange-400">

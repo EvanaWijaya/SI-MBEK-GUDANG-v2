@@ -1,6 +1,6 @@
 <x-admin-app-layout>
     <x-slot name="header">
-        <h2 class="font-bold text-xl text-black leading-tight">Detail Supplier: {{ $supplier->nama_supplier }}</h2>
+        <h2 class="font-bold text-xl text-black leading-tight">Detail Supplier: {{ $supplier->supplier_name }}</h2>
     </x-slot>
 
     <div class="container mx-auto mt-10 px-4" x-data="{ editMode: false }">
@@ -9,7 +9,7 @@
 
             <div class="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200">
                 <div class="p-6 bg-brand-orange text-white flex justify-between items-center">
-                    <h3 class="text-lg font-bold text-white">Informasi Supplier</h3>
+                    <h3 class="text-lg font-bold text-white">Informasi Pemasok</h3>
                     <div class="flex gap-2 text-black">
                         <button type="button" x-show="!editMode" @click="editMode = true" class="bg-orange-300 text-white px-4 py-1 rounded text-sm font-bold shadow hover:bg-orange-400">Edit Data</button>
                         <button type="button" x-show="editMode" @click="editMode = false" class="bg-orange-300 text-white px-4 py-1 rounded text-sm font-bold shadow">Batal</button>
@@ -21,34 +21,34 @@
                 <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
                     <div>
                         <div class="mb-4">
-                            <p class="text-xs text-black font-bold uppercase mb-1">Nama Supplier</p>
-                            <p x-show="!editMode" class="text-lg text-gray-800 font-semibold">{{ $supplier->nama_supplier }}</p>
-                            <input x-show="editMode" type="text" name="nama_supplier" value="{{ $supplier->nama_supplier }}" class="w-full border-gray-300 rounded text-black">
+                            <p class="text-xs text-black font-bold uppercase mb-1">Nama Pemasok</p>
+                            <p x-show="!editMode" class="text-lg text-gray-800 font-semibold">{{ $supplier->supplier_name }}</p>
+                            <input x-show="editMode" type="text" name="supplier_name" value="{{ $supplier->supplier_name }}" class="w-full border-gray-300 rounded text-black">
                         </div>
                         <div class="mb-4">
                             <p class="text-xs text-black font-bold uppercase mb-1">Kontak</p>
-                            <p x-show="!editMode" class="text-lg text-gray-800">{{ $supplier->kontak ?? '-' }}</p>
-                            <input x-show="editMode" type="text" name="kontak" value="{{ $supplier->kontak }}" class="w-full border-gray-300 rounded text-black">
+                            <p x-show="!editMode" class="text-lg text-gray-800">{{ $supplier->contact ?? '-' }}</p>
+                            <input x-show="editMode" type="text" name="contact" value="{{ $supplier->contact }}" class="w-full border-gray-300 rounded text-black">
                         </div>
                         <div class="mb-4">
                             <p class="text-xs text-black font-bold uppercase mb-1">Alamat</p>
-                            <p x-show="!editMode" class="text-gray-700 italic">{{ $supplier->alamat ?? '-' }}</p>
-                            <textarea x-show="editMode" name="alamat" class="w-full border-gray-300 rounded text-black">{{ $supplier->alamat }}</textarea>
+                            <p x-show="!editMode" class="text-gray-700 italic">{{ $supplier->address ?? '-' }}</p>
+                            <textarea x-show="editMode" name="address" class="w-full border-gray-300 rounded text-black">{{ $supplier->address }}</textarea>
                         </div>
                     </div>
                     <div>
                         <div class="mb-4">
                             <p class="text-xs text-black font-bold uppercase mb-1">Kota / Provinsi</p>
-                            <p x-show="!editMode" class="text-lg text-gray-800">{{ $supplier->kota }}, {{ $supplier->provinsi }}</p>
+                            <p x-show="!editMode" class="text-lg text-gray-800">{{ $supplier->city }}, {{ $supplier->province }}</p>
                             <div x-show="editMode" class="flex gap-2">
-                                <input type="text" name="kota" value="{{ $supplier->kota }}" class="w-1/2 border-gray-300 rounded text-black" placeholder="Kota">
-                                <input type="text" name="provinsi" value="{{ $supplier->provinsi }}" class="w-1/2 border-gray-300 rounded text-black" placeholder="Provinsi">
+                                <input type="text" name="city" value="{{ $supplier->city }}" class="w-1/2 border-gray-300 rounded text-black" placeholder="Kota">
+                                <input type="text" name="province" value="{{ $supplier->province }}" class="w-1/2 border-gray-300 rounded text-black" placeholder="Provinsi">
                             </div>
                         </div>
                         <div class="mb-4">
                             <p class="text-xs text-black font-bold uppercase mb-1">Catatan</p>
-                            <p x-show="!editMode" class="text-gray-700 italic">{{ $supplier->catatan ?? '-' }}</p>
-                            <textarea x-show="editMode" name="catatan" class="w-full border-gray-300 rounded text-black">{{ $supplier->catatan }}</textarea>
+                            <p x-show="!editMode" class="text-gray-700 italic">{{ $supplier->notes ?? '-' }}</p>
+                            <textarea x-show="editMode" name="notes" class="w-full border-gray-300 rounded text-black">{{ $supplier->notes }}</textarea>
                         </div>
                     </div>
                 </div>

@@ -8,6 +8,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Notifications\CustomVerifyEmail;
 use App\Notifications\CustomResetPassword;
+use App\Models\Media;
+    use Illuminate\Database\Eloquent\Relations\MorphMany;
+    use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -75,5 +78,15 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function media(): MorphMany
+    {
+        return $this->morphMany(Media::class, 'mediable')->orderBy('sort_order');
+    }
+
+    public function primaryImage(): MorphOne
+    {
+        return $this->morphOne(Media::class, 'mediable')->where('is_primary', true);
     }
 }

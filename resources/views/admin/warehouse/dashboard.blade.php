@@ -16,7 +16,7 @@
     <div class="flex items-start justify-between">
         <div>
             <div class="flex items-center gap-2 mb-1">
-                <h1 class="text-2xl font-bold text-gray-900">Dashboard Gudang</h1>
+                <h1 class="text-2xl font-bold text-gray-900">Gudang</h1>
             </div>
             <p class="text-sm text-gray-500 ml-1">Ringkasan operasional inventori · {{ now()->translatedFormat('d F Y') }}</p>
         </div>
@@ -47,10 +47,10 @@
                     </span>
                 @endif
             </div>
-            <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Material</p>
+            <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Bahan</p>
             <p class="text-3xl font-bold text-gray-800 mt-1">{{ number_format($summary['total_material']) }}</p>
             @if($summary['material_below_rop'] > 0)
-                <p class="text-xs text-red-500 mt-1 font-medium">{{ $summary['material_below_rop'] }} di bawah ROP</p>
+                <p class="text-xs text-red-500 mt-1 font-medium">{{ $summary['material_below_rop'] }} di bawah stok minimum</p>
             @else
                 <p class="text-xs text-green-500 mt-1">Semua stok aman</p>
             @endif
@@ -75,7 +75,7 @@
             <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Produk</p>
             <p class="text-3xl font-bold text-gray-800 mt-1">{{ number_format($summary['total_product']) }}</p>
             @if($summary['product_below_rop'] > 0)
-                <p class="text-xs text-red-500 mt-1 font-medium">{{ $summary['product_below_rop'] }} di bawah ROP</p>
+                <p class="text-xs text-red-500 mt-1 font-medium">{{ $summary['product_below_rop'] }} di bawah stok aman</p>
             @else
                 <p class="text-xs text-green-500 mt-1">Semua stok aman</p>
             @endif
@@ -89,7 +89,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                 </svg>
             </div>
-            <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Supplier</p>
+            <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Pemasok</p>
             <p class="text-3xl font-bold text-gray-800 mt-1">{{ number_format($summary['total_supplier']) }}</p>
             <p class="text-xs text-gray-400 mt-1">aktif terdaftar</p>
         </a>
@@ -103,7 +103,7 @@
             </div>
             <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Pembeli</p>
             <p class="text-3xl font-bold text-gray-800 mt-1">{{ number_format($summary['total_buyer']) }}</p>
-            <p class="text-xs text-gray-400 mt-1">unik bertransaksi</p>
+            <p class="text-xs text-gray-400 mt-1">bertransaksi</p>
         </div>
     </div>
 
@@ -117,11 +117,11 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                 </svg>
             </div>
-            <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">Status PO Terkini</h3>
+            <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">Status Pemesanan Bahan Terkini</h3>
             
             <div class="space-y-3">
                 @foreach([
-                    'draft'  => ['label'=>'Menunggu (Pending)', 'color'=>'text-yellow-600', 'bg'=>'bg-yellow-50/50'],
+                    'draft'  => ['label'=>'Menunggu ', 'color'=>'text-yellow-600', 'bg'=>'bg-yellow-50/50'],
                     'ordered' => ['label'=>'PO Disetujui', 'color'=>'text-blue-600', 'bg'=>'bg-blue-50/50'],
                     'received' => ['label'=>'Selesai / Diterima', 'color'=>'text-green-600', 'bg'=>'bg-green-50/50']
                 ] as $s => $cfg)
@@ -136,10 +136,10 @@
         {{-- ROP Warnings (2 Kolom Kanan) --}}
         <div class="lg:col-span-2 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
             <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-                <h3 class="text-sm font-semibold text-gray-700">⚠ Peringatan Stok Kritis (Di Bawah ROP)</h3>
+                <h3 class="text-sm font-semibold text-gray-700">⚠ Peringatan Stok Kritis</h3>
                 @php $totalRop = $materialsLow->count() + $productsLow->count(); @endphp
                 @if($totalRop > 0)
-                    <span class="text-xs font-bold bg-red-100 text-red-600 px-3 py-1 rounded-full">{{ $totalRop }} Item Butuh Perhatian</span>
+                    <span class="text-xs font-bold bg-red-100 text-red-600 px-3 py-1 rounded-full">{{ $totalRop }} Bahan Butuh Perhatian</span>
                 @else
                     <span class="text-xs text-green-500 font-semibold bg-green-50 px-3 py-1 rounded-full border border-green-100">Semua Stok Aman ✓</span>
                 @endif
@@ -150,7 +150,7 @@
                     <div class="flex flex-col items-center justify-center h-full text-sm text-gray-400 p-8">
                         <span class="text-4xl block mb-3">✅</span>
                         <p>Kondisi gudang prima.</p>
-                        <p>Semua stok bahan dan produk berada di atas batas ROP.</p>
+                        <p>Semua stok bahan dan produk berada di atas batas stok minimum.</p>
                     </div>
                 @else
                     <div class="divide-y divide-gray-50">
@@ -179,7 +179,7 @@
                             <div class="px-5 py-3.5 hover:bg-gray-50 transition-colors">
                                 <div class="flex items-center justify-between mb-2">
                                     <p class="text-sm font-bold text-gray-800">{{ $p->product_name }}</p>
-                                    <span class="text-[10px] px-2 py-0.5 rounded font-medium uppercase tracking-wider {{ $p->category === 'pakan' ? 'bg-green-50 text-green-600' : 'bg-purple-50 text-purple-600' }}">
+                                    <span class="text-[10px] px-2 py-0.5 rounded font-medium uppercase tracking-wider {{ $p->category === 'feed' ? 'bg-green-50 text-green-600' : 'bg-purple-50 text-purple-600' }}">
                                         Produk {{ ucfirst($p->category) }}
                                     </span>
                                 </div>
@@ -219,9 +219,9 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {{-- Supplier Distribution --}}
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-                    <h3 class="text-sm font-semibold text-gray-700 mb-4">Distribusi Pembelian (PO)</h3>
+                    <h3 class="text-sm font-semibold text-gray-700 mb-4">Distribusi Pembelian</h3>
                     @if($supplierDistribution->isEmpty())
-                        <p class="text-sm text-gray-400 text-center py-4">Belum ada data PO.</p>
+                        <p class="text-sm text-gray-400 text-center py-4">Belum ada data pemesanan.</p>
                     @else
                         @php $maxPo = $supplierDistribution->max('total'); @endphp
                         <div class="space-y-3">
@@ -293,7 +293,7 @@
                                 <thead class="bg-gray-50 text-gray-500 sticky top-0">
                                     <tr>
                                         <th class="py-2 px-3 rounded-l-lg font-semibold">Kota</th>
-                                        <th class="py-2 px-3 text-right rounded-r-lg font-semibold">Total Order</th>
+                                        <th class="py-2 px-3 text-right rounded-r-lg font-semibold">Total Pesanan</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100">

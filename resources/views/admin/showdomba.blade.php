@@ -98,7 +98,7 @@
         }
     </style>
 
-    <div class="min-h-screen flex flex-col bg-gray-50" x-data="{ open: false, dombas: null }">
+    <div class="min-h-screen flex flex-col bg-gray-50" x-data="{ open: false, for_sale: '{{ $dombas->for_sale }}' }">
         <main class="max-w-5xl mx-auto py-8 w-full">
             @if (session('success'))
                 <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-6">
@@ -130,9 +130,9 @@
                             </svg>
                             Monitoring
                         </a>
-                        <button
-                            class="bg-white text-brand-orange px-4 py-2 rounded-md shadow hover:bg-gray-100 flex items-center"
-                            @click="open = true; domba = {{ $dombas }}">
+                       <button
+    class="bg-white text-brand-orange px-4 py-2 rounded-md shadow hover:bg-gray-100 flex items-center"
+    @click="open = true">
                             <svg class="w-5 h-5 mr-1" aria-hidden="true" fill="none" viewBox="0 0 24 24">
                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                                     stroke-width="2"
@@ -237,21 +237,57 @@
                         </div>
                         <!-- Foto dan Status -->
                         <div>
-                            <!-- Foto Kambing -->
-                            <div class="info-card">
-                                <h4 class="text-xl font-bold text-gray-800 mb-4 pb-2 border-b border-gray-200">Foto
-                                    Domba</h4>
-                                <div class="flex justify-center">
+                           <div class="info-card">
+                                <h4 class="text-xl font-bold text-gray-800 mb-4 pb-2 border-b border-gray-200">
+                                    Foto Domba
+                                </h4>
+
+                                @php 
+                                    $mediaItems = $dombas->media; 
+                                    // Cari foto primary, jika tidak ada ambil urutan pertama
+                                    $primaryImage = $mediaItems->where('is_primary', true)->first() ?? $mediaItems->first();
+                                    // Ambil sisa foto selain foto utama
+                                    $otherImages = $mediaItems->reject(fn($m) => $primaryImage && $m->id === $primaryImage->id);
+                                @endphp
+
+                                @if ($mediaItems->isNotEmpty())
+                                    @if($primaryImage)
+                                        <div class="relative mb-3">
+                                            <img src="{{ $primaryImage->url }}" loading="lazy" alt="Foto Utama"
+                                                class="w-full h-64 object-cover rounded-lg shadow-sm cursor-pointer border ring-2 ring-brand-orange"
+                                                onclick="showImagePopup('{{ $primaryImage->url }}')">
+                                            <span class="absolute top-2 left-2 bg-brand-orange text-white text-xs font-bold px-3 py-1 rounded-full shadow">
+                                                Utama
+                                            </span>
+                                        </div>
+                                    @endif
+
+                                    @if($otherImages->isNotEmpty())
+                                        <div class="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                                            @foreach ($otherImages as $media)
+                                                <div class="relative">
+                                                    <img src="{{ $media->url }}" loading="lazy" alt="Foto domba {{ $loop->iteration }}"
+                                                        class="w-full h-20 object-cover rounded-md shadow-sm cursor-pointer border hover:opacity-80 transition"
+                                                        onclick="showImagePopup('{{ $media->url }}')">
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                @else
+                                    {{-- Fallback ke kolom image lama jika tabel media kosong --}}
                                     @if ($dombas->image)
-                                        <img src="{{ asset('storage/' . $dombas->image) }}" loading="lazy"
-                                            alt="gambar domba"
-                                            class="w-full max-w-xs h-64 object-cover rounded-lg shadow-md cursor-pointer"
+                                        <img src="{{ asset('storage/' . $dombas->image) }}" loading="lazy" alt="gambar domba"
+                                            class="w-full h-64 object-cover rounded-lg shadow-sm cursor-pointer ring-2 ring-brand-orange"
                                             onclick="showImagePopup('{{ asset('storage/' . $dombas->image) }}')" />
                                     @else
-                                        <img src="{{ asset('uploads/default.png') }}" loading="lazy" alt="gambar domba"
-                                            class="w-full max-w-xs h-64 object-cover rounded-lg shadow-md" />
+                                        <div class="flex flex-col items-center justify-center h-40 text-gray-400 bg-gray-50 rounded-lg border border-dashed">
+                                            <svg class="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M14 8h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                            </svg>
+                                            <span class="text-sm">Belum ada foto</span>
+                                        </div>
                                     @endif
-                                </div>
+                                @endif
                             </div>
                             <!-- Informasi Status -->
                             <div class="info-card">
@@ -324,35 +360,35 @@
                     <h2 class="text-xl font-bold text-white">Edit Domba</h2>
                 </div>
                 <div class="p-6">
-                    <form method="POST" action="{{ route('admin.dombas.update', ['dombas' => $dombas->id]) }}"
-                        enctype="multipart/form-data">
+                    <form method="POST" action="{{ route('admin.dombas.update', ['domba' => $dombas->id]) }}" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <div class="mb-4">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Nama Domba</label>
-                                    <input type="text" name="name" x-model="domba.name" required
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-orange">
-                                </div>
-                                <div class="mb-4">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Lahir</label>
-                                    <input type="date" name="tanggal_lahir" x-model="domba.tanggal_lahir" required
-                                        max="{{ date('Y-m-d') }}"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-orange">
-                                </div>
-                                <div class="mb-4">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Pemilik</label>
-                                    <select name="user_id" x-model="domba.user_id" required
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-orange">
-                                        <option value="" disabled>Pilih Pemilik</option>
-                                        @foreach ($users as $user)
-                                            <option value="{{ $user->id }}">
-                                                {{ $user->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Nama Domba</label>
+                <input type="text" name="name" value="{{ $dombas->name }}" required
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-orange">
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Lahir</label>
+                <!-- Tanggal dikonversi ke Y-m-d agar terbaca oleh input date -->
+                <input type="date" name="tanggal_lahir" value="{{ \Carbon\Carbon::parse($dombas->tanggal_lahir)->format('Y-m-d') }}" required
+                    max="{{ date('Y-m-d') }}"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-orange">
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Pemilik</label>
+                <select name="user_id" required
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-orange">
+                    <option value="" disabled>Pilih Pemilik</option>
+                    @foreach ($users as $user)
+                        <option value="{{ $user->id }}" {{ $dombas->user_id == $user->id ? 'selected' : '' }}>
+                            {{ $user->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
                                 <div class="mb-4">
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Jenis Domba</label>
                                     <select name="type_domba" x-model="domba.type_domba" required
@@ -374,18 +410,16 @@
                                 </div>
                             </div>
                             <div>
-                                <div class="mb-4">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Berat Awal (kg)</label>
-                                    <input type="number" step="0.1" name="weight" x-model="domba.weight" required
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-orange">
-                                </div>
-                                <div class="mb-4">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Berat Sekarang
-                                        (kg)</label>
-                                    <input type="number" step="0.1" name="weight_now" x-model="domba.weight_now"
-                                        required
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-orange">
-                                </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Berat Awal (kg)</label>
+                <input type="number" step="0.1" name="weight" value="{{ $dombas->weight }}" required
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-orange">
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Berat Sekarang (kg)</label>
+                <input type="number" step="0.1" name="weight_now" value="{{ $dombas->weight_now }}" required
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-orange">
+            </div>
                                 <div>
                                     <!-- Pilih Status -->
                                     <div class="mb-4">
@@ -503,20 +537,73 @@
                             </div>
                         </div>
                         <div class="mt-4">
-                            <template x-if="domba.for_sale === 'yes'">
-                                <div class="mb-4">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Harga (Rp)</label>
-                                    <input type="number" name="harga" x-model="domba.harga"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-orange"
-                                        placeholder="Masukkan harga">
-                                </div>
-                            </template>
-                        </div>
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Foto Domba</label>
-                            <input type="file" name="image"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-orange">
-                        </div>
+        <template x-if="for_sale === 'yes'">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Harga (Rp)</label>
+                <input type="number" name="harga" value="{{ $dombas->harga }}"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-orange"
+                    placeholder="Masukkan harga">
+            </div>
+        </template>
+    </div>
+                       <div class="mb-6">
+                        @if($dombas->media->isNotEmpty())
+                                    <div class="mb-6 bg-gray-50 p-3 rounded-lg border border-gray-200">
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">Foto Saat Ini (Klik Hapus jika ingin dibuang)</label>
+                                        <div class="grid grid-cols-3 gap-3">
+                                            @foreach($dombas->media as $media)
+                                                <div class="relative group" id="foto-lama-{{ $media->id }}">
+                                                    <img src="{{ $media->url }}" class="w-full h-20 object-cover rounded shadow-sm border border-gray-300">
+                                                    <button type="button" onclick="hapusFotoLama({{ $media->id }})"
+                                                        class="absolute inset-0 bg-red-600 bg-opacity-70 text-white text-xs font-bold flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded">
+                                                        HAPUS
+                                                    </button>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                        <div id="tempat-hapus-foto"></div>
+                                    </div>
+                                    
+                                    <script>
+                                        function hapusFotoLama(mediaId) {
+                                            // 1. Sembunyikan elemen gambar secara visual
+                                            document.getElementById('foto-lama-' + mediaId).style.display = 'none';
+                                            
+                                            // 2. Tambahkan input hidden ke dalam form untuk dikirim ke Controller
+                                            let input = document.createElement('input');
+                                            input.type = 'hidden';
+                                            input.name = 'hapus_media[]'; // Array penampung
+                                            input.value = mediaId;
+                                            document.getElementById('tempat-hapus-foto').appendChild(input);
+                                        }
+                                    </script>
+                                @endif
+                                <div class="mb-6">
+    <label class="block text-sm font-bold text-gray-700 mb-2">Tambah Foto Domba Baru</label>
+
+    <div id="image-container-edit">
+        <div class="image-input-row mb-2">
+            <input type="file" name="images[]" accept="image/*"
+                class="image-input-edit block w-full text-sm text-gray-500
+                       file:mr-4 file:py-2 file:px-4 file:rounded-full
+                       file:border-0 file:text-sm file:font-semibold
+                       file:bg-orange-50 file:text-orange-700
+                       hover:file:bg-orange-100">
+        </div>
+    </div>
+
+    <button type="button" id="add-image-btn-edit"
+        class="mt-2 inline-flex items-center text-orange-700 bg-orange-50
+               hover:bg-orange-100 font-semibold text-sm px-4 py-2 rounded-full border-0 transition-colors">
+        + Tambah Foto
+    </button>
+
+    <small class="text-gray-500 block mt-2">
+        Foto yang diunggah akan ditambahkan ke galeri domba ini (maksimal 10 foto tambahan).
+    </small>
+
+    <div id="preview-container-edit" class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4"></div>
+</div>
                         <div class="flex justify-end space-x-3 mt-6">
                             <button type="button" @click="open = false"
                                 class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 transition-colors">
@@ -566,6 +653,62 @@
                     finalInput.value = select.value;
                 }
             }
+            (function () {
+            const containerEdit        = document.getElementById('image-container-edit');
+            const addBtnEdit           = document.getElementById('add-image-btn-edit');
+            const previewContainerEdit = document.getElementById('preview-container-edit');
+
+            if(addBtnEdit) {
+                addBtnEdit.addEventListener('click', () => {
+                    if (containerEdit.querySelectorAll('input[type=file]').length >= 10) {
+                        alert('Maksimal 10 gambar tambahan');
+                        return;
+                    }
+                    const wrapper = document.createElement('div');
+                    wrapper.classList.add('image-input-row', 'mb-2');
+                    wrapper.innerHTML = `
+                        <div class="flex gap-2 items-center mt-2">
+                            <input type="file" name="images[]" accept="image/*"
+                                class="image-input-edit block w-full text-sm text-gray-500
+                                       file:mr-4 file:py-2 file:px-4 file:rounded-full
+                                       file:border-0 file:text-sm file:font-semibold
+                                       file:bg-orange-50 file:text-orange-700
+                                       hover:file:bg-orange-100">
+                            <button type="button"
+                                class="remove-image-edit shrink-0 px-3 py-1.5 bg-red-500
+                                       text-white text-sm rounded-full hover:bg-red-600 transition-colors">
+                                Hapus
+                            </button>
+                        </div>`;
+                    containerEdit.appendChild(wrapper);
+                });
+
+                containerEdit.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('remove-image-edit')) {
+                        e.target.closest('.image-input-row').remove();
+                        renderPreviewEdit();
+                    }
+                });
+
+                containerEdit.addEventListener('change', renderPreviewEdit);
+
+                function renderPreviewEdit() {
+                    previewContainerEdit.innerHTML = '';
+                    document.querySelectorAll('.image-input-edit').forEach(input => {
+                        if (!input.files.length) return;
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            previewContainerEdit.innerHTML += `
+                                <div class="border border-gray-200 rounded-lg p-1 shadow-sm">
+                                    <img src="${e.target.result}"
+                                         class="w-full h-24 object-cover rounded">
+                                </div>`;
+                        };
+                        reader.readAsDataURL(input.files[0]);
+                    });
+                }
+            }
+        })();
         </script>
     </div>
 </x-admin-app-layout>

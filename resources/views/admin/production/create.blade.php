@@ -50,7 +50,7 @@
                     </svg>
                     <span
                         class="inline-flex items-center gap-1 bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">2.
-                        Input QC</span>
+                        Mengecek Kualitas</span>
                     <svg class="w-3 h-3 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                         stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
@@ -59,7 +59,7 @@
                         class="inline-flex items-center gap-1 bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">3.
                         Selesaikan</span>
                 </div>
-                <p class="mt-2 text-orange-600">Pastikan produk yang dipilih sudah di-assign ke formula tersebut.</p>
+                <p class="mt-2 text-orange-600">Pastikan produk yang dipilih sudah ditambahkan ke resep tersebut.</p>
             </div>
 
             <form action="{{ route('admin.productions.store') }}" method="POST" novalidate>
@@ -79,11 +79,11 @@
                     {{-- Dropdown Formula --}}
                     <div>
                         <label class="{{ $errors->has('formula_id') ? $labelError : $labelOk }}">
-                            Formula <span class="text-red-500">*</span>
+                            Resep <span class="text-red-500">*</span>
                         </label>
                         <select name="formula_id" id="selectFormula" required onchange="loadProducts(this.value)"
                             class="{{ $inputBase }} {{ $errors->has('formula_id') ? $inputError : $inputOk }}">
-                            <option value="">-- Pilih Formula --</option>
+                            <option value="">-- Pilih Resep --</option>
                             @foreach($formulas as $formula)
                                 <option value="{{ $formula->id }}" {{ old('formula_id') == $formula->id ? 'selected' : '' }}>
                                     [{{ $formula->formula_code }}] {{ $formula->formula_name }}
@@ -93,7 +93,7 @@
                         @error('formula_id')
                             <p class="mt-1 text-xs text-red-500 font-semibold">{{ $message }}</p>
                         @enderror
-                        <p class="mt-1 text-xs text-gray-400">Hanya formula aktif yang ditampilkan</p>
+                        <p class="mt-1 text-xs text-gray-400">Hanya Resep aktif yang ditampilkan</p>
                     </div>
 
                     {{-- Dropdown Produk --}}
@@ -103,14 +103,14 @@
                         </label>
                         <select name="product_id" id="selectProduct" required
                             class="{{ $inputBase }} {{ $errors->has('product_id') ? $inputError : $inputOk }}">
-                            <option value="">-- Pilih formula dahulu --</option>
+                            <option value="">-- Pilih resep dahulu --</option>
                         </select>
                         @error('product_id')
                             <p class="mt-1 text-xs text-red-500 font-semibold">{{ $message }}</p>
                         @enderror
                         <p class="mt-1 text-xs text-gray-400">
                             Produk yang muncul hanya yang memiliki <code
-                                class="bg-gray-100 px-1 rounded">formula_id</code> sesuai formula yang dipilih.
+                                class="bg-gray-100 px-1 rounded">formula_id</code> sesuai resep yang dipilih.
                         </p>
                     </div>
 
@@ -130,12 +130,12 @@
                             <p class="mt-1 text-xs text-red-500 font-semibold">{{ $message }}</p>
                         @enderror
                         <p class="mt-1 text-xs text-gray-400">Stok bahan baku akan dikurangi otomatis sesuai komposisi
-                            formula (FIFO)</p>
+                            resep (FIFO)</p>
                     </div>
 
                     {{-- Preview Komposisi Realtime --}}
                     <div id="previewKomposisi" class="hidden">
-                        <label class="block text-xs font-bold mb-1.5 text-gray-500 uppercase tracking-wide">Preview
+                        <label class="block text-xs font-bold mb-1.5 text-gray-500 uppercase tracking-wide">Pratinjau
                             Kebutuhan Komposisi Bahan</label>
                         <div id="komposisiList"
                             class="bg-gray-50 rounded-lg border border-gray-200 divide-y divide-gray-100 shadow-sm overflow-hidden">

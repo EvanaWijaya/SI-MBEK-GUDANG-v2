@@ -17,7 +17,7 @@
                     @endif
                     @if($material->isBelowReorderPoint()) <span
                         class="bg-red-100 text-red-700 border border-red-200 px-2.5 py-0.5 rounded-full text-xs">Di
-                    Bawah ROP</span> @endif
+                    Bawah Stok Minimum</span> @endif
                 </div>
                 <p class="text-sm text-gray-500 mt-0.5">Detail inventori, batch stok & riwayat pergerakan</p>
             </div>
@@ -43,7 +43,7 @@
                     </div>
                     <div
                         class="bg-white rounded-xl border border-orange-200 bg-orange-50/10 shadow-sm p-6 flex-1 flex flex-col justify-center">
-                        <p class="text-xs text-orange-500 uppercase tracking-wide font-medium">Reorder Point (ROP)</p>
+                        <p class="text-xs text-orange-500 uppercase tracking-wide font-medium">Stok Minimum</p>
                         <div class="flex items-baseline gap-2 mt-2">
                             <p class="text-4xl font-bold text-orange-600">
                                 {{ number_format($material->reorder_point, 1) }}</p>
@@ -54,7 +54,7 @@
 
                 <div class="lg:col-span-8 bg-white rounded-xl border border-gray-200 shadow-sm p-6">
                     <h3 class="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">Pengaturan Parameter
-                        ROP</h3>
+                        stok minimum</h3>
                     <form method="POST" action="{{ route('owner.materials.update', $material->id) }}" class="space-y-4">
                         @csrf @method('PUT')
                         <input type="hidden" name="material_name" value="{{ $material->material_name }}">
@@ -69,12 +69,12 @@
                                     class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-orange-400">
                             </div>
                             <div>
-                                <label class="block text-xs text-gray-500 mb-2">Lead Time (Hari)</label>
+                                <label class="block text-xs text-gray-500 mb-2">Waktu Estimasi Pesanan Tiba (Hari)</label>
                                 <input type="number" name="lead_time" value="{{ $material->lead_time ?? 0 }}"
                                     class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-orange-400">
                             </div>
                             <div>
-                                <label class="block text-xs text-gray-500 mb-2">Safety Stock</label>
+                                <label class="block text-xs text-gray-500 mb-2">Jumlah Stok Aman</label>
                                 <input type="number" name="safety_stock" value="{{ $material->safety_stock ?? 0 }}"
                                     class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-orange-400">
                             </div>
@@ -105,7 +105,7 @@
                 </div>
 
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-                    <h3 class="text-sm font-semibold text-gray-700 mb-4">Status Stok vs ROP</h3>
+                    <h3 class="text-sm font-semibold text-gray-700 mb-4">Status Stok vs Stok Minimum</h3>
                     @php
                         $maxVal = max($material->reorder_point * 2, $material->stock);
                         $pct = $maxVal > 0 ? min(100, round(($material->stok / $maxVal) * 100)) : 100;
@@ -133,10 +133,10 @@
             {{-- CTA ROP --}}
             @if($belowRop)
                 <div class="bg-orange-50 border border-orange-200 rounded-xl p-5 flex justify-between items-center gap-4">
-                    <p class="font-semibold text-orange-800 text-sm">Stok di bawah ROP! Segera pesan ulang.</p>
+                    <p class="font-semibold text-orange-800 text-sm">Stok di bawah stok minimum! Segera pesan ulang.</p>
                     <a href="{{ route('owner.purchase-orders.create') }}"
                         class="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-4 py-2 rounded-lg text-sm shadow">Buat
-                        PO Sekarang</a>
+                        Pemesanan Bahan Sekarang</a>
                 </div>
             @endif
         </div>

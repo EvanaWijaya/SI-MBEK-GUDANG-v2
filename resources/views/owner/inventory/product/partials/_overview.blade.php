@@ -15,7 +15,7 @@
         </div>
        {{-- Ganti kartu ROP lama dengan form ini --}}
 <div class="bg-white rounded-xl border border-orange-100 shadow-sm p-5">
-    <p class="text-xs text-gray-400 uppercase tracking-wide font-medium mb-2">Reorder Point (ROP)</p>
+    <p class="text-xs text-gray-400 uppercase tracking-wide font-medium mb-2">Stok Minimum</p>
     <form action="{{ route('owner.inventory.product.update-rop', $product->id) }}" method="POST" class="flex items-center gap-2">
         @csrf
         <div class="relative flex-1">
@@ -24,7 +24,6 @@
         </div>
         
     </form>
-    <p class="text-[10px] text-gray-400 mt-1">Klik angka untuk mengubah, lalu tekan centang</p>
 </div>
         <div class="bg-white rounded-xl border border-blue-100 shadow-sm p-5">
             <p class="text-xs text-gray-400 uppercase tracking-wide font-medium">Alokasi Jual</p>
@@ -59,7 +58,7 @@
                 </div>
                 @if($product->formula)
                     <div class="flex justify-between">
-                        <dt class="text-gray-400">Formula</dt>
+                        <dt class="text-gray-400">Resep</dt>
                         <dd class="font-semibold text-orange-600 font-mono text-xs">
                             {{ $product->formula->formula_code }} · {{ $product->formula->formula_name }}
                         </dd>
@@ -95,7 +94,7 @@
             @if($reorder_point > 0)
                 <div class="flex justify-between text-xs text-gray-400 mb-1">
                     <span>0</span>
-                    <span class="text-orange-500 font-medium">ROP {{ number_format($reorder_point) }}</span>
+                    <span class="text-orange-500 font-medium">Stok Minimum {{ number_format($reorder_point) }}</span>
                     <span>{{ number_format($maxVal) }}</span>
                 </div>
                 <div class="relative h-4 bg-gray-100 rounded-full overflow-hidden mb-1">
@@ -111,12 +110,12 @@
             @if($belowRop)
                 <div class="mb-3 flex items-start gap-2 bg-red-50 border border-red-200 text-red-700 px-3 py-2.5 rounded-lg text-xs">
                     <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-                    Stok di bawah ROP. {{ $product->source === 'produksi' ? 'Segera jalankan produksi baru.' : 'Segera buat Purchase Order.' }}
+                    Stok di bawah stok minimum. {{ $product->source === 'production' ? 'Segera jalankan produksi baru.' : 'Segera buat Purchase Order.' }}
                 </div>
             @else
                 <div class="mb-3 flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 px-3 py-2.5 rounded-lg text-xs">
                     <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                    Stok aman, di atas ROP.
+                    Stok aman, di atas stok minimum.
                 </div>
             @endif
 
@@ -143,17 +142,17 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="font-semibold text-orange-800 text-sm">Stok di bawah ROP!</p>
+                    <p class="font-semibold text-orange-800 text-sm">Stok di bawah stok minimum!</p>
                     <p class="text-xs text-orange-600 mt-0.5">
                         Stok <strong>{{ number_format($product->stock) }}</strong> unit —
                         ROP <strong>{{ number_format($product->reorder_point) }}</strong> unit.
                     </p>
                 </div>
             </div>
-            @if($product->source === 'pembelian')
+            @if($product->source === 'purchase')
                 <a href="{{ route('owner.purchase-orders.create') }}"
                     class="flex-shrink-0 inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold px-4 py-2 rounded-lg text-sm shadow transition-colors">
-                    📋 Buat PO Sekarang
+                    📋 Buat pemesanan bahan Sekarang
                 </a>
             @endif
         </div>

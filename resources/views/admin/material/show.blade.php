@@ -11,7 +11,7 @@
             @method('PUT')
             
             {{-- 🔥 Tetap kunci kategorinya sebagai pakan 🔥 --}}
-            <input type="hidden" name="category" value="pakan">
+            <input type="hidden" name="category" value="feed">
 
             <div class="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200">
                 {{-- Header Card --}}

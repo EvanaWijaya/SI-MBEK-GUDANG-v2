@@ -58,67 +58,72 @@
                 </div>
             </div>
 
-          {{-- Detail Produk --}}
+         {{-- Detail Produk --}}
             <div class="mb-6">
                 <h2 class="text-xl font-semibold mb-3 text-gray-800">Detail Produk</h2>
                 <div class="bg-gray-50 p-4 rounded-lg">
-                    @php
-                        $produk = $order->orderable;
-                        $kategori = $produk ? class_basename($produk) : 'Tidak ditemukan';
-                        
-                        // Cara ampuh deteksi apakah ini Product (Pakan/Obat) atau Ternak
-                        $isProduct = false;
-                        if($produk && get_class($produk) === 'App\Models\Product') {
-                            $isProduct = true;
-                        }
-                    @endphp
+                @php
+                    $item = $order->orderable;
+                    $modelType = class_basename($item);
+                    $isTernak = in_array($modelType, ['Kambing', 'Domba']);
+                    
+                    // === LOGIKA GAMBAR BARU (MENGGUNAKAN TABEL MEDIA) ===
+                    $firstMedia = $item->primaryImage ?? $item->media->first();
+                    
+                    if ($firstMedia) {
+                        $imgPath = $firstMedia->url;
+                    } elseif (!empty($item->image)) {
+                        // Fallback jika admin masih pakai format lama di database
+                        $legacyImages = json_decode($item->image, true);
+                        $legacyFirst = is_array($legacyImages) && count($legacyImages) > 0 ? $legacyImages[0] : $item->image;
+                        $imgPath = asset('storage/' . $legacyFirst);
+                    } else {
+                        // Jika tidak ada gambar sama sekali
+                        $imgPath = asset('uploads/default.png');
+                    }
+                @endphp
 
-                    @if($produk)
+                    @if($item)
                         <div class="flex flex-col md:flex-row gap-4">
                             
                             {{-- GAMBAR PRODUK --}}
-                            @if($produk->image)
-                                <img src="{{ asset(str_starts_with($produk->image, 'http') ? $produk->image : (str_starts_with($produk->image, 'storage/') ? $produk->image : 'storage/'.$produk->image)) }}" alt="Gambar {{ $kategori }}"
-                                    class="w-full md:w-32 h-32 object-cover rounded-lg border bg-white" onerror="this.src='{{ asset('uploads/default.png') }}'">
-                            @else
-                                <div class="w-full md:w-32 h-32 bg-gray-200 rounded-lg border flex items-center justify-center">
-                                    <svg class="w-12 h-12 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
-                                    </svg>
-                                </div>
-                            @endif
+                            <div class="w-full md:w-32 h-32 bg-gray-200 rounded-lg border flex items-center justify-center overflow-hidden shrink-0">
+                                <img src="{{ $imgPath }}" alt="Gambar Produk" 
+                                     class="w-full h-full object-cover bg-white" 
+                                     onerror="this.src='{{ asset('uploads/default.png') }}'">
+                            </div>
                             
                             {{-- INFO PRODUK --}}
                             <div class="flex-1">
                                 <h3 class="font-semibold text-lg text-gray-900">
-                                    {{ $isProduct ? 'Produk Pakan/Obat' : $kategori }} - {{ $produk->name ?? $produk->nama ?? 'Unnamed' }}
+                                    {{ $modelType }} - {{ $item->name ?? $item->product_name ?? 'Unnamed' }}
                                 </h3>
-                                <p class="text-gray-600 mb-3 text-sm leading-relaxed">{{ $produk->deskripsi ?? 'Tidak ada keterangan tambahan' }}</p>
+                                <p class="text-gray-600 mb-3 text-sm leading-relaxed">{{ $item->deskripsi ?? 'Tidak ada keterangan tambahan' }}</p>
                                 
                                 <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm bg-white p-3 rounded-lg border border-gray-200">
-                                    @if($isProduct)
+                                    @if(!$isTernak)
                                         {{-- JIKA INI PAKAN ATAU OBAT --}}
                                         <div>
                                             <span class="text-gray-500 block text-xs">Kode Produk</span>
-                                            <span class="font-semibold text-gray-900">{{ $produk->kode ?? '-' }}</span>
+                                            <span class="font-semibold text-gray-900">{{ $item->product_code ?? $item->kode ?? '-' }}</span>
                                         </div>
                                         <div>
                                             <span class="text-gray-500 block text-xs">Kategori</span>
-                                            <span class="font-semibold text-gray-900">{{ ucfirst($produk->type ?? '-') }}</span>
+                                            <span class="font-semibold text-gray-900">{{ ucfirst($item->category ?? $item->type ?? '-') }}</span>
                                         </div>
                                     @else
                                         {{-- JIKA INI TERNAK (KAMBING/DOMBA) --}}
                                         <div>
                                             <span class="text-gray-500 block text-xs">Berat</span>
-                                            <span class="font-semibold text-gray-900">{{ $produk->weight_now ?? '-' }} kg</span>
+                                            <span class="font-semibold text-gray-900">{{ $item->weight_now ?? $item->weight ?? '-' }} kg</span>
                                         </div>
                                         <div>
                                             <span class="text-gray-500 block text-xs">Umur</span>
                                             <span class="font-semibold text-gray-900">
                                                 @php
-                                                    if(!empty($produk->tanggal_lahir)){
-                                                        $birthDate = new DateTime($produk->tanggal_lahir);
-                                                        $today = new DateTime();
+                                                    if(!empty($item->tanggal_lahir)){
+                                                        $birthDate = new \DateTime($item->tanggal_lahir);
+                                                        $today = new \DateTime();
                                                         $diff = $today->diff($birthDate);
                                                         if ($diff->y > 0 && $diff->m > 0) { echo "{$diff->y} thn {$diff->m} bln"; }
                                                         elseif($diff->y > 0) { echo "{$diff->y} tahun"; }
@@ -132,12 +137,12 @@
                                         </div>
                                         <div>
                                             <span class="text-gray-500 block text-xs">Jenis Kelamin</span>
-                                            <span class="font-semibold text-gray-900">{{ $produk->jenis_kelamin ?? '-' }}</span>
+                                            <span class="font-semibold text-gray-900">{{ $item->jenis_kelamin ?? '-' }}</span>
                                         </div>
                                         <div>
                                             <span class="text-gray-500 block text-xs">Status Kesehatan</span>
-                                            <span class="font-semibold {{ strtolower($produk->healt_status ?? '') === 'sehat' ? 'text-green-600' : 'text-red-600' }}">
-                                                {{ $produk->healt_status ?? '-' }}
+                                            <span class="font-semibold {{ strtolower($item->healt_status ?? '') === 'sehat' ? 'text-green-600' : 'text-red-600' }}">
+                                                {{ $item->healt_status ?? '-' }}
                                             </span>
                                         </div>
                                     @endif
@@ -147,9 +152,9 @@
                     @else
                         <div class="text-center py-4">
                             <p class="text-gray-600">Informasi produk tidak tersedia</p>
-                            <p class="text-sm text-gray-500">Produk ID: {{ $order->produk_id ?? 'N/A' }}</p>
                         </div>
                     @endif
+                </div>
 
                     {{-- PERHITUNGAN HARGA --}}
                     <div class="mt-4 pt-4 border-t border-gray-200">
@@ -165,8 +170,7 @@
                             </span>
                         </div>
                     </div>
-                </div>
-            </div>
+                     </div>
 
             {{-- Informasi Pembayaran --}}
             <div class="mb-6">
@@ -202,13 +206,23 @@
                         </div>
                     </div>
 
-                    @if ($order->bukti_transfer)
+                   @if ($order->bukti_transfer)
                         <div>
                             <p class="text-sm text-gray-600 mb-2">Bukti Transfer:</p>
-                            <img src="{{ asset('storage/' . $order->bukti_transfer) }}" alt="Bukti Transfer"
-                                class="max-w-md w-full h-auto rounded-lg shadow-sm cursor-pointer"
-                                onclick="openImageModal(this.src)">
-                            <p class="text-xs text-gray-500 mt-1">Klik gambar untuk memperbesar</p>
+                            <div class="relative inline-block">
+                                {{-- KUNCI PERBAIKAN: Gunakan tinggi fix (h-64) dan object-cover --}}
+                                <img src="{{ asset('storage/' . $order->bukti_transfer) }}" alt="Bukti Transfer"
+                                    class="w-48 h-64 object-cover rounded-lg border border-gray-200 shadow-sm cursor-pointer hover:opacity-85 transition-opacity"
+                                    onclick="openImageModal(this.src)">
+                                
+                                {{-- Ikon kecil biar user tahu ini bisa diklik --}}
+                                <div class="absolute bottom-2 right-2 bg-black bg-opacity-60 rounded-full p-1.5 pointer-events-none">
+                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2">Klik gambar untuk melihat ukuran penuh</p>
                         </div>
                     @endif
                 </div>

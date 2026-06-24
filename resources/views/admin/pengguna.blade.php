@@ -57,9 +57,20 @@
                 @foreach ($users as $user)
                     <tr class="table-row">
                         <td class="px-2 py-4">
-                            <img src="{{ $user->profile_picture ? asset('uploads/profilImage/' . $user->profile_picture) : asset('uploads/profilImage/default.png') }}"
-                                loading="lazy"
-                                alt="{{ $user->name }}" class="h-20 w-20 object-cover object-center rounded-full" />
+                            @php
+                                $mediaPic = $user->primaryImage ?? $user->media->first();
+                                
+                                if ($mediaPic) {
+                                    $imgUrl = $mediaPic->url;
+                                } elseif ($user->profile_picture) {
+                                    // Fallback untuk data lama
+                                    $imgUrl = asset('uploads/profilImage/' . $user->profile_picture);
+                                } else {
+                                    $imgUrl = asset('uploads/profilImage/default.png');
+                                }
+                            @endphp
+                            <img src="{{ $imgUrl }}" loading="lazy" alt="{{ $user->name }}" 
+                                 class="h-20 w-20 object-cover object-center rounded-full shadow-sm border border-gray-200" />
                         </td>
                         <td class="px-6 py-4">{{ $user->name }}</td>
                         <td class="px-6 py-4">{{ $user->email }}</td>
@@ -79,7 +90,7 @@
                             </select>
                         </td>
                         <td class="px-6 py-4">{{ $user->dombas->count() }}</td>
-                        <td class="px-6 py-4">{{ $user->alamat }}</td>
+                        <td class="px-6 py-4">{{ $user->address }}</td>
                         <td class="px-6 py-4">
                             <button type="button" onclick="openModal('deleteModal-{{ $user->id }}')"
                                 class="bg-red-600 px-2 py-2 rounded-md text-white">

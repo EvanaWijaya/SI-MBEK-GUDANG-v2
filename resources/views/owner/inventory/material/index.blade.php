@@ -5,7 +5,7 @@
         <div class="flex items-start justify-between mb-8">
             <div>
                 <h1 class="text-2xl font-bold text-gray-800">Inventori Bahan Baku</h1>
-                <p class="text-sm text-gray-500 mt-1">Stok bahan baku yang masuk dari Purchase Order</p>
+                <p class="text-sm text-gray-500 mt-1">Stok bahan baku yang masuk dari Pemesanan Bahan</p>
             </div>
         </div>
 
@@ -27,15 +27,15 @@
                 <p class="text-2xl font-bold text-gray-800">{{ $totalBahan }}</p>
             </div>
             <div class="bg-white rounded-xl border border-red-100 shadow-sm p-5">
-                <p class="text-xs text-red-500 font-medium">Di Bawah ROP</p>
+                <p class="text-xs text-red-500 font-medium">Di Bawah Stok Minimum</p>
                 <p class="text-2xl font-bold text-red-600">{{ $belowRopCount }}</p>
             </div>
             <div class="bg-white rounded-xl border border-yellow-100 shadow-sm p-5">
-                <p class="text-xs text-yellow-600 font-medium">Hampir Expired</p>
+                <p class="text-xs text-yellow-600 font-medium">Hampir Kadaluarsa</p>
                 <p class="text-2xl font-bold text-yellow-600">{{ $expiringCount }}</p>
             </div>
             <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-                <p class="text-xs text-gray-400 font-medium">Batch Expired</p>
+                <p class="text-xs text-gray-400 font-medium">Batch Kadaluarsa</p>
                 <p class="text-2xl font-bold text-gray-500">{{ $expiredCount }}</p>
             </div>
         </div>
@@ -50,7 +50,7 @@
                 <label class="block text-xs font-medium text-gray-500 mb-1.5">Status Stok</label>
                 <select id="filter-status" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-400">
                     <option value="">Semua</option>
-                    <option value="reorder_point">⚠️ Di Bawah ROP</option>
+                    <option value="reorder_point">⚠️ Di Bawah Stok Minimum</option>
                     <option value="aman">✅ Aman</option>
                 </select>
             </div>
@@ -58,8 +58,8 @@
                 <label class="block text-xs font-medium text-gray-500 mb-1.5">Kondisi Batch</label>
                 <select id="filter-expiry" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-400">
                     <option value="">Semua</option>
-                    <option value="expiring">⏳ Hampir Expired</option>
-                    <option value="expired">❌ Ada yang Expired</option>
+                    <option value="expiring">⏳ Hampir Kadaluarsa</option>
+                    <option value="expired">❌ Ada yang Kadaluarsa</option>
                 </select>
             </div>
             <button type="button" id="reset-filter" class="text-sm text-gray-500 hover:text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors">Reset</button>
@@ -74,10 +74,10 @@
                             <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide">Bahan Baku</th>
                             <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide">Kategori</th>
                             <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide text-right">Stok Total</th>
-                            <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide text-right">ROP</th>
+                            <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide text-right">Stok Minimum</th>
                             <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide text-center">Status</th>
                             <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide text-center">Batch Aktif</th>
-                            <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide text-center">Batch Terdekat Expired</th>
+                            <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide text-center">Batch Terdekat Kadaluarsa</th>
                             <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide text-right">Aksi</th>
                         </tr>
                     </thead>
@@ -110,7 +110,7 @@
 
                                             </svg>
 
-                                            Perlu Reorder
+                                            Perlu Pesan Ulang
 
                                         </span>
 

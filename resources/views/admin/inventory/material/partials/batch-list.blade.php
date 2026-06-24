@@ -14,7 +14,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
             </svg>
             <p class="text-sm">Belum ada batch stok masuk.</p>
-            <p class="text-xs mt-1">Batch akan muncul setelah Purchase Order diterima.</p>
+            <p class="text-xs mt-1">Batch akan muncul setelah Pesanan diterima.</p>
         </div>
     @else
         <div class="overflow-x-auto">
@@ -22,9 +22,9 @@
                 <thead class="bg-gray-50 border-b border-gray-100">
                     <tr>
                         <th class="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">ID</th>
-                        <th class="px-5 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wide">Qty Tersisa</th>
+                        <th class="px-5 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wide">Jumlah Tersisa</th>
                         <th class="px-5 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wide">Tgl Diterima</th>
-                        <th class="px-5 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wide">Expired Date</th>
+                        <th class="px-5 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wide">Tanggal Kadaluarsa</th>
                         <th class="px-5 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wide">Harga</th>
                         <th class="px-5 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wide">Status</th>
                         <th class="px-5 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wide">Aksi</th>
@@ -77,9 +77,9 @@
                                 @if($bEmpty)
                                     <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-400">Habis</span>
                                 @elseif($bExp)
-                                    <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">Expired</span>
+                                    <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">Kadaluarsa</span>
                                 @elseif($bSoon)
-                                    <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">Hampir Expired</span>
+                                    <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">Hampir Kadaluarsa</span>
                                 @else
                                     <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">Aktif</span>
                                 @endif

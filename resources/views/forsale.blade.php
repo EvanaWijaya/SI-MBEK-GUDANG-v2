@@ -291,31 +291,34 @@ if (request()->filled('harga_max')) {
                 @endif
 
                 <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-6">
-@forelse($paginatedProduk as $produk)                        @php
-                            // Cek class_basename untuk bedain ternak dan produk kemasan
+                    @forelse($paginatedProduk as $produk)
+                        @php
                             $modelType = class_basename($produk);
                             $isTernak = in_array($modelType, ['Kambing', 'Domba']);
-                            
                             $isPending = \App\Models\Order::isProductPending($produk->id, get_class($produk));
                             
-                            // Untuk Produk Pakan/Obat, ambil stok dari alokasi
-                            $stokTersedia = 1; // Default ternak 1
+                            $stokTersedia = 1;
                             if (!$isTernak) {
                                 $alokasi = $produk->allocations->where('type', 'sale')->first();
                                 $stokTersedia = $alokasi ? $alokasi->quantity : 0;
                             }
 
-                            // Cek Path Gambar Biar Gak Error
-                            $imgPath = asset('uploads/default.png');
-                            
-                            if (!empty($produk->image)) {
-                                $imgPath = asset('storage/' . $produk->image);
+                            $firstMedia = $produk->primaryImage ?? $produk->media->first();
+                            if ($firstMedia) {
+                                $imgPath = $firstMedia->url;
+                            } elseif (!empty($produk->image)) {
+                                $legacyImages = json_decode($produk->image, true);
+                                $legacyFirst = is_array($legacyImages) && count($legacyImages) > 0 ? $legacyImages[0] : $produk->image;
+                                $imgPath = asset('storage/' . $legacyFirst);
+                            } else {
+                                $imgPath = asset('uploads/default.png');
                             }
                         @endphp
 
-                        <div class="bg-white border rounded-xl shadow-sm hover:shadow-md transition overflow-hidden flex flex-col {{ $isPending ? 'opacity-75' : '' }}">
+                        <div class="bg-white border rounded-xl shadow-sm hover:shadow-md transition overflow-hidden flex flex-col h-full {{ $isPending ? 'opacity-75' : '' }}">
                             
-                            <div class="aspect-[4/3] bg-gray-50 flex-shrink-0">
+                            {{-- KUNCI PERBAIKAN: Gunakan tinggi fix (h-48 atau h-56) --}}
+                            <div class="w-full h-48 bg-gray-50 flex-shrink-0">
                                 <img src="{{ $imgPath }}" alt="{{ $produk->name ?? $produk->product_name }}" 
                                     class="w-full h-full object-cover" 
                                     onerror="this.src='{{ asset('uploads/default.png') }}'">
@@ -327,7 +330,6 @@ if (request()->filled('harga_max')) {
                                 </h3>
                                 
                                 @if($isTernak)
-                                    {{-- Info khusus Ternak --}}
                                     <p class="text-xs text-gray-500 mb-1">Jenis: {{ $produk->type_goat ?? $produk->type_domba ?? '-' }}</p>
                                     <p class="text-xs text-gray-500 mb-2">Berat: {{ $produk->weight_now ? $produk->weight_now . ' kg' : '-' }}</p>
                                     <div class="flex items-center text-sm gap-1.5 text-gray-600 mb-2">
@@ -343,7 +345,6 @@ if (request()->filled('harga_max')) {
                                         <p class="text-xs">{{ $produk->jenis_kelamin ?? '-' }}</p>
                                     </div>
                                 @else
-                                    {{-- Info khusus Produk (Pakan/Obat) --}}
                                     <p class="text-xs text-gray-500 mb-1">Tipe: {{ ucfirst($produk->category) }}</p>
                                     <p class="text-xs text-gray-500 mb-1">Kode: {{ $produk->product_code }}</p>
                                     <p class="text-xs text-orange-600 font-bold mb-2">Tersedia: {{ $stokTersedia }} unit</p>

@@ -70,7 +70,7 @@
             <p class="text-xs text-gray-400 mt-0.5">batch produksi</p>
         </div>
         <div class="bg-white rounded-xl border border-orange-100 shadow-sm p-4">
-            <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Total Disposal</p>
+            <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Total Pembuangan</p>
             <p class="text-2xl font-bold text-orange-500 mt-1">{{ number_format($totals['total_disposal']) }}</p>
             <p class="text-xs text-gray-400 mt-0.5">kejadian</p>
         </div>
@@ -85,7 +85,7 @@
             </div>
         </div>
         <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-            <h3 class="text-sm font-semibold text-gray-700 mb-4">Produksi & Disposal per {{ $mode == 'monthly' ? 'Bulan' : 'Tahun' }}</h3>
+            <h3 class="text-sm font-semibold text-gray-700 mb-4">Produksi & Pembuangan per {{ $mode == 'monthly' ? 'Bulan' : 'Tahun' }}</h3>
             <div class="h-56">
                 <canvas id="prodChart"></canvas>
             </div>
@@ -104,7 +104,7 @@
                         <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wide">Net Stok</th>
                         <th class="px-4 py-3 text-center text-xs font-semibold text-blue-600 uppercase tracking-wide">Produksi (unit)</th>
                         <th class="px-4 py-3 text-center text-xs font-semibold text-purple-600 uppercase tracking-wide">Batch</th>
-                        <th class="px-4 py-3 text-center text-xs font-semibold text-orange-500 uppercase tracking-wide">Disposal</th>
+                        <th class="px-4 py-3 text-center text-xs font-semibold text-orange-500 uppercase tracking-wide">Pembuangan</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50">

@@ -46,7 +46,7 @@
                     </select>
                 </div>
                 <div class="min-w-[130px]">
-                    <label class="block text-xs font-semibold text-gray-500 mb-1.5">QC</label>
+                    <label class="block text-xs font-semibold text-gray-500 mb-1.5">Pengecekan Kualitas</label>
                     <select name="qc_status"
                         class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-300">
                         <option value="">Semua</option>
@@ -88,7 +88,7 @@
                 <p class="text-xs text-gray-400 mt-1">unit</p>
             </div>
             <div class="bg-white rounded-xl border border-green-100 shadow-sm p-5">
-                <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Lulus QC</p>
+                <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Lulus pengecekan kualitas</p>
                 <p class="text-3xl font-bold text-green-600 mt-1">{{ number_format($summary->lulus_qc ?? 0) }}</p>
                 @if(($summary->total_batch ?? 0) > 0)
                     <p class="text-xs text-gray-400 mt-1">{{ round(($summary->lulus_qc / $summary->total_batch) * 100) }}%
@@ -96,7 +96,7 @@
                 @endif
             </div>
             <div class="bg-white rounded-xl border border-red-100 shadow-sm p-5">
-                <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Gagal QC</p>
+                <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Gagal pengecekan kualitas</p>
                 <p class="text-3xl font-bold text-red-500 mt-1">{{ number_format($summary->gagal_qc ?? 0) }}</p>
             </div>
         </div>
@@ -130,19 +130,19 @@
                                 <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
                                     Produk</th>
                                 <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                                    Formula</th>
+                                    Resep</th>
                                 <th
                                     class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                                    Qty</th>
+                                    Jumlah</th>
                                 <th
                                     class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wide">
                                     Status</th>
                                 <th
                                     class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                                    QC</th>
+                                    Pengecekan Kualitas</th>
                                 <th
                                     class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                                    QC %</th>
+                                    Pengecekan Kualitas %</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-50">

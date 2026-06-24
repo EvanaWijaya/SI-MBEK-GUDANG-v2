@@ -5,7 +5,7 @@
 
     <div class="px-4 sm:px-6 lg:px-8 mt-10">
         <button class="mt-8 bg-brand-orange hover:bg-orange-700 p-3 rounded-md mb-2 text-white">
-            <a href="{{ route('admin.suppliers.create') }}">Tambah Supplier</a>
+            <a href="{{ route('admin.suppliers.create') }}">Tambah Pemasok</a>
         </button>
 
         <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4 mt-2">
@@ -35,7 +35,7 @@
                 <table class="min-w-full divide-y divide-gray-300">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-3 py-3.5 text-left text-sm font-semibold text-black">Nama Supplier</th>
+                            <th class="px-3 py-3.5 text-left text-sm font-semibold text-black">Nama Pemasok</th>
                             <th class="px-3 py-3.5 text-left text-sm font-semibold text-black">Kontak</th>
                             <th class="px-3 py-3.5 text-left text-sm font-semibold text-black">Kota</th>
                             <th class="px-3 py-3.5 text-left text-sm font-semibold text-black">Aksi</th>
@@ -44,9 +44,9 @@
                     <tbody class="divide-y divide-gray-200 bg-white">
                         @foreach ($suppliers as $s)
                             <tr>
-                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900 font-medium">{{ $s->nama_supplier }}</td>
-                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $s->kontak ?? '-' }}</td>
-                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $s->kota ?? '-' }}</td>
+                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900 font-medium">{{ $s->supplier_name }}</td>
+                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $s->contact ?? '-' }}</td>
+                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $s->city ?? '-' }}</td>
                                 <td class="whitespace-nowrap px-3 py-4 text-sm flex gap-2">
                                     <a href="{{ route('admin.suppliers.show', $s->id) }}" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>

@@ -40,7 +40,7 @@ class ProductController extends Controller
             ->orderBy('formula_name')
             ->get();
 
-        $productCode = Product::generateProductCode('pakan');
+        $productCode = Product::generateProductCode('feed');
 
         return view('admin.product.create', compact(
             'formulas',
@@ -62,7 +62,7 @@ class ProductController extends Controller
             'selling_price' => 'nullable|numeric|min:0',
             'reorder_point' => 'nullable|integer|min:0',
             'formula_id' => 'nullable|exists:formulas,id',
-            'category' => 'required|in:pakan,obat',
+            'category' => 'required|in:feed,medicine',
             'source' => 'required|in:production,purchase',
             'description' => 'nullable|string',
             'images' => 'nullable|array|max:10',
@@ -152,7 +152,7 @@ class ProductController extends Controller
             'selling_price' => 'nullable|numeric|min:0',
             'reorder_point' => 'nullable|integer|min:0',
             'formula_id' => 'nullable|exists:formulas,id',
-            'category' => 'required|in:pakan,obat',
+            'category' => 'required|in:feed,medicine',
             'source' => 'required|in:production,purchase',
             'description' => 'nullable|string',
             'images' => 'nullable|array',

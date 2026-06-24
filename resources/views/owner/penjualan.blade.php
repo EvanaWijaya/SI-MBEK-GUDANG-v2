@@ -523,29 +523,6 @@
                                                         <i class="fas fa-file-invoice mr-1"></i> Invoice
                                                     </a>
                                                 @endif
-
-                                                <!-- Status Change Buttons (only for manual transfer) -->
-                                                @if ($order->payment_method === 'manual' || $order->payment_method === 'bank_transfer')
-                                                    @if ($order->status !== 'settlement')
-                                                        <button onclick="changeOrderStatus({{ $order->id }}, 'settlement')"
-                                                            class="btn btn-success btn-sm">
-                                                            <i class="fas fa-check mr-1"></i> Terima
-                                                        </button>
-                                                    @endif
-
-                                                    @if ($order->status === 'cancel')
-                                                        <button
-                                                            onclick="editNotes({{ $order->id }}, '{{ addslashes($order->owner_notes) }}')"
-                                                            class="btn btn-warning btn-sm">
-                                                            <i class="fas fa-edit mr-1"></i> Edit Catatan
-                                                        </button>
-                                                    @elseif($order->status !== 'settlement')
-                                                        <button onclick="changeOrderStatus({{ $order->id }}, 'cancel')"
-                                                            class="btn btn-danger btn-sm">
-                                                            <i class="fas fa-times mr-1"></i> Tolak
-                                                        </button>
-                                                    @endif
-                                                @endif
                                             </div>
                                         </td>
                                     </tr>

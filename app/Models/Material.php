@@ -96,18 +96,15 @@ class Material extends Model
         return $this->morphMany(StockMovement::class, 'stockable');
     }
 
-    public function getAveragePriceAttribute()
+public function getAveragePriceAttribute()
     {
-        $totalQty = $this->materialStocks->sum('quantity');
+        // 🔥 Hitung rata-rata HANYA dari Purchase Order yang statusnya 'received' (Diterima)
+        $avgPrice = $this->purchaseOrderItems()
+            ->whereHas('purchaseOrder', function ($query) {
+                $query->where('status', 'received');
+            })
+            ->avg('unit_price');
 
-        if ($totalQty <= 0) {
-            return 0;
-        }
-
-        $totalValue = $this->materialStocks->sum(function ($stock) {
-            return $stock->quantity * $stock->price_per_unit;
-        });
-
-        return $totalValue / $totalQty;
+        return $avgPrice ?? 0;
     }
 }

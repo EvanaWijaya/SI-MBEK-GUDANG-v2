@@ -22,7 +22,7 @@ class ProductFactory extends Factory
             'reorder_point' => $this->faker->numberBetween(5, 20),
 
             // default jadi pakan produksi
-            'category' => 'pakan',
+            'category' => 'feed',
             'source' => 'production',
 
             'formula_id' => Formula::factory(),
@@ -38,7 +38,7 @@ class ProductFactory extends Factory
     public function pakan(): static
     {
         return $this->state(fn() => [
-            'category' => 'pakan',
+            'category' => 'feed',
             'source' => 'production',
             'formula_id' => Formula::factory(),
         ]);
@@ -52,7 +52,7 @@ class ProductFactory extends Factory
     public function obat(): static
     {
         return $this->state(fn() => [
-            'category' => 'obat',
+            'category' => 'medicine',
             'source' => 'purchase',
             'formula_id' => null,
         ]);

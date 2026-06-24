@@ -30,17 +30,17 @@
         </div>
 
         <div>
-            <x-input-label for="alamat" :value="__('Alamat')" />
-            <x-text-input id="alamat" name="alamat" type="text" class="mt-1 block w-full focus:ring-orange-400 focus:border-orange-400" :value="old('alamat', $user->alamat)" required autocomplete="street-address" />
-            <x-input-error class="mt-2" :messages="$errors->get('alamat')" />
+            <x-input-label for="address" :value="__('Alamat')" />
+            <x-text-input id="address" name="address" type="text" class="mt-1 block w-full focus:ring-orange-400 focus:border-orange-400" :value="old('address', $user->address)" required autocomplete="street-address" />
+            <x-input-error class="mt-2" :messages="$errors->get('address')" />
         </div>
 
         <div>
-            <x-input-label for="no_telepon" :value="__('No. Telepon')" />
-            <x-text-input id="no_telepon" name="no_telepon" type="tel" class="mt-1 block w-full focus:ring-orange-400 focus:border-orange-400" :value="old('no_telepon', $user->no_telepon)" required autocomplete="tel" />
-            <x-input-error class="mt-2" :messages="$errors->get('no_telepon')" />
+            <x-input-label for="phone_number" :value="__('No. Telepon')" />
+            <x-text-input id="phone_number" name="phone_number" type="tel" class="mt-1 block w-full focus:ring-orange-400 focus:border-orange-400" :value="old('phone_number', $user->phone_number)" required autocomplete="tel" />
+            <x-input-error class="mt-2" :messages="$errors->get('phone_number')" />
         </div>
-
+        
         <div>
             <x-input-label for="email" :value="__('Email')" />
             <x-text-input id="email" name="email" type="email" class="mt-1 block w-full focus:ring-orange-400 focus:border-orange-400" :value="old('email', $user->email)" required autocomplete="email" />

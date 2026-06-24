@@ -11,7 +11,7 @@
             </a>
             <div class="flex-1">
                 <div class="flex items-center gap-3 flex-wrap">
-                    <h1 class="text-2xl font-bold text-gray-800">Edit Formula</h1>
+                    <h1 class="text-2xl font-bold text-gray-800">Edit Resep</h1>
                     <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-mono font-semibold bg-gray-100 text-gray-700">
                         {{ $formula->formula_code }}
                     </span>
@@ -46,18 +46,18 @@
                             <svg class="w-4 h-4 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
-                            Informasi Formula
+                            Informasi Resep
                         </h3>
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-xs font-medium text-gray-500 mb-1.5">Kode Formula</label>
+                                <label class="block text-xs font-medium text-gray-500 mb-1.5">Kode Resep</label>
                                 <input type="text" value="{{ $formula->formula_code }}" disabled
                                     class="w-full border border-gray-200 bg-gray-50 rounded-lg px-3 py-2.5 text-sm text-gray-500 cursor-not-allowed">
                                 <p class="mt-1 text-xs text-gray-400">Kode tidak dapat diubah</p>
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-gray-500 mb-1.5">
-                                    Nama Formula <span class="text-red-500">*</span>
+                                    Nama Resep <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" name="formula_name"
                                     value="{{ old('formula_name', $formula->formula_name) }}"

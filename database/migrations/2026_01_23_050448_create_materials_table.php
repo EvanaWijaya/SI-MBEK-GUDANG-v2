@@ -12,7 +12,7 @@ return new class extends Migration {
 
             $table->string('material_name');
 
-            $table->enum('category', ['pakan', 'obat']);
+            $table->enum('category', ['feed', 'medicine']);
 
             $table->string('unit');
 

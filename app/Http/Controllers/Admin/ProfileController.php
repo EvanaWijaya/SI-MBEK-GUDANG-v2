@@ -47,20 +47,30 @@ class ProfileController extends Controller
             $admin->email_verified_at = null;
         }
 
-        // Handle upload foto profil
+        // Handle upload foto profil menggunakan tabel media
         if ($request->hasFile('profile_picture')) {
-            // Hapus foto lama jika ada dan bukan null
-            if ($admin->profile_picture && Storage::disk('public')->exists('admin_avatars/' . $admin->profile_picture)) {
-                Storage::disk('public')->delete('admin_avatars/' . $admin->profile_picture);
+            
+            // 1. Hapus foto lama di tabel media jika ada (menggunakan variabel $admin)
+            foreach ($admin->media as $media) {
+                Storage::disk('public')->delete($media->file_path);
+                $media->delete();
             }
 
+            // 2. Upload file fisik ke folder admin_avatars
             $file = $request->file('profile_picture');
-            $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $fileName = "admin_" . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $filePath = $file->storeAs('admin_avatars', $fileName, 'public');
 
-            // Simpan ke storage/app/public/admin_avatars
-            $file->storeAs('admin_avatars', $fileName, 'public');
-
-            $admin->profile_picture = $fileName;
+            // 3. Simpan data ke tabel media dengan relasi milik admin
+            $admin->media()->create([
+                'file_name'  => $file->getClientOriginalName(),
+                'file_path'  => $filePath,
+                'mime_type'  => $file->getMimeType(),
+                'file_size'  => $file->getSize(),
+                'type'       => 'image',
+                'is_primary' => true, 
+                'sort_order' => 0,
+            ]);
         }
 
         $admin->save();
@@ -68,7 +78,7 @@ class ProfileController extends Controller
         return Redirect::route('admin.profile.edit')
             ->with('status', 'profile-updated');
     }
-
+    
     /**
      * Delete admin account
      */

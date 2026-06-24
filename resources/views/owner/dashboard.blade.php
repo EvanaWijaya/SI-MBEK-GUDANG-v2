@@ -295,7 +295,7 @@
             {{-- Produk For Sale Terlama --}}
             <section class="dashboard-section p-6">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-bold text-gray-800">Produk For Sale Terlama</h3>
+                    <h3 class="text-lg font-bold text-gray-800">Produk Dijual Terlama</h3>
                     <span class="text-xs text-brand-orange font-medium">Status: For Sale = Yes</span>
                 </div>
                 <div class="h-80"> {{-- Tinggi chart --}}
@@ -359,14 +359,29 @@
                     </a>
                 </div>
                 <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    @foreach($usersa as $u)
-                                    <li class="user-card bg-white p-4 rounded-xl shadow-sm flex items-center space-x-4">
-                                        <div class="flex-shrink-0">
-                                            <img src="{{ $u->profile_picture
-                        ? asset('uploads/profilImage/' . $u->profile_picture)
-                        : asset('uploads/1721131815_default.png') }}"
-                                                class="border-2 rounded-xl w-12 h-12 object-cover" />
-                                        </div>
+                    @foreach($users as $user)
+    <li class="user-card bg-white p-4 rounded-xl shadow-sm flex items-center space-x-4">
+        <div class="shrink-0">
+            @php
+                // Deteksi gambar dari tabel media terlebih dahulu
+                $mediaPic = $user->primaryImage ?? $user->media->first();
+                
+                if ($mediaPic) {
+                    $imgUrl = $mediaPic->url;
+                } elseif ($user->profile_picture) {
+                    // Fallback jika masih ada data lama di kolom profile_picture
+                    $imgUrl = asset('uploads/profilImage/' . $user->profile_picture);
+                } else {
+                    // Gambar default
+                    $imgUrl = asset('uploads/1721131815_default.png');
+                }
+            @endphp
+                    
+                    <img class="w-36 h-36 md:w-44 md:h-44 rounded-2xl object-cover border-4 border-brand-orange/30 shadow transition-all duration-300 hover:scale-105 bg-white"
+                        src="{{ $imgUrl }}"
+                        onerror="this.src='{{ asset('uploads/1721131815_default.png') }}'"
+                        alt="Profile Image">
+                </div>
                                         <div class="min-w-0">
                                             <p class="font-semibold text-gray-800 truncate">{{ $u->name }}</p>
                                             <p class="text-xs text-gray-500 truncate">{{ $u->email }}</p>

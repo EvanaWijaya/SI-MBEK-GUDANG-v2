@@ -41,7 +41,7 @@ class PurchaseOrderController extends Controller
     {
         $suppliers = Supplier::all();
         $materials = Material::all();
-        $products = Product::where('category', 'obat')->get();
+        $products = Product::where('category', 'medicine')->get();
 
         return view('owner.purchase-orders.create', compact('suppliers', 'materials', 'products'));
     }
@@ -324,7 +324,7 @@ class PurchaseOrderController extends Controller
                         throw new \Exception('Product tidak ditemukan.');
                     }
 
-                    if ($product->category !== 'obat') {
+                    if ($product->category !== 'medicine') {
                         throw new \Exception('Hanya produk obat yang boleh via PO.');
                     }
 

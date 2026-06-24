@@ -23,7 +23,6 @@ class Domba extends Model
         'weight_now',
         'image',
         'for_sale',
-        'imageCaption',
         'type_domba',
         'jenis',
         'jenis_kelamin',
@@ -72,15 +71,18 @@ class Domba extends Model
         return $this->hitungUmur($this->created_at);
     }
 
-    public function media()
-    {
-        return $this->morphMany(Media::class, 'mediable');
-    }
+    public function media(): MorphMany
+{
+    return $this->morphMany(Media::class, 'mediable')->orderBy('sort_order');
+}
 
-    public function primaryImage()
-    {
-        return $this->morphOne(Media::class, 'mediable')
-            ->where('type', 'image')
-            ->where('is_primary', true);
-    }
+// Foto utama (relasi, bukan method biasa)
+public function primaryImage(): MorphOne
+{
+    return $this->morphOne(Media::class, 'mediable')
+        ->where('is_primary', true)
+        ->orderBy('sort_order');
+}
+
+    
 }

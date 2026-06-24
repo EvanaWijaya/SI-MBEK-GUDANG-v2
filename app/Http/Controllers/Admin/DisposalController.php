@@ -53,7 +53,7 @@ class DisposalController extends Controller
             ]);
 
             // Reduce stock summary in materials
-            $stock->material->decrement('stok', $qty);
+            $stock->material->decrement('stock', $qty);
 
             // Finish the batch
             $stock->update([

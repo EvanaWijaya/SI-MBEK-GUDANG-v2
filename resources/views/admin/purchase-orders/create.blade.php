@@ -62,7 +62,7 @@
                         <div>
                             <label
                                 class="block text-sm font-medium mb-1.5 {{ $errors->has('type') ? 'text-red-600' : 'text-gray-700' }}">Tipe
-                                PO <span class="text-red-500">*</span></label>
+                                Pemesanan Bahan <span class="text-red-500">*</span></label>
                             <select name="type" id="purchaseOrder-type" required
                                 class="w-full border {{ $errors->has('type') ? 'border-red-400 bg-red-50 focus:ring-red-500' : 'border-gray-300 focus:ring-orange-400' }} rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none transition">
                                 <option value="">-- Pilih Tipe --</option>
@@ -109,8 +109,8 @@
                     {{-- Catatan --}}
                     <div class="mt-5">
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">Catatan</label>
-                        <textarea name="owner_notes" rows="3" placeholder="Tambahkan catatan opsional..."
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-400 transition resize-none">{{ old('owner_notes') }}</textarea>
+                        <textarea name="notes" rows="3" placeholder="Tambahkan catatan opsional..."
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-400 transition resize-none">{{ old('notes') }}</textarea>
                     </div>
                 </div>
 
@@ -120,7 +120,7 @@
                         <h2 class="text-base font-semibold text-gray-700 flex items-center gap-2">
                             <span
                                 class="w-6 h-6 bg-orange-100 text-orange-600 rounded-md flex items-center justify-center text-xs font-bold">2</span>
-                            Item Pesanan
+                            Bahan Pesanan
                         </h2>
                         <button type="button" id="add-item"
                             class="inline-flex items-center gap-1.5 text-sm font-semibold text-orange-600 hover:text-orange-800 border border-orange-300 hover:border-orange-500 px-3 py-1.5 rounded-lg transition-colors">
@@ -128,7 +128,7 @@
                                 stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                             </svg>
-                            Tambah Item
+                            Tambah Bahan
                         </button>
                     </div>
 
@@ -229,7 +229,7 @@
         <script>
 
             const materials = @json($materials->map(fn($m) => ['id' => $m->id, 'material_name' => $m->material_name, 'unit' => $m->unit]));
-            const products = @json($products->map(fn($p) => ['id' => $p->id, 'product_name' => $p->product_name]));
+            const products = @json($products->map(fn($p) => ['id' => $p->id, 'product_name' => $p->product_name, 'type' => $p->category]));
 
             // Set indeks awal dinamis mendeteksi keberadaan old data
             let itemIndex = {{ old('items') ? count(old('items')) : 0 }};

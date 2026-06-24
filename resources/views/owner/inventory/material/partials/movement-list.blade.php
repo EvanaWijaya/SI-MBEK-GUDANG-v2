@@ -12,7 +12,7 @@
                         </th>
                         <th class="px-5 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wide">Tipe
                         </th>
-                        <th class="px-5 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wide">Qty
+                        <th class="px-5 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wide">Jumlah
                         </th>
                         <th class="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">Sumber
                         </th>

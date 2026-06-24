@@ -10,6 +10,7 @@ use App\Models\PurchaseOrder;
 use App\Models\Order;
 use App\Models\ActivityLog;
 use Illuminate\Http\Request;
+use App\Models\StockMovement;
 use Illuminate\Support\Facades\DB;
 
 class WarehouseDashboardController extends Controller
@@ -156,6 +157,16 @@ class WarehouseDashboardController extends Controller
             ]);
         }
 
+       $movementChart = StockMovement::selectRaw('
+            DATE(movement_date) as tgl,
+            SUM(CASE WHEN type="in" THEN quantity ELSE 0 END) as masuk,
+            SUM(CASE WHEN type="out" THEN quantity ELSE 0 END) as keluar
+        ')
+        ->whereDate('movement_date', '>=', now()->subDays(6))
+        ->groupBy('tgl')
+        ->orderBy('tgl')
+        ->get();
+
         return view('owner.warehouse.dashboard', [
             'summary' => $summary,
             'materialsLow' => $materialsLow,
@@ -164,6 +175,7 @@ class WarehouseDashboardController extends Controller
             'buyerDistribution' => $buyerDistribution,
             'recentActivities' => $recentActivities,
             'poSummary' => $poSummary,
+            'movementChart' => $movementChart,
         ]);
     }
 

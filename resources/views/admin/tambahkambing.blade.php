@@ -58,49 +58,49 @@
                         </div>
 
                         <div class="mb-4">
-                            <label class="block text-sm font-bold mb-2">Upload Gambar</label>
+    <label class="block text-sm font-bold mb-2">Upload Gambar</label>
 
-                            <!-- Tombol -->
-                            <div class="flex space-x-4 mb-2">
-                                <button type="button" onclick="triggerFileInput('imageUpload')"
-                                    class="inline-flex items-center text-orange-700 bg-orange-50 hover:bg-orange-100
-               font-semibold text-sm px-4 py-2 rounded-full border-0">
-                                    <!-- Ikon Kamera -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M3 7h2l2-3h10l2 3h2a1 1 0 011 1v11a1 1 0 01-1 1H3a1 1 0 01-1-1V8a1 1 0 011-1z" />
-                                        <circle cx="12" cy="13" r="4" />
-                                    </svg>
-                                    Camera
-                                </button>
-                            </div>
+    <div id="image-container">
+        <div class="image-input-row mb-2">
+            <input
+                type="file"
+                name="images[]"
+                accept="image/*"
+                class="image-input block w-full text-sm text-gray-500
+                       file:mr-4 file:py-2 file:px-4
+                       file:rounded-full file:border-0
+                       file:text-sm file:font-semibold
+                       file:bg-orange-50 file:text-orange-700
+                       hover:file:bg-orange-100"
+            >
+        </div>
+    </div>
 
-                            <!-- Input file -->
-                            <input type="file" name="image" id="imageUpload"
-                                class="block w-full text-sm text-gray-500
-            file:mr-4 file:py-2 file:px-4
-            file:rounded-full file:border-0
-            file:text-sm file:font-semibold
-            file:bg-orange-50 file:text-orange-700
-            hover:file:bg-orange-100"
-                                accept="image/*" capture="environment" onchange="handleImageChange(event)">
+    <button
+        type="button"
+        id="add-image-btn"
+        class="mt-2 inline-flex items-center text-orange-700 bg-orange-50
+               hover:bg-orange-100 font-semibold text-sm px-4 py-2
+               rounded-full border-0">
+        + Tambah Foto
+    </button>
 
-                            <!-- Preview gambar -->
-                            <img id="imagePreview" class="mt-4 w-64" src="" alt="Image Preview"
-                                style="max-width: 100%; height: auto; display: none;">
+    <small class="text-gray-500 block mt-1">
+        Maksimal 10 gambar. JPG, JPEG, PNG. Maks 2 MB per file.
+    </small>
 
-                            @error('image')
-                                <span class="text-red-500">{{ $message }}</span>
-                            @enderror
-                        </div>
+    <div
+        id="preview-container"
+        class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
+    </div>
 
-                        <div class="mb-4">
-                            <label for="imageCaption" class="block text-sm font-bold mb-2">Image Caption</label>
-                            <input type="text" name="imageCaption" id="imageCaption"
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:ring-orange-400  focus:border-orange-400 focus:outline-none focus:shadow-outline"
-                                required>
-                        </div>
+    @error('images')
+        <span class="text-red-500 text-sm">{{ $message }}</span>
+    @enderror
+    @error('images.*')
+        <span class="text-red-500 text-sm">{{ $message }}</span>
+    @enderror
+</div>
                     </div>
                     <div>
                         <div class="mb-4">
@@ -249,12 +249,14 @@
                             toggleOtherHealthStatus(healthSelect);
                         </script>
 
-
-
-                        <div class="flex items-center justify-between">
-                            <button type="submit"
-                                class="bg-brand-orange hover:bg-orange-700 transition duration-400 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Submit</button>
-                        </div>
+ <div class="pt-4 border-t border-gray-100 flex items-center">
+                <button type="submit" class="bg-brand-orange text-white px-6 py-2.5 rounded-lg font-bold hover:bg-orange-700 shadow transition-colors text-sm">
+                    Simpan 
+                </button>
+                <a href="{{ route('admin.listkambing') }}" class="ml-4 text-gray-600 hover:text-gray-900 font-medium transition-colors text-sm">
+                    Batal
+                </a>
+            </div>
                     </div>
                 </div>
             </form>
@@ -262,36 +264,69 @@
     </div>
 
     <script>
-        let imageSelected = false;
+       (function () {
+        const container       = document.getElementById('image-container');
+        const addBtn          = document.getElementById('add-image-btn');
+        const previewContainer = document.getElementById('preview-container');
 
-        function triggerFileInput(id) {
-            document.getElementById(id).click();
-        }
-
-        function handleImageChange(event) {
-            const fileInput = event.target;
-            const imagePreview = document.getElementById('imagePreview');
-
-            if (fileInput.files && fileInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    imagePreview.src = e.target.result;
-                    imagePreview.style.display = 'block';
-                };
-                reader.readAsDataURL(fileInput.files[0]);
-            } else {
-                imagePreview.style.display = 'none';
+        addBtn.addEventListener('click', () => {
+            const total = container.querySelectorAll('input[type=file]').length;
+            if (total >= 10) {
+                alert('Maksimal 10 gambar');
+                return;
             }
-        }
 
-        // Reset the `imageSelected` flag when the form is reset
-        function resetImageSelection() {
-            imageSelected = false;
-            document.getElementById('cameraUpload').disabled = false;
-            document.getElementById('imageUpload').value = '';
-            document.getElementById('cameraUpload').value = '';
-        }
+            const wrapper = document.createElement('div');
+            wrapper.classList.add('image-input-row', 'mb-2');
+            wrapper.innerHTML = `
+                <div class="flex gap-2 items-center">
+                    <input
+                        type="file"
+                        name="images[]"
+                        accept="image/*"
+                        class="image-input block w-full text-sm text-gray-500
+                               file:mr-4 file:py-2 file:px-4 file:rounded-full
+                               file:border-0 file:text-sm file:font-semibold
+                               file:bg-orange-50 file:text-orange-700
+                               hover:file:bg-orange-100"
+                    >
+                    <button
+                        type="button"
+                        class="remove-image shrink-0 px-3 py-1.5 bg-red-500
+                               text-white text-sm rounded-full hover:bg-red-600">
+                        Hapus
+                    </button>
+                </div>
+            `;
+            container.appendChild(wrapper);
+        });
 
+        container.addEventListener('click', (e) => {
+            if (e.target.classList.contains('remove-image')) {
+                e.target.closest('.image-input-row').remove();
+                renderPreview();
+            }
+        });
+
+        container.addEventListener('change', renderPreview);
+
+        function renderPreview() {
+            previewContainer.innerHTML = '';
+            document.querySelectorAll('.image-input').forEach(input => {
+                if (!input.files.length) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewContainer.innerHTML += `
+                        <div class="border rounded p-2">
+                            <img src="${e.target.result}"
+                                 class="w-full h-32 object-cover rounded">
+                        </div>
+                    `;
+                };
+                reader.readAsDataURL(input.files[0]);
+            });
+        }
+    })();
         function toggleOtherHealtStatus(select) {
             const customInput = document.getElementById('healt_status_custom');
             const finalInput = document.getElementById('healt_status_final');

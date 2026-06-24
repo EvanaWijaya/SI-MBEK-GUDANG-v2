@@ -52,12 +52,12 @@
             <p class="text-xs text-gray-400 mt-1">kejadian</p>
         </div>
         <div class="bg-white rounded-xl border border-red-100 shadow-sm p-5">
-            <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Total Qty Dibuang</p>
+            <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Total Jumlah Dibuang</p>
             <p class="text-3xl font-bold text-red-500 mt-1">{{ number_format($summary->total_qty ?? 0) }}</p>
             <p class="text-xs text-gray-400 mt-1">unit</p>
         </div>
         <div class="bg-white rounded-xl border border-orange-100 shadow-sm p-5">
-            <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Breakdown Alasan</p>
+            <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide">Alasan</p>
             <div class="mt-2 space-y-1">
                 @forelse($reasonBreakdown->take(3) as $rb)
                     <div class="flex justify-between text-xs">
@@ -75,7 +75,7 @@
         {{-- Chart Trend ── --}}
         @if($chartData->isNotEmpty())
         <div class="no-print lg:col-span-2 bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-            <h3 class="text-sm font-semibold text-gray-700 mb-4">Trend Disposal Harian</h3>
+            <h3 class="text-sm font-semibold text-gray-700 mb-4">Tren Pembuangan Harian</h3>
             <div class="h-52">
                 <canvas id="disposalTrendChart"></canvas>
             </div>
@@ -96,7 +96,7 @@
     {{-- ── Tabel ── --}}
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
         <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-            <h3 class="text-sm font-semibold text-gray-700">Detail Disposal</h3>
+            <h3 class="text-sm font-semibold text-gray-700">Detail Pembuangan</h3>
             <span class="text-xs text-gray-400">{{ $disposals->total() }} entri</span>
         </div>
 
@@ -109,7 +109,7 @@
                         <tr>
                             <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Tanggal</th>
                             <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Item</th>
-                            <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wide">Qty</th>
+                            <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wide">Jumlah</th>
                             <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Alasan</th>
                             <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Catatan</th>
                             <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Oleh</th>

@@ -17,7 +17,7 @@
                     @endif
                     @if($material->isBelowReorderPoint()) <span
                         class="bg-red-100 text-red-700 border border-red-200 px-2.5 py-0.5 rounded-full text-xs">Di
-                    Bawah ROP</span> @endif
+                    Bawah stok minimum</span> @endif
                 </div>
                 <p class="text-sm text-gray-500 mt-0.5">Detail inventori, batch stok & riwayat pergerakan</p>
             </div>
@@ -44,7 +44,7 @@
                     </div>
                     <div
                         class="bg-white rounded-xl border border-orange-200 bg-orange-50/10 shadow-sm p-6 flex-1 flex flex-col justify-center">
-                        <p class="text-xs text-orange-500 uppercase tracking-wide font-medium">Reorder Point (ROP)</p>
+                        <p class="text-xs text-orange-500 uppercase tracking-wide font-medium">Stok minimum</p>
                         <div class="flex items-baseline gap-2 mt-2">
                             <p class="text-4xl font-bold text-orange-600">
                                 {{ number_format($material->reorder_point, 1) }}
@@ -56,7 +56,7 @@
 
                 <div class="lg:col-span-8 bg-white rounded-xl border border-gray-200 shadow-sm p-6">
                     <h3 class="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">Pengaturan Parameter
-                        ROP</h3>
+                        Stok Minimum</h3>
                     <form method="POST" novalidate action="{{ route('admin.materials.update', $material->id) }}"
                         class="space-y-4">
                         @csrf @method('PUT')
@@ -85,8 +85,7 @@
                         </div>
                         <div class="flex justify-end pt-4 border-t border-gray-50">
                             <button type="submit"
-                                class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2.5 px-8 rounded-lg text-sm shadow-md transition-all flex items-center gap-2">Update
-                                & Hitung ROP</button>
+                                class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2.5 px-8 rounded-lg text-sm shadow-md transition-all flex items-center gap-2">Hitung Stok Minimum</button>
                         </div>
                     </form>
                 </div>
@@ -115,7 +114,7 @@
                 </div>
 
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-                    <h3 class="text-sm font-semibold text-gray-700 mb-4">Status Stok vs ROP</h3>
+                    <h3 class="text-sm font-semibold text-gray-700 mb-4">Status Stok vs Stok Minimum</h3>
                     @php
                         $maxVal = max($material->reorder_point * 2, $material->stock);
                         $pct = $maxVal > 0 ? min(100, round(($material->stock / $maxVal) * 100)) : 100;
@@ -152,7 +151,7 @@
                             class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm"></div>
                     <div id="adj-expired-wrap">
                         <label class="block text-xs text-gray-500 mb-1.5">
-                            Expired Date <span id="exp-required-star" class="text-red-500">*</span>
+                            Tanggal Kadaluarsa <span id="exp-required-star" class="text-red-500">*</span>
                         </label>
                         <input type="date" name="expiration_date" id="adj-expired-input"
                             class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-orange-400">
@@ -172,10 +171,10 @@
             {{-- CTA ROP --}}
             @if($belowRop)
                 <div class="bg-orange-50 border border-orange-200 rounded-xl p-5 flex justify-between items-center gap-4">
-                    <p class="font-semibold text-orange-800 text-sm">Stok di bawah ROP! Segera pesan ulang.</p>
+                    <p class="font-semibold text-orange-800 text-sm">Stok di bawah stok minimum! Segera pesan ulang.</p>
                     <a href="{{ route('admin.purchase-orders.create') }}"
                         class="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-4 py-2 rounded-lg text-sm shadow">Buat
-                        PO Sekarang</a>
+                        Pesanan Sekarang</a>
                 </div>
             @endif
         </div>

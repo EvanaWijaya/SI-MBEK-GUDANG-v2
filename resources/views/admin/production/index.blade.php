@@ -5,7 +5,7 @@
         <div class="flex items-start justify-between mb-8">
             <div>
                 <h1 class="text-2xl font-bold text-gray-800">Proses Produksi</h1>
-                <p class="text-sm text-gray-500 mt-1">Kelola produksi produk dari formula bahan baku</p>
+                <p class="text-sm text-gray-500 mt-1">Kelola produksi produk dari resep bahan baku</p>
             </div>
             <a href="{{ route('admin.productions.create') }}"
                 class="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow text-sm transition-colors">
@@ -106,11 +106,11 @@
                         <tr>
                             <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide">ID</th>
                             <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide">Produk</th>
-                            <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide">Formula</th>
-                            <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide text-center">Qty</th>
+                            <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide">Resep</th>
+                            <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide text-center">Kuantitas</th>
                             <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide text-center">Tgl Produksi</th>
                             <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide text-center">Status</th>
-                            <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide text-center">QC</th>
+                            <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide text-center">Pengecekan Kualitas</th>
                             <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide text-center">Aksi</th>
                         </tr>
                     </thead>

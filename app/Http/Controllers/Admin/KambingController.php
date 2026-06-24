@@ -55,8 +55,8 @@ class KambingController extends Controller
             'user_id' => 'required',
             'name' => 'required',
             'age' => 'nullable|integer',
-            'image' => 'required|file|mimes:jpg,jpeg,png',
-            'imageCaption' => 'required',
+            'images' => 'nullable|array|max:10',
+            'images.*' => 'file|mimes:jpg,jpeg,png,webp|max:2048',
             'type_goat' => 'required',
             'jenis_kelamin' => 'required|in:Jantan,Betina',
             'weight' => 'required|numeric',
@@ -66,24 +66,12 @@ class KambingController extends Controller
 
         ]);
 
-        if ($request->hasFile('image')) {
-
-            $file = $request->file('image');
-
-            $fileName = "raman" . time() . '_' . $file->getClientOriginalName();
-
-            // simpan ke storage/app/public/kambing
-            $path = $file->storeAs('kambing', $fileName, 'public');
-
-            $data['image'] = $path;
-        }
-
-        Kambing::create([
+        $kambing = Kambing::create([
             'user_id' => $request->user_id,
             'name' => $request->name,
             'age' => $request->age ?? 0,
-            'image' => $path ?? null,
-            'imageCaption' => $request->imageCaption,
+            'image' => '',
+            'imageCaption' => '',
             'type_goat' => $request->type_goat,
             'tanggal_lahir' => $request->tanggal_lahir,
             'jenis_kelamin' => $request->jenis_kelamin,
@@ -95,7 +83,24 @@ class KambingController extends Controller
             'for_sale' => $request->for_sale ?? 'no',
         ]);
 
-        return redirect()->back()->with('success', 'Data kambing berhasil ditambah');
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $index => $file) {
+                $fileName = "kambing_" . time() . '_' . $index . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $filePath = $file->storeAs('kambing', $fileName, 'public');
+
+                $kambing->media()->create([
+                    'file_name'  => $file->getClientOriginalName(),
+                    'file_path'  => $filePath,
+                    'mime_type'  => $file->getMimeType(),
+                    'file_size'  => $file->getSize(),
+                    'type'       => 'image',
+                    'is_primary' => $index === 0,
+                    'sort_order' => $index,
+                ]);
+            }
+        }
+
+        return redirect()->route('admin.listkambing')->with('success', 'Data kambing berhasil ditambah');
     }
 
     public function update(Request $request, Kambing $kambing)
@@ -105,7 +110,6 @@ class KambingController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'age' => 'nullable|integer',
             'tanggal_lahir' => 'required|date|before_or_equal:today',
             'user_id' => 'required|exists:users,id',
             'type_goat' => 'required|string|max:255',
@@ -113,42 +117,54 @@ class KambingController extends Controller
             'weight' => 'required|numeric',
             'faksin_status' => 'required|string|max:255',
             'healt_status' => 'required|string|max:255',
-            'image' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
-            'age_now' => 'nullable|integer',
+            'images' => 'nullable|array|max:10',
+            'images.*' => 'file|mimes:jpg,jpeg,png,webp|max:2048',
             'weight_now' => 'nullable|numeric',
             'for_sale' => 'nullable|in:yes,no',
+            'harga' => 'nullable|numeric',
         ]);
 
-        $data = $request->all();
+        $data = $request->except(['images', 'hapus_media']);
 
-        if ($request->hasFile('image')) {
-
-            // hapus lama
-            if (!empty($kambing->image)) {
-                Storage::disk('public')->delete($kambing->image);
+        if ($request->has('hapus_media')) {
+            $mediaYangAkanDihapus = $kambing->media()->whereIn('id', $request->hapus_media)->get();
+            foreach ($mediaYangAkanDihapus as $media) {
+                Storage::disk('public')->delete($media->file_path);
+                $media->delete();
             }
-
-            // simpan langsung (Laravel handle semuanya)
-            $path = $request->file('image')->store('kambing', 'public');
-
-            $data['image'] = $path;
         }
 
-        $kambing->update($data);
+        if ($request->hasFile('images')) {
+            $startingIndex = $kambing->media()->count();
+            foreach ($request->file('images') as $index => $file) {
+                $fileName = "kambingU_" . time() . '_' . $index . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $filePath = $file->storeAs('kambing', $fileName, 'public');
 
+                $kambing->media()->create([
+                    'file_name'  => $file->getClientOriginalName(),
+                    'file_path'  => $filePath,
+                    'mime_type'  => $file->getMimeType(),
+                    'file_size'  => $file->getSize(),
+                    'type'       => 'image',
+                    'is_primary' => ($startingIndex === 0 && $index === 0),
+                    'sort_order' => $startingIndex + $index,
+                ]);
+            }
+        }
+        
+        $kambing->update($data);
 
         $newStatus = $kambing->for_sale;
         $newHarga = $kambing->harga;
-        // Cek apakah ada perubahan status dijual atau harga
+        
         $statusBerubah = $oldStatus !== $newStatus;
-        $hargaBerubah = $oldHarga != $newHarga; // Menggunakan != untuk handle null/0
+        $hargaBerubah = $oldHarga != $newHarga; 
 
-        // Kirim notifikasi HANYA jika status dijual atau harga berubah
         if ($statusBerubah || $hargaBerubah) {
             $kambing->user->notify(new StatusDijualChanged($kambing, $oldStatus, $oldHarga, 'kambing'));
         }
 
-        $today = Carbon::today()->toDateString(); // e.g. '2025-06-12'
+        $today = Carbon::today()->toDateString(); 
         KambingHistory::updateOrCreate(
             [
                 'kambing_id' => $kambing->id,
@@ -156,24 +172,27 @@ class KambingController extends Controller
             ],
             [
                 'bulan' => Carbon::now()->format('Y-m'),
-                'berat' => $request->weight_now,
+                'berat' => $request->weight_now ?? $kambing->weight_now,
                 'harga' => $request->harga ?? 0,
             ]
         );
-
 
         return redirect()->back()->with('success', 'Data kambing berhasil diperbarui');
     }
 
     public function destroy(Kambing $kambing)
     {
+        foreach ($kambing->media as $media) {
+            Storage::disk('public')->delete($media->file_path);
+        }
+        $kambing->media()->delete();
+
         if ($kambing->image) {
             Storage::disk('public')->delete($kambing->image);
         }
 
         $kambing->delete();
-
-        return redirect()->back()->with('success', 'Data kambing berhasil dihapus');
+        return redirect()->route('admin.listkambing')->with('success', 'Data kambing berhasil dihapus');
     }
 
     // For monitoring
@@ -204,27 +223,14 @@ class KambingController extends Controller
     public function show($kambing)
     {
         $users = User::all();
-        $kambings = Kambing::find($kambing);
-
-        if (!$kambings) {
-            return redirect()->back()->with('error', 'Kambing tidak ditemukan.');
-        }
-
-        $umurAwal = $this->hitungUmur(
-            $kambings->tanggal_lahir,
-            $kambings->created_at
-        );
-
-        $umurSekarang = $this->hitungUmur(
-            $kambings->tanggal_lahir
-        );
+        $kambings = Kambing::findOrFail($kambing);
 
         $selectedMonth = request('bulan', date('Y-m'));
         $historis = KambingHistory::where('kambing_id', $kambing)
-            ->where('bulan', $selectedMonth) // Perbaikan: gunakan exact match
+            ->where('bulan', $selectedMonth)
             ->get();
 
-        return view('admin.showkambing', compact('users', 'kambings', 'umurAwal', 'umurSekarang', 'historis', 'selectedMonth'));
+        return view('admin.showkambing', compact('users', 'kambings', 'historis', 'selectedMonth'));
     }
 
     public function storeHistory(Request $request, Kambing $kambing)

@@ -13,7 +13,7 @@
             <div class="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200">
                 {{-- Header Card --}}
                 <div class="p-6 bg-brand-orange text-white flex justify-between items-center">
-                    <h3 class="text-lg font-bold text-white">Informasi Master Material</h3>
+                    <h3 class="text-lg font-bold text-white">Informasi Data Utama</h3>
                     <div class="flex gap-2">
 
                         <a href="{{ route('owner.materials.index') }}" x-show="!editMode" class="bg-white text-brand-orange px-4 py-1 rounded text-sm font-bold shadow hover:bg-white-100"> 

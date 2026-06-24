@@ -37,17 +37,18 @@ class OrderController extends Controller
     /**
      * Display a listing of the resource (halaman list order).
      */
-    public function index()
+   public function index()
     {
-        $kambings = Kambing::where('for_sale', 'yes')->get();
-        $dombas = Domba::where('for_sale', 'yes')->get();
+        // Eager load relasi media untuk mempercepat loading gambar ternak
+        $kambings = Kambing::where('for_sale', 'yes')->with(['media', 'primaryImage'])->get();
+        $dombas = Domba::where('for_sale', 'yes')->with(['media', 'primaryImage'])->get();
 
         $products = Product::whereHas('allocations', function ($q) {
-            $q->where('type', 'jual')->where('qty', '>', 0);
+            $q->where('type', 'sale')->where('quantity', '>', 0); // Diubah dari 'jual' & 'qty' sesuai logika query halaman catalog utama Anda
         })
-            ->where('stok', '>', 0)      // double-check stok tidak 0
-            ->with(['allocations'])
-            ->get();
+        ->where('stock', '>', 0) // Diubah dari 'stok' agar sinkron dengan database Product Anda
+        ->with(['allocations', 'media'])
+        ->get();
 
         return view('order', compact('kambings', 'dombas', 'products'));
     }
@@ -55,19 +56,21 @@ class OrderController extends Controller
     /**
      * Display the specified resource (halaman detail order berdasarkan category dan id).
      */
-    public function show($category, $id)
+   public function show($category, $id)
     {
         switch ($category) {
             case 'kambing':
-                $item = Kambing::findOrFail($id);
+                // Ambil data kambing lengkap dengan galeri fotonya
+                $item = Kambing::with(['media', 'primaryImage'])->findOrFail($id);
                 break;
 
             case 'domba':
-                $item = Domba::findOrFail($id);
+                // Ambil data domba lengkap dengan galeri fotonya
+                $item = Domba::with(['media', 'primaryImage'])->findOrFail($id);
                 break;
 
             case 'product':
-                $item = Product::findOrFail($id);
+                $item = Product::with(['media'])->findOrFail($id);
                 break;
 
             default:
@@ -80,7 +83,6 @@ class OrderController extends Controller
             'category' => $category,
         ]);
     }
-
     /**
      * Generate Snap Token (Midtrans) berdasarkan data request.
      * Route: POST /midtrans/token

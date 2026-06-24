@@ -21,7 +21,7 @@ class PurchaseOrderFactory extends Factory
         $pencatat = $pemesan;
 
         return [
-            'purchase_order_code' => 'PO-' . now()->format('Ymd') . '-' .
+            'po_code' => 'PO-' . now()->format('Ymd') . '-' .
                 $this->faker->unique()->numberBetween(1000, 9999),
 
             'supplier_id' => Supplier::factory(),

@@ -21,7 +21,7 @@
             @csrf
             
             {{-- Kategori Otomatis diset "pakan" secara tersembunyi --}}
-            <input type="hidden" name="category" value="pakan">
+            <input type="hidden" name="category" value="feed">
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {{-- Kolom Kiri --}}
@@ -48,11 +48,11 @@
                 {{-- Kolom Kanan --}}
                 <div>
                     {{-- Input Deskripsi --}}
-                    <label class="block font-bold mb-2 {{ $errors->has('deskripsi') ? 'text-red-600' : 'text-gray-700' }}">Deskripsi</label>
-                    <textarea name="deskripsi" 
-                        class="w-full border {{ $errors->has('deskripsi') ? 'border-red-400 bg-red-50 text-red-900 focus:ring-red-500 focus:border-red-400' : 'border-gray-300 focus:ring-orange-500 focus:border-brand-orange' }} rounded-lg p-2.5 text-sm transition-all resize-none" 
-                        rows="5" placeholder="Keterangan bahan...">{{ old('deskripsi') }}</textarea>
-                    @error('deskripsi')
+                    <label class="block font-bold mb-2 {{ $errors->has('description') ? 'text-red-600' : 'text-gray-700' }}">Deskripsi</label>
+                    <textarea name="description" 
+                        class="w-full border {{ $errors->has('description') ? 'border-red-400 bg-red-50 text-red-900 focus:ring-red-500 focus:border-red-400' : 'border-gray-300 focus:ring-orange-500 focus:border-brand-orange' }} rounded-lg p-2.5 text-sm transition-all resize-none" 
+                        rows="5" placeholder="Keterangan bahan...">{{ old('description') }}</textarea>
+                    @error('description')
                         <p class="mt-1 text-xs text-red-500 font-semibold">{{ $message }}</p>
                     @enderror
                 </div>

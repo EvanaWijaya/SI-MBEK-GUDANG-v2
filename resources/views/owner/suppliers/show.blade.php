@@ -9,7 +9,7 @@
 
             <div class="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200">
                 <div class="p-6 bg-brand-orange text-white flex justify-between items-center">
-                    <h3 class="text-lg font-bold text-white">Informasi Supplier</h3>
+                    <h3 class="text-lg font-bold text-white">Informasi Pemasok</h3>
                     <div class="flex gap-2 text-black">
                         <a href="{{ route('owner.suppliers.index') }}" x-show="!editMode" class="bg-white text-brand-orange px-4 py-1 rounded text-sm font-bold shadow">Kembali</a>
                     </div>
@@ -18,7 +18,7 @@
                 <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
                     <div>
                         <div class="mb-4">
-                            <p class="text-xs text-black font-bold uppercase mb-1">Nama Supplier</p>
+                            <p class="text-xs text-black font-bold uppercase mb-1">Nama Pemasok</p>
                             <p x-show="!editMode" class="text-lg text-gray-800 font-semibold">{{ $supplier->supplier_name }}</p>
                             <input x-show="editMode" type="text" name="supplier_name" value="{{ $supplier->supplier_name }}" class="w-full border-gray-300 rounded text-black">
                         </div>

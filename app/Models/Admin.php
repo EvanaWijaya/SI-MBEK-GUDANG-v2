@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+
 class Admin extends Authenticatable
 {
     use HasFactory, Notifiable;
@@ -90,5 +91,15 @@ class Admin extends Authenticatable
     public function activities(): MorphMany
     {
         return $this->morphMany(ActivityLog::class, 'actor');
+    }
+
+    public function media(): MorphMany
+    {
+        return $this->morphMany(Media::class, 'mediable')->orderBy('sort_order');
+    }
+
+    public function primaryImage(): \Illuminate\Database\Eloquent\Relations\MorphOne
+    {
+        return $this->morphOne(Media::class, 'mediable')->where('is_primary', true);
     }
 }

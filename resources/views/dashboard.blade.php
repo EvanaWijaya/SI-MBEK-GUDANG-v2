@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard') }} - {{ $user->name }}
+            {{ __('Beranda') }} - {{ $user->name }}
         </h2>
     </x-slot>
 
@@ -10,9 +10,25 @@
             <!-- Profile Card -->
             <div class="bg-white rounded-2xl shadow-lg p-8 mb-12 flex flex-col md:flex-row items-center gap-8">
                 <!-- Profile Image -->
-                <div class="shrink-0">
-                    <img class="w-36 h-36 md:w-44 md:h-44 rounded-2xl object-cover border-4 border-brand-orange/30 shadow transition-all duration-300 hover:scale-105"
-                        src="{{ $user->profile_picture ? asset('uploads/profilImage/' . $user->profile_picture) : asset('uploads/1721131815_default.png') }}"
+               <div class="shrink-0">
+                    @php
+                        // Deteksi gambar dari tabel media terlebih dahulu
+                        $mediaPic = $user->primaryImage ?? $user->media->first();
+                        
+                        if ($mediaPic) {
+                            $imgUrl = $mediaPic->url;
+                        } elseif ($user->profile_picture) {
+                            // Fallback jika masih ada data lama di kolom profile_picture
+                            $imgUrl = asset('uploads/profilImage/' . $user->profile_picture);
+                        } else {
+                            // Gambar default
+                            $imgUrl = asset('uploads/1721131815_default.png');
+                        }
+                    @endphp
+                    
+                    <img class="w-36 h-36 md:w-44 md:h-44 rounded-2xl object-cover border-4 border-brand-orange/30 shadow transition-all duration-300 hover:scale-105 bg-white"
+                        src="{{ $imgUrl }}"
+                        onerror="this.src='{{ asset('uploads/1721131815_default.png') }}'"
                         alt="Profile Image">
                 </div>
                 <!-- Profile Info -->
@@ -28,7 +44,7 @@
                                         stroke-width="2"
                                         d="M18.427 14.768 17.2 13.542a1.733 1.733 0 0 0-2.45 0l-.613.613a1.732 1.732 0 0 1-2.45 0l-1.838-1.84a1.735 1.735 0 0 1 0-2.452l.612-.613a1.735 1.735 0 0 0 0-2.452L9.237 5.572a1.6 1.6 0 0 0-2.45 0c-3.223 3.2-1.702 6.896 1.519 10.117 3.22 3.221 6.914 4.745 10.12 1.535a1.601 1.601 0 0 0 0-2.456Z" />
                                 </svg>
-                                <span>{{ $user->no_telepon }}</span>
+                                <span>{{ $user->phone_number ?? $user->no_telepon ?? '-' }}</span>
                             </div>
                             <div class="flex items-center text-gray-700">
                                 <svg class="w-5 h-5 text-brand-orange mr-2" fill="currentColor" viewBox="0 0 24 24">
@@ -115,9 +131,19 @@
                                 <!-- Image -->
                                 <div class="md:w-2/5">
                                     <div class="aspect-[4/3] rounded-xl overflow-hidden">
-                                        <img src="{{ asset($kb->image) }}"
-                                            class="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
-                                            alt="{{ $kb->name }}">
+                                        <@php
+    $firstMedia = $kb->primaryImage ?? $kb->media->first();
+    if ($firstMedia) {
+        $imgPath = $firstMedia->url;
+    } elseif (!empty($kb->image)) {
+        $legacyImages = json_decode($kb->image, true);
+        $legacyFirst = is_array($legacyImages) && count($legacyImages) > 0 ? $legacyImages[0] : $kb->image;
+        $imgPath = asset('storage/' . $legacyFirst);
+    } else {
+        $imgPath = asset('uploads/default.png');
+    }
+@endphp
+<img src="{{ $imgPath }}" class="w-full h-full object-cover transition-transform duration-300 hover:scale-110" alt="{{ $kb->name }}" onerror="this.src='{{ asset('uploads/default.png') }}'">
                                     </div>
                                 </div>
                                 <!-- Details -->
@@ -268,9 +294,19 @@
                                 <!-- Image -->
                                 <div class="md:w-2/5">
                                     <div class="aspect-[4/3] rounded-xl overflow-hidden">
-                                        <img src="{{ asset($db->image) }}"
-                                            class="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
-                                            alt="{{ $db->name }}">
+                                        @php
+    $firstMedia = $db->primaryImage ?? $db->media->first();
+    if ($firstMedia) {
+        $imgPath = $firstMedia->url;
+    } elseif (!empty($db->image)) {
+        $legacyImages = json_decode($db->image, true);
+        $legacyFirst = is_array($legacyImages) && count($legacyImages) > 0 ? $legacyImages[0] : $db->image;
+        $imgPath = asset('storage/' . $legacyFirst);
+    } else {
+        $imgPath = asset('uploads/default.png');
+    }
+@endphp
+<img src="{{ $imgPath }}" class="w-full h-full object-cover transition-transform duration-300 hover:scale-110" alt="{{ $db->name }}" onerror="this.src='{{ asset('uploads/default.png') }}'">
                                     </div>
                                 </div>
                                 <!-- Details -->

@@ -17,9 +17,12 @@ class DombaController extends Controller
 
     public function show(Domba $domba)
     {
-        return view('owner.showdomba', compact('domba'));
+        // Aliaskan $domba ke 'dombas' agar cocok dengan pemanggilan di Blade
+        return view('owner.showdomba', [
+            'dombas' => $domba
+        ]);
     }
-
+    
     public function monitoring($id)
     {
         $domba = Domba::findOrFail($id);

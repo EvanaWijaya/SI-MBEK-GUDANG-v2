@@ -35,7 +35,7 @@ class ProfileController extends Controller
         // Validasi input manual karena kita menambahkan profile_picture
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:owners,email,' . $owner->id],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:admins,email,' . $owner->id],
             'profile_picture' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'], // Maks 2MB
         ]);
 
@@ -48,20 +48,30 @@ class ProfileController extends Controller
             $owner->email_verified_at = null;
         }
 
-        // Handle upload foto profil
+        // Handle upload foto profil menggunakan tabel media
         if ($request->hasFile('profile_picture')) {
-            // Hapus foto lama jika ada dan bukan null
-            if ($owner->profile_picture && Storage::disk('public')->exists('owner_avatars/' . $owner->profile_picture)) {
-                Storage::disk('public')->delete('owner_avatars/' . $owner->profile_picture);
+            
+            // 1. Hapus foto lama di tabel media jika ada (menggunakan variabel $admin)
+            foreach ($owner->media as $media) {
+                Storage::disk('public')->delete($media->file_path);
+                $media->delete();
             }
 
+            // 2. Upload file fisik ke folder admin_avatars
             $file = $request->file('profile_picture');
-            $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $fileName = "owner_" . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $filePath = $file->storeAs('owner_avatars', $fileName, 'public');
 
-            // Simpan ke storage/app/public/owner_avatars
-            $file->storeAs('owner_avatars', $fileName, 'public');
-
-            $owner->profile_picture = $fileName;
+            // 3. Simpan data ke tabel media dengan relasi milik admin
+            $owner->media()->create([
+                'file_name'  => $file->getClientOriginalName(),
+                'file_path'  => $filePath,
+                'mime_type'  => $file->getMimeType(),
+                'file_size'  => $file->getSize(),
+                'type'       => 'image',
+                'is_primary' => true, 
+                'sort_order' => 0,
+            ]);
         }
 
         $owner->save();

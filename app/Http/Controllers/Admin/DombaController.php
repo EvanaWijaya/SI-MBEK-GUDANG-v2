@@ -49,8 +49,8 @@ class DombaController extends Controller
             'user_id' => 'required',
             'name' => 'required',
             'age' => 'nullable|integer',
-            'image' => 'required|file|mimes:jpg,jpeg,png',
-            'imageCaption' => 'required',
+             'images'       => 'nullable|array|max:10',
+        'images.*'     => 'file|mimes:jpg,jpeg,png|max:2048',
             'type_domba' => 'required',
             'jenis_kelamin' => 'required|in:Jantan,Betina',
             'weight' => 'required|numeric',
@@ -59,16 +59,8 @@ class DombaController extends Controller
             'healt_status' => 'required',
         ]);
 
-        $filePath = null;
-
-        if ($request->hasFile('image')) {
-    $file = $request->file('image');
-    $fileName = 'domba_' . time() . '_' . $file->getClientOriginalName();
-    $filePath = $file->storeAs('domba', $fileName, 'public');
-}
-
-        Domba::create([
-            'user_id' => $request->user_id,
+$domba = Domba::create([            
+    'user_id' => $request->user_id,
             'name' => $request->name,
             'age' => $request->age ?? 0,
             'type_domba' => $request->type_domba,
@@ -77,15 +69,31 @@ class DombaController extends Controller
             'weight' => $request->weight,
             'faksin_status' => $request->faksin_status,
             'healt_status' => $request->healt_status,
-            'image' => $filePath,
-            'imageCaption' => $request->imageCaption,
             'age_now' => 0,
             'weight_now' => $request->weight_now ?? $request->weight,
             'for_sale' => $request->for_sale ?? 'no',
         ]);
 
-        return back()->with('success', 'Data domba berhasil ditambah');
+      if ($request->hasFile('images')) {
+        foreach ($request->file('images') as $index => $file) {
+            $fileName = 'domba_' . time() . '_' . $index . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('domba', $fileName, 'public');
+
+            // HAPUS HURUF 's' DI SINI
+            $domba->media()->create([
+                'file_name'  => $file->getClientOriginalName(),
+                'file_path'  => $filePath,
+                'mime_type'  => $file->getMimeType(),
+                'file_size'  => $file->getSize(),
+                'type'       => 'image',
+                'is_primary' => $index === 0,
+                'sort_order' => $index,
+            ]);
+        }
     }
+
+   return redirect()->route('admin.listdomba')->with('success', 'Data domba berhasil ditambah');
+}
 
     public function update(Request $request, Domba $domba)
     {
@@ -102,32 +110,47 @@ class DombaController extends Controller
             'weight' => 'required|numeric',
             'faksin_status' => 'required|string|max:255',
             'healt_status' => 'required|string|max:255',
-            'image' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
+            'images' => 'nullable|array|max:10', // Ubah dari 'image' tunggal ke 'images' array
+            'images.*' => 'file|mimes:jpg,jpeg,png|max:2048',
             'age_now' => 'nullable|integer',
             'weight_now' => 'nullable|numeric',
             'for_sale' => 'nullable|in:yes,no',
         ]);
 
-        $data = $request->all();
+       $data = $request->except(['images', 'hapus_media']); // Kecualikan hapus_media agar tidak error saat update
 
-        if ($request->hasFile('image')) {
-
-            // hapus lama dari storage
-            if ($domba->image) {
-                Storage::disk('public')->delete($domba->image);
+        // 1. PROSES PENGHAPUSAN FOTO LAMA JIKA ADA YANG DIKLIK 'HAPUS'
+        if ($request->has('hapus_media')) {
+            // Cari data media berdasarkan ID yang dikirim
+            $mediaYangAkanDihapus = $domba->media()->whereIn('id', $request->hapus_media)->get();
+            
+            foreach ($mediaYangAkanDihapus as $media) {
+                // Hapus file fisik dari storage
+                Storage::disk('public')->delete($media->file_path);
+                // Hapus data dari database
+                $media->delete();
             }
+        }
+        $domba->update($data);
 
-            $file = $request->file('image');
+        // Menambahkan gambar baru ke tabel media
+        if ($request->hasFile('images')) {
+            $startingIndex = $domba->media()->count(); // Agar sort_order berlanjut
+            
+            foreach ($request->file('images') as $index => $file) {
+                $fileName = 'dombaU_' . time() . '_' . $index . '_' . $file->getClientOriginalName();
+                $filePath = $file->storeAs('domba', $fileName, 'public');
 
-            $fileName = 'dombaU_' . time() . '_' . $file->getClientOriginalName();
-
-            $image = Image::read($file)->scale(50);
-
-            $filePath = 'domba/' . $fileName;
-
-            Storage::disk('public')->put($filePath, (string) $image->encode());
-
-            $data['image'] = $filePath;
+                $domba->media()->create([
+                    'file_name'  => $file->getClientOriginalName(),
+                    'file_path'  => $filePath,
+                    'mime_type'  => $file->getMimeType(),
+                    'file_size'  => $file->getSize(),
+                    'type'       => 'image',
+                    'is_primary' => ($startingIndex === 0 && $index === 0), // Jadikan primary jika sebelumnya belum ada foto
+                    'sort_order' => $startingIndex + $index,
+                ]);
+            }
         }
 
         $domba->update($data);
@@ -159,21 +182,30 @@ class DombaController extends Controller
         return back()->with('success', 'Data domba berhasil diperbarui');
     }
 
-    public function destroy(Domba $domba)
+   public function destroy(Domba $domba)
     {
+        foreach ($domba->media as $media) {
+            Storage::disk('public')->delete($media->file_path);
+        }
+        $domba->media()->delete();
+
+        // Hapus image lama jika masih ada (legacy)
         if ($domba->image) {
             Storage::disk('public')->delete($domba->image);
         }
+
         $domba->delete();
         return back()->with('success', 'Data domba berhasil dihapus');
     }
-
-    public function show(Domba $domba)
-    {
-        $users = User::all();
-        return view('admin.showdomba', compact('users', 'domba'));
-    }
-
+    
+   public function show(Domba $domba)
+{
+    $users = User::all();
+    return view('admin.showdomba', [
+        'users'  => $users,
+        'dombas' => $domba,   // ← aliaskan ke $dombas agar cocok dengan blade
+    ]);
+}
     public function monitoring($id)
     {
         $domba = Domba::findOrFail($id);

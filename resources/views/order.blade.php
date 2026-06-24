@@ -21,23 +21,54 @@
     <div class="flex flex-col items-center justify-center min-h-screen">
         <div class="bg-white rounded-lg shadow-md p-6 w-full max-w-4xl my-10">
 
-            {{-- Banner Gambar --}}
+            {{-- Banner Gambar Multiple dari Tabel Media --}}
             @php
-                $imgPath = asset('uploads/default.png');
-                if (!empty($item->image)) {
-                    if (str_starts_with($item->image, 'http')) {
-                        $imgPath = $item->image;
-                    } elseif (str_starts_with($item->image, 'storage/')) {
-                        $imgPath = asset($item->image);
-                    } else {
-                        $imgPath = asset('storage/' . $item->image);
-                    }
+                $mediaItems = $item->media;
+                $primaryMedia = $mediaItems->where('is_primary', true)->first() ?? $mediaItems->first();
+                
+                // Siapkan fallback jika admin masih pakai data lama di kolom image
+                $fallbackImages = [];
+                if ($mediaItems->isEmpty() && !empty($item->image)) {
+                    $decoded = json_decode($item->image, true);
+                    $fallbackImages = is_array($decoded) ? $decoded : [$item->image];
                 }
             @endphp
-            <div class="mb-6 flex justify-center bg-gray-50 rounded-lg border border-gray-200 p-4 shadow-inner">
-                <img src="{{ $imgPath }}" alt="Gambar Produk" class="h-48 md:h-64 w-auto object-contain rounded"
-                    onerror="this.src='{{ asset('uploads/default.png') }}'">
+
+            <div class="mb-6 flex flex-col items-center bg-gray-50 rounded-lg border border-gray-200 p-4 shadow-inner">
+                <div class="w-full flex justify-center h-64 md:h-80 overflow-hidden bg-white rounded border mb-3 relative">
+                    @if($primaryMedia)
+                        <img id="mainDisplayImage" src="{{ $primaryMedia->url }}" alt="Gambar Produk Utama" class="h-full w-auto object-contain p-2">
+                    @elseif(count($fallbackImages) > 0)
+                        <img id="mainDisplayImage" src="{{ asset('storage/' . $fallbackImages[0]) }}" alt="Gambar Produk Utama" class="h-full w-auto object-contain p-2">
+                    @else
+                        <img id="mainDisplayImage" src="{{ asset('uploads/default.png') }}" alt="Gambar Default" class="h-full w-auto object-contain p-2">
+                    @endif
+                </div>
+
+                @if($mediaItems->count() > 1)
+                    <div class="flex flex-wrap justify-center gap-2 w-full overflow-x-auto py-1">
+                        @foreach($mediaItems as $media)
+                            <img src="{{ $media->url }}" 
+                                 class="h-16 w-16 object-cover rounded border-2 border-gray-300 cursor-pointer hover:border-brand-orange transition shadow-sm thumbnail-click"
+                                 onclick="switchCheckoutImage(this.src)">
+                        @endforeach
+                    </div>
+                @elseif(count($fallbackImages) > 1)
+                    <div class="flex flex-wrap justify-center gap-2 w-full overflow-x-auto py-1">
+                        @foreach($fallbackImages as $imgStr)
+                            <img src="{{ asset('storage/' . $imgStr) }}" 
+                                 class="h-16 w-16 object-cover rounded border-2 border-gray-300 cursor-pointer hover:border-brand-orange transition shadow-sm thumbnail-click"
+                                 onclick="switchCheckoutImage(this.src)">
+                        @endforeach
+                    </div>
+                @endif
             </div>
+
+            <script>
+                function switchCheckoutImage(src) {
+                    document.getElementById('mainDisplayImage').src = src;
+                }
+            </script>
 
             {{-- Pilihan Metode Pembayaran --}}
             <div class="flex justify-center gap-4 mb-6">

@@ -178,7 +178,7 @@ class ReportController extends Controller
         $start = $startDate . ' 00:00:00';
         $end = $endDate . ' 23:59:59';
 
-        $query = Production::with(['product', 'formula', 'owner'])
+        $query = Production::with(['product', 'formula', 'admin'])
             ->whereBetween('production_date', [$start, $end]);
 
         if ($request->filled('status')) {
@@ -238,7 +238,7 @@ class ReportController extends Controller
         $startDate = $request->start_date ?? now()->startOfMonth()->toDateString();
         $endDate = $request->end_date ?? now()->toDateString();
 
-        $query = Disposal::with(['disposable', 'owner'])
+        $query = Disposal::with(['disposable', 'admin'])
             ->whereBetween('created_at', [
                 $startDate . ' 00:00:00',
                 $endDate . ' 23:59:59',

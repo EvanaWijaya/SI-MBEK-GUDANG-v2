@@ -56,7 +56,9 @@
                                             <button @click="open = !open" class="flex items-center justify-center w-10 h-10 rounded-full bg-brand-orange text-white focus:outline-none focus:ring-2 focus:ring-orange-300 overflow-hidden shadow" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
     @php
         $admin = Auth::guard('admin')->user();
-        $avatar = $admin->profile_picture ? asset('storage/admin_avatars/' . $admin->profile_picture) : null;
+        // Ambil gambar dari tabel media polimorfik
+        $mediaPic = $admin->primaryImage ?? $admin->media->first();
+        $avatar = $mediaPic ? $mediaPic->url : ($admin->profile_picture ? asset('storage/admin_avatars/' . $admin->profile_picture) : null);
     @endphp
 
     @if($avatar)
@@ -107,7 +109,7 @@
                                         <x-slot name="icon">
                                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z" /></svg>
                                         </x-slot>
-                                        {{ __('Dashboard') }}
+                                        {{ __('Beranda') }}
                                     </x-sidebar-link>
                                 </li>
 
@@ -133,7 +135,7 @@
                                             <svg class="w-5 h-5 transition duration-75 {{ $isMasterDataActive ? 'text-gray-900' : 'text-brand-orange group-hover:text-gray-900' }}" fill="currentColor" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
                                                 <path d="M.54 3.87.5 3a2 2 0 0 1 2-2h3.672a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 9.828 3h3.982a2 2 0 0 1 1.992 2.181l-.637 7A2 2 0 0 1 13.174 14H2.826a2 2 0 0 1-1.991-1.819l-.637-7a2 2 0 0 1 .342-1.31zM2.19 4a1 1 0 0 0-.996 1.09l.637 7a1 1 0 0 0 .995.91h10.348a1 1 0 0 0 .995-.91l.637-7A1 1 0 0 0 13.81 4zm4.69-1.707A1 1 0 0 0 6.172 2H2.5a1 1 0 0 0-1 .981l.006.139q.323-.119.684-.12h5.396z" />
                                             </svg>
-                                            <span class="ml-3 text-left whitespace-nowrap">Master Data</span>
+                                            <span class="ml-3 text-left whitespace-nowrap">Data Utama</span>
                                         </div>
                                         <svg class="w-4 h-4 text-gray-500 transition-transform duration-200 transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"></path></svg>
                                     </button>
@@ -145,9 +147,9 @@
                                         
                                         <li><a href="{{ route('admin.listkambing') }}" class="block w-full pl-11 pr-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->routeIs('admin.listkambing') ? 'bg-orange-50 text-brand-orange font-medium' : '' }}">Kambing</a></li>
                                         <li><a href="{{ route('admin.listdomba') }}" class="block w-full pl-11 pr-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->routeIs('admin.listdomba') ? 'bg-orange-50 text-brand-orange font-medium' : '' }}">Domba</a></li>
-                                        <li><a href="{{ route('admin.materials.index') }}" class="block w-full pl-11 pr-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->routeIs('admin.materials.index') ? 'bg-orange-50 text-brand-orange font-medium' : '' }}">Material</a></li>
+                                        <li><a href="{{ route('admin.materials.index') }}" class="block w-full pl-11 pr-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->routeIs('admin.materials.index') ? 'bg-orange-50 text-brand-orange font-medium' : '' }}">Bahan Baku</a></li>
                                         <li><a href="{{ route('admin.products.index') }}" class="block w-full pl-11 pr-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->routeIs('admin.products.index') ? 'bg-orange-50 text-brand-orange font-medium' : '' }}">Produk</a></li>
-                                        <li><a href="{{ route('admin.suppliers.index') }}" class="block w-full pl-11 pr-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->routeIs('admin.suppliers.index') ? 'bg-orange-50 text-brand-orange font-medium' : '' }}">Supplier</a></li>
+                                        <li><a href="{{ route('admin.suppliers.index') }}" class="block w-full pl-11 pr-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->routeIs('admin.suppliers.index') ? 'bg-orange-50 text-brand-orange font-medium' : '' }}">Pemasok</a></li>
                                     </ul>
                                 </li>
                                 

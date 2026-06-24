@@ -19,11 +19,12 @@
         @method('patch')
 
         {{-- 📸 Bagian Upload Foto Profil --}}
-        <div class="flex items-center gap-6">
+       <div class="flex items-center gap-6">
             <div class="w-20 h-20 rounded-full overflow-hidden bg-gray-100 border border-gray-200 shadow-sm flex-shrink-0">
                 @php
-                    // Pastikan variabel $user di-load, fallback ke logo kalau belum ada foto
-                    $avatar = $user->profile_picture ? asset('storage/owner_avatars/' . $user->profile_picture) : asset('logo/logosiembek.png');
+                    // Deteksi foto profil terbaru lewat tabel media baru
+                    $mediaPic = $user->primaryImage ?? $user->media->first();
+                    $avatar = $mediaPic ? $mediaPic->url : ($user->profile_picture ? asset('storage/owner_avatars/' . $user->profile_picture) : asset('logo/logosiembek.png'));
                 @endphp
                 <img src="{{ $avatar }}" alt="Profile Picture" class="w-full h-full object-cover">
             </div>

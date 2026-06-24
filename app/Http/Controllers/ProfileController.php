@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -26,30 +27,45 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $user = $request->user();
+        // 1. Tarik data user yang sedang login SEBELUM blok IF
+        $user = $request->user(); 
+
+        // 2. Simpan semua input teks (Nama, Email, Alamat, No Telepon) dari validasi request
         $user->fill($request->validated());
-
-        if ($request->hasFile('profile_picture')) {
-            $file = $request->file('profile_picture');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $filePath = 'uploads/profileimage/' . $fileName;
-
-            // Delete old profile picture if it exists
-            if ($user->profile_picture && file_exists(public_path('uploads/profileimage/' . $user->profile_picture))) {
-                unlink(public_path('uploads/profilImage/' . $user->profile_picture));
-            }
-
-            // Move the new profile picture to the uploads directory
-            $file->move(public_path('uploads/profilImage'), $fileName);
-
-            // Save the file name to the database
-            $user->profile_picture = $fileName;
-        }
 
         if ($user->isDirty('email')) {
             $user->email_verified_at = null;
         }
 
+        // 3. Handle upload foto menggunakan tabel media
+        if ($request->hasFile('profile_picture')) {
+            
+            // Hapus foto lama di tabel media jika ada
+            foreach ($user->media as $media) {
+                Storage::disk('public')->delete($media->file_path);
+                $media->delete();
+            }
+
+            // Upload file fisik baru
+            $file = $request->file('profile_picture');
+            $fileName = "user_" . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            
+            // Simpan ke direktori storage/app/public/profilImage
+            $filePath = $file->storeAs('profilImage', $fileName, 'public');
+
+            // Simpan data ke tabel media dengan relasi milik user
+            $user->media()->create([
+                'file_name'  => $file->getClientOriginalName(),
+                'file_path'  => $filePath,
+                'mime_type'  => $file->getMimeType(),
+                'file_size'  => $file->getSize(),
+                'type'       => 'image',
+                'is_primary' => true,
+                'sort_order' => 0,
+            ]);
+        }
+
+        // Simpan semua perubahan
         $user->save();
 
         return Redirect::route('dashboard')->with('status', 'profile-updated');

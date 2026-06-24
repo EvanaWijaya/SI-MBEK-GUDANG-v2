@@ -10,14 +10,16 @@ class KambingController extends Controller
 {
     public function index()
     {
-        $kambing = Kambing::with('user')->paginate(10);
+        $kambings = Kambing::with('user')->paginate(10);
 
-        return view('owner.listkambing', compact('kambing'));
+        return view('owner.listkambing', compact('kambings'));
     }
 
     public function show(Kambing $kambing)
     {
-        return view('owner.showkambing', compact('kambing'));
+        return view('owner.showkambing', [
+            'kambings' => $kambing // Kuncinya HARUS 'kambings'
+        ]);
     }
 
     public function monitoring($id)

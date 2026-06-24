@@ -17,10 +17,10 @@ class ProfileUpdateRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'alamat' => 'required|string|max:255',
-            'no_telepon' => 'required|string|max:15',
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($this->user()->id)],
-            'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:8192',
+            'address' => ['required', 'string', 'max:255'],
+            'phone_number' => ['required', 'string', 'max:15'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', \Illuminate\Validation\Rule::unique(User::class)->ignore($this->user()->id)],
+            'profile_picture' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:8192'],
         ];
     }
 }

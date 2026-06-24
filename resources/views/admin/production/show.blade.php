@@ -99,7 +99,7 @@
                         @endif
                     </div>
                     <div class="min-w-0">
-                        <p class="text-xs font-semibold text-gray-770">Quality Control</p>
+                        <p class="text-xs font-semibold text-gray-770">Pengecekan Kualitas</p>
                         @if($qcLayak)
                             <p class="text-xs text-green-600 font-medium">Layak ({{ $production->qc_percentage }}%)</p>
                         @elseif($qcTidakLayak)
@@ -126,7 +126,7 @@
                         @endif
                     </div>
                     <div class="min-w-0">
-                        <p class="text-xs font-semibold text-gray-700">Selesai / Ditolak</p>
+                        <p class="text-xs font-semibold text-gray-700">Status</p>
                         @if($sudahSelesai)
                             <p class="text-xs text-green-600 font-medium">Stok bertambah ✓</p>
                         @elseif($step3Rejected)
@@ -134,7 +134,7 @@
                         @elseif($qcLayak)
                             <p class="text-xs text-orange-500 font-medium">Siap diselesaikan</p>
                         @else
-                            <p class="text-xs text-gray-400">Menunggu QC</p>
+                            <p class="text-xs text-gray-400">Menunggu pengecekan kualitas</p>
                         @endif
                     </div>
                 </div>
@@ -157,11 +157,11 @@
                             <dd class="font-mono text-xs text-gray-700">{{ $production->product->product_code ?? '-' }}</dd>
                         </div>
                         <div class="flex justify-between py-1.5 border-b border-gray-50">
-                            <dt class="text-gray-400">Formula</dt>
+                            <dt class="text-gray-400">Resep</dt>
                             <dd class="text-gray-700 text-right">{{ $production->formula->formula_name ?? '-' }}</dd>
                         </div>
                         <div class="flex justify-between py-1.5 border-b border-gray-50">
-                            <dt class="text-gray-400">Qty Produksi</dt>
+                            <dt class="text-gray-400">Jumlah Produksi</dt>
                             <dd class="font-bold text-gray-800">{{ number_format($production->production_quantity) }} kg</dd>
                         </div>
                         <div class="flex justify-between py-1.5">
@@ -170,7 +170,7 @@
                         </div>
                         @if($production->expiration_date)
                         <div class="flex justify-between py-1.5 border-t border-gray-50">
-                            <dt class="text-gray-400">Expired Date</dt>
+                            <dt class="text-gray-400">Tanggal Kadaluarsa</dt>
                             <dd class="text-gray-700">{{ \Carbon\Carbon::parse($production->expiration_date)->format('d M Y') }}</dd>
                         </div>
                         @endif
@@ -202,9 +202,9 @@
                             <svg class="w-8 h-8 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                             </svg>
-                            <p class="text-xs">Formula ini belum memiliki bahan baku.</p>
+                            <p class="text-xs">Resep ini belum memiliki bahan baku.</p>
                             <a href="{{ route('admin.formula.edit', $production->formula_id) }}" class="mt-2 text-xs text-orange-500 hover:underline">
-                                Edit formula untuk tambah bahan →
+                                Edit resep untuk tambah bahan →
                             </a>
                         </div>
                     @endif
@@ -218,7 +218,7 @@
                     <svg class="w-5 h-5 text-blue-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
                     </svg>
-                    <h3 class="text-sm font-bold text-blue-800">Langkah 2 — Input Quality Control (QC)</h3>
+                    <h3 class="text-sm font-bold text-blue-800">Langkah 2 — Mengecek Kualitas</h3>
                 </div>
                 
                 <form action="{{ route('admin.qc.store', $production) }}" method="POST" novalidate>
@@ -228,10 +228,10 @@
                         {{-- Input Threshold --}}
                         <div>
                             <label class="block text-xs font-bold uppercase tracking-wide mb-1.5 {{ $errors->has('threshold') ? 'text-red-600' : 'text-gray-500' }}">
-                                Ambang Kelulusan Non-Kritis <span class="text-gray-400 font-normal">(min 70%, maks 90%)</span>
+                                Ambang Kelulusan Non-Kritis <span class="text-gray-400 font-normal">(min 75%, maks 90%)</span>
                             </label>
                             <div class="relative w-40">
-                                <input type="number" name="threshold" min="70" max="90" value="{{ old('threshold', 80) }}" required
+                                <input type="number" name="threshold" min="75" max="90" value="{{ old('threshold', 80) }}" required
                                     class="w-full border {{ $errors->has('threshold') ? 'border-red-400 bg-red-50 text-red-900 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-400' }} rounded-lg pl-3 pr-7 py-2.5 text-sm focus:outline-none transition-all">
                                 <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400">%</span>
                             </div>
@@ -305,13 +305,13 @@
                         @else
                             <div class="flex items-center gap-3 bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg text-sm">
                                 <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-                                Belum ada indikator QC aktif. Tambahkan indikator QC terlebih dahulu di pengaturan.
+                                Belum ada indikator pengecekan kualitas yang aktif. Tambahkan indikator pengecekan kualitas terlebih dahulu di pengaturan.
                             </div>
                         @endif
 
                         {{-- Input Catatan QC --}}
                         <div>
-                            <label class="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-1.5">Catatan QC <span class="text-gray-400 font-normal">(opsional)</span></label>
+                            <label class="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-1.5">Catatan pengecekan kualitas <span class="text-gray-400 font-normal">(opsional)</span></label>
                             <textarea name="notes" rows="2" placeholder="Tambahkan deskripsi atau catatan temuan hasil QC lapangan..."
                                 class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-black focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 resize-none">{{ old('notes') }}</textarea>
                         </div>
@@ -322,7 +322,7 @@
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
                             </svg>
-                            Simpan Hasil Rekam QC
+                            Simpan Hasil Pengecekan Kualitas
                         </button>
                     </div>
                 </form>
@@ -332,10 +332,10 @@
             {{-- ── HASIL REKAM QC (Jika Sudah Dilakukan) ── --}}
             @if($qcSudahDilakukan)
             <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-                <h3 class="text-sm font-semibold text-gray-700 mb-4">Hasil Quality Control</h3>
+                <h3 class="text-sm font-semibold text-gray-700 mb-4">Hasil Pengecekan Kualitas</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div class="text-center p-4 rounded-xl {{ $qcLayak ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200' }}">
-                        <p class="text-xs text-gray-500 mb-1.5">Status Akhir QC</p>
+                        <p class="text-xs text-gray-500 mb-1.5">Status Akhir Pengecekan Kulitas</p>
                         <p class="text-xl font-bold {{ $qcLayak ? 'text-green-700' : 'text-red-700' }}">
                             {{ $qcLayak ? 'LAYAK' : 'TIDAK LAYAK' }}
                         </p>
@@ -366,7 +366,7 @@
                         </svg>
                     </div>
                     <div>
-                        <p class="font-semibold text-green-800 text-sm">QC Lulus! Input Expired Date untuk Menyelesaikan.</p>
+                        <p class="font-semibold text-green-800 text-sm">Pengecekan Kualitas Lulus! Masukkan tanggal kadaluarsa untuk Menyelesaikan.</p>
                         <p class="text-xs text-green-600 mt-0.5">
                             Tanggal kadaluarsa wajib diisi agar batch produk tercatat dengan benar ke dalam sistem gudang.
                         </p>
@@ -407,7 +407,7 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="font-semibold text-red-800 text-sm">Produksi ini ditolak karena QC tidak layak.</p>
+                    <p class="font-semibold text-red-800 text-sm">Produksi ini ditolak karena pengecekan kualitasnya tidak layak.</p>
                     <p class="text-xs text-red-600 mt-0.5">
                         Produksi tidak dapat dilanjutkan. Buat produksi baru jika diperlukan.
                         @if(!$sudahRejected && $qcTidakLayak)

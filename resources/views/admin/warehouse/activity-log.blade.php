@@ -153,7 +153,7 @@
                                             <span class="text-xs text-gray-700 font-medium truncate max-w-[100px]">{{ $actorName }}</span>
                                         </div>
                                     @else
-                                        <span class="text-xs text-gray-300 italic">System</span>
+                                        <span class="text-xs text-gray-300 italic">Sistem</span>
                                     @endif
                                 </td>
                             </tr>

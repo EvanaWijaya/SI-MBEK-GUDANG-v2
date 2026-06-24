@@ -225,7 +225,7 @@
 {{-- Produk For Sale Terlama --}}
 <section class="dashboard-section p-6">
     <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-bold text-gray-800">Produk For Sale Terlama</h3>
+        <h3 class="text-lg font-bold text-gray-800">Produk Dijual Terlama</h3>
         <span class="text-xs text-brand-orange font-medium">Status: For Sale = Yes</span>
     </div>
     <div class="h-80"> {{-- Tinggi chart --}}

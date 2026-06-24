@@ -12,7 +12,7 @@ class MaterialSeeder extends Seeder
         Material::insert([
             [
                 'material_name' => 'Jagung Giling',
-                'category' => 'pakan',
+                'category' => 'feed',
                 'unit' => 'kg',
                 'stock' => 0,
                 'created_at' => now(),
@@ -20,7 +20,7 @@ class MaterialSeeder extends Seeder
             ],
             [
                 'material_name' => 'Dedak Halus',
-                'category' => 'pakan',
+                'category' => 'feed',
                 'unit' => 'kg',
                 'stock' => 0,
                 'created_at' => now(),
@@ -28,7 +28,7 @@ class MaterialSeeder extends Seeder
             ],
             [
                 'material_name' => 'Daun Lamtoro',
-                'category' => 'pakan',
+                'category' => 'feed',
                 'unit' => 'kg',
                 'stock' => 0,
                 'created_at' => now(),

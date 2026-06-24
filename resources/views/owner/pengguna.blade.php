@@ -1,7 +1,7 @@
 <x-owner-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl leading-tight text-brand-orange">
-            {{ __('Owner - List Penitip') }}
+            {{ __('Admin - List Penitip') }}
         </h2>
     </x-slot>
 
@@ -23,10 +23,11 @@
         }
 
         .message-success {
-            background-color: #4ade80; 
+            background-color: #4ade80; /* Green */
             color: white;
         }
 
+        /* Add any additional custom styles here */
     </style>
 
     <div class="container overflow-x-auto p-7 my-10">
@@ -42,6 +43,7 @@
                     <th scope="col" class="px-6 py-3">Profil</th>
                     <th scope="col" class="px-6 py-3">Nama</th>
                     <th scope="col" class="px-6 py-3">Email</th>
+                    <!-- Tambah kolom Domba -->
                     <th scope="col" class="px-6 py-3">ID Kambing</th>
                     <th scope="col" class="px-6 py-3">JLh Kambing</th>
                     <th scope="col" class="px-6 py-3">ID Domba</th>
@@ -50,65 +52,47 @@
                 </tr>
             </thead>
 
-             <tbody>
+            <tbody>
                 @foreach ($users as $user)
-                    <tr class="hover:bg-orange-50 transition">
-                        
-                        {{-- Profil --}}
+                    <tr class="table-row">
                         <td class="px-2 py-4">
-                            <img src="{{ $user->profile_picture 
-                                ? asset('uploads/profilImage/' . $user->profile_picture) 
-                                : asset('uploads/profilImage/default.png') }}"
-                                class="h-20 w-20 object-cover rounded-full" />
+                            <img src="{{ $user->profile_picture ? asset('uploads/profilImage/' . $user->profile_picture) : asset('uploads/profilImage/default.png') }}"
+                                loading="lazy"
+                                alt="{{ $user->name }}" class="h-20 w-20 object-cover object-center rounded-full" />
                         </td>
-
-                        {{-- Nama --}}
                         <td class="px-6 py-4">{{ $user->name }}</td>
-
-                        {{-- Email --}}
                         <td class="px-6 py-4">{{ $user->email }}</td>
-
-                        {{-- ID Kambing --}}
                         <td class="px-6 py-4">
                             <select class="form-select rounded-md">
-                                @forelse ($user->kambings as $kb)
+                                @foreach ($user->kambings as $kb)
                                     <option value="{{ $kb->id }}">{{ $kb->id }}</option>
-                                @empty
-                                    <option>-</option>
-                                @endforelse
+                                @endforeach
                             </select>
                         </td>
-
-                        {{-- Jumlah Kambing --}}
-                        <td class="px-6 py-4">
-                            {{ $user->kambings->count() }}
-                        </td>
-
-                        {{-- ID Domba --}}
+                        <td class="px-6 py-4">{{ $user->kambings->count() }}</td>
                         <td class="px-6 py-4">
                             <select class="form-select rounded-md">
                                 @forelse ($user->dombas as $db)
                                     <option value="{{ $db->id }}">{{ $db->id }}</option>
-                                @empty
-                                    <option>-</option>
-                                @endforelse
+                                @endforeach
                             </select>
                         </td>
-
-                        {{-- Jumlah Domba --}}
-                        <td class="px-6 py-4">
-                            {{ $user->dombas->count() }}
-                        </td>
-
-                        {{-- Alamat --}}
+                        <td class="px-6 py-4">{{ $user->dombas->count() }}</td>
                         <td class="px-6 py-4">{{ $user->address }}</td>
-
-                    </tr>
                 @endforeach
             </tbody>
         </table>
 
         {{ $users->links() }}
-
     </div>
-</x-owner-app-layout>
+
+   <script>
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+    </script>
+</x-admin-app-layout>

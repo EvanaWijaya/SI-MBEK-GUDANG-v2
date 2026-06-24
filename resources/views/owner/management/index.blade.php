@@ -45,7 +45,7 @@
                             <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">ID</th>
                             <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Nama Lengkap</th>
                             <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Email</th>
-                            <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status Role</th>
+                            <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Peran</th>
                             <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Terdaftar Pada</th>
                         </tr>
                     </thead>

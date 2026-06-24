@@ -10,8 +10,8 @@
                 </svg>
             </a>
             <div>
-                <h1 class="text-2xl font-bold text-gray-800">Tambah Formula Baru</h1>
-                <p class="text-sm text-gray-500 mt-0.5">Buat komposisi bahan baku formula produk</p>
+                <h1 class="text-2xl font-bold text-gray-800">Tambah Resep Baru</h1>
+                <p class="text-sm text-gray-500 mt-0.5">Buat komposisi bahan baku resep produk</p>
             </div>
         </div>
 
@@ -40,12 +40,12 @@
                             <svg class="w-4 h-4 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
-                            Informasi Formula
+                            Informasi Resep
                         </h3>
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-xs font-medium text-gray-500 mb-1.5">
-                                    Kode Formula <span class="text-red-500">*</span>
+                                    Kode Resep <span class="text-red-500">*</span>
                                 </label>
                                 <input 
                                     type="text" 
@@ -59,7 +59,7 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-gray-500 mb-1.5">
-                                    Nama Formula <span class="text-red-500">*</span>
+                                    Nama Resep <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" name="formula_name"
                                     value="{{ old('formula_name') }}"
@@ -183,7 +183,7 @@
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                     </svg>
-                    Simpan Formula
+                    Simpan Resep
                 </button>
             </div>
         </form>

@@ -21,12 +21,12 @@ $expiringSoon = $batches->filter(fn($b) => $b->quantity > 0 && $b->expiration_da
                 @endphp
                 @if($expiredCount > 0)
                     <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700">
-                        {{ $expiredCount }} expired
+                        {{ $expiredCount }} kadaluarsa
                     </span>
                 @endif
                 @if($expiringSoon > 0)
                     <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">
-                        {{ $expiringSoon }} hampir exp
+                        {{ $expiringSoon }} hampir kadaluarsa
                     </span>
                 @endif
             </div>
@@ -45,9 +45,9 @@ $expiringSoon = $batches->filter(fn($b) => $b->quantity > 0 && $b->expiration_da
                     <thead class="bg-gray-50 border-b border-gray-100">
                         <tr>
                             <th class="px-5 py-3 text-left   text-xs font-semibold text-gray-500 uppercase tracking-wide">#</th>
-                            <th class="px-5 py-3 text-right  text-xs font-semibold text-gray-500 uppercase tracking-wide">Qty</th>
+                            <th class="px-5 py-3 text-right  text-xs font-semibold text-gray-500 uppercase tracking-wide">Kuantitas</th>
                             <th class="px-5 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wide">Tgl Terima</th>
-                            <th class="px-5 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wide">Expired</th>
+                            <th class="px-5 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wide">Kadaluarsa</th>
                             <th class="px-5 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wide">Sumber</th>
                             <th class="px-5 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</th>
                             <th class="px-5 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wide">Aksi</th>
@@ -104,9 +104,9 @@ $expiringSoon = $batches->filter(fn($b) => $b->quantity > 0 && $b->expiration_da
                                     @if($bEmpty)
                                         <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-400">Habis</span>
                                     @elseif($bExp)
-                                        <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">Expired</span>
+                                        <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">Kadaluarsa</span>
                                     @elseif($bSoon)
-                                        <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">Hampir Exp</span>
+                                        <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">Hampir Kadaluarsa</span>
                                     @else
                                         <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">Aktif</span>
                                     @endif
@@ -160,7 +160,7 @@ $expiringSoon = $batches->filter(fn($b) => $b->quantity > 0 && $b->expiration_da
                         <tr>
                             <th class="px-5 py-3 text-left   text-xs font-semibold text-gray-500 uppercase tracking-wide">Tanggal</th>
                             <th class="px-5 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wide">Tipe</th>
-                            <th class="px-5 py-3 text-right  text-xs font-semibold text-gray-500 uppercase tracking-wide">Qty</th>
+                            <th class="px-5 py-3 text-right  text-xs font-semibold text-gray-500 uppercase tracking-wide">Jumlah</th>
                             <th class="px-5 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wide">Sumber</th>
                             <th class="px-5 py-3 text-left   text-xs font-semibold text-gray-500 uppercase tracking-wide">Catatan</th>
                             

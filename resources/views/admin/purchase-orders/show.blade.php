@@ -151,7 +151,7 @@
                 @if($purchaseOrder->notes)
                     <div class="mt-4 pt-4 border-t border-gray-100">
                         <p class="text-xs text-gray-400 mb-1">Catatan</p>
-                        <p class="text-sm text-gray-700 bg-gray-50 rounded-lg p-3">{{ $purchaseOrder->owner_notes}}</p>
+                        <p class="text-sm text-gray-700 bg-gray-50 rounded-lg p-3">{{ $purchaseOrder->notes}}</p>
                     </div>
                 @endif
             </div>
@@ -159,7 +159,7 @@
             {{-- Items Table --}}
             <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                 <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-                    <h3 class="text-sm font-semibold text-gray-700">Item Pesanan</h3>
+                    <h3 class="text-sm font-semibold text-gray-700">Bahan Pesanan</h3>
                     <span class="text-xs text-gray-400">{{ $purchaseOrder->items->count() }} item</span>
                 </div>
 
@@ -169,7 +169,7 @@
                             <tr>
                                 <th
                                     class="px-5 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wide">
-                                    Material / Produk</th>
+                                    Bahan Baku / Produk</th>
                                 <th
                                     class="px-5 py-3 text-right font-semibold text-gray-600 text-xs uppercase tracking-wide">
                                     Jumlah Pesan</th>
@@ -276,7 +276,7 @@
                                     <tr>
                                         <th
                                             class="pb-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wide">
-                                            Item</th>
+                                            Bahan</th>
                                         <th
                                             class="pb-3 text-right font-semibold text-gray-600 text-xs uppercase tracking-wide w-24">
                                             Pesan</th>

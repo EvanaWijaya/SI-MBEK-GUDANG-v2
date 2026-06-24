@@ -35,28 +35,28 @@
                 {{-- ===== KOLOM KIRI ===== --}}
                 <div>
                     {{-- Nama Supplier --}}
-                    <label class="{{ $errors->has('nama_supplier') ? $labelError : $labelOk }}">Nama Supplier</label>
-                    <input type="text" name="nama_supplier" value="{{ old('nama_supplier') }}"
+                    <label class="{{ $errors->has('supplier_name') ? $labelError : $labelOk }}">Nama Pemasok</label>
+                    <input type="text" name="supplier_name" value="{{ old('supplier_name') }}"
                            placeholder="Masukkan nama supplier/PT"
-                           class="{{ $inputBase }} {{ $errors->has('nama_supplier') ? $inputError : $inputOk }}" required>
-                    @error('nama_supplier')
+                           class="{{ $inputBase }} {{ $errors->has('supplier_name') ? $inputError : $inputOk }}" required>
+                    @error('supplier_name')
                         <p class="mt-1 text-xs text-red-500 font-semibold">{{ $message }}</p>
                     @enderror
                     
                     {{-- Kontak --}}
-                    <label class="mt-4 {{ $errors->has('kontak') ? $labelError : $labelOk }}">Kontak (Telp/WA)</label>
-                    <input type="text" name="kontak" value="{{ old('kontak') }}"
+                    <label class="mt-4 {{ $errors->has('contact') ? $labelError : $labelOk }}">Kontak (Telp/WA)</label>
+                    <input type="text" name="contact" value="{{ old('contact') }}"
                            placeholder="08xxxxxxxxxx"
-                           class="{{ $inputBase }} {{ $errors->has('kontak') ? $inputError : $inputOk }}">
-                    @error('kontak')
+                           class="{{ $inputBase }} {{ $errors->has('contact') ? $inputError : $inputOk }}">
+                    @error('contact')
                         <p class="mt-1 text-xs text-red-500 font-semibold">{{ $message }}</p>
                     @enderror
 
                     {{-- Alamat Lengkap --}}
-                    <label class="mt-4 {{ $errors->has('alamat') ? $labelError : $labelOk }}">Alamat Lengkap</label>
-                    <textarea name="alamat" rows="3" placeholder="Nama jalan, nomor gudang, dll..."
-                              class="{{ $inputBase }} {{ $errors->has('alamat') ? $inputError : $inputOk }}">{{ old('alamat') }}</textarea>
-                    @error('alamat')
+                    <label class="mt-4 {{ $errors->has('address') ? $labelError : $labelOk }}">Alamat Lengkap</label>
+                    <textarea name="address" rows="3" placeholder="Nama jalan, nomor gudang, dll..."
+                              class="{{ $inputBase }} {{ $errors->has('address') ? $inputError : $inputOk }}">{{ old('address') }}</textarea>
+                    @error('address')
                         <p class="mt-1 text-xs text-red-500 font-semibold">{{ $message }}</p>
                     @enderror
                 </div>
@@ -64,28 +64,28 @@
                 {{-- ===== KOLOM KANAN ===== --}}
                 <div>
                     {{-- Kota --}}
-                    <label class="{{ $errors->has('kota') ? $labelError : $labelOk }}">Kota</label>
-                    <input type="text" name="kota" value="{{ old('kota') }}"
+                    <label class="{{ $errors->has('city') ? $labelError : $labelOk }}">Kota</label>
+                    <input type="text" name="city" value="{{ old('city') }}"
                            placeholder="Contoh: Bandar Lampung"
-                           class="{{ $inputBase }} {{ $errors->has('kota') ? $inputError : $inputOk }}">
-                    @error('kota')
+                           class="{{ $inputBase }} {{ $errors->has('city') ? $inputError : $inputOk }}">
+                    @error('city')
                         <p class="mt-1 text-xs text-red-500 font-semibold">{{ $message }}</p>
                     @enderror
                     
                     {{-- Provinsi --}}
-                    <label class="mt-4 {{ $errors->has('provinsi') ? $labelError : $labelOk }}">Provinsi</label>
-                    <input type="text" name="provinsi" value="{{ old('provinsi') }}"
+                    <label class="mt-4 {{ $errors->has('province') ? $labelError : $labelOk }}">Provinsi</label>
+                    <input type="text" name="province" value="{{ old('province') }}"
                            placeholder="Contoh: Lampung"
-                           class="{{ $inputBase }} {{ $errors->has('provinsi') ? $inputError : $inputOk }}">
-                    @error('provinsi')
+                           class="{{ $inputBase }} {{ $errors->has('province') ? $inputError : $inputOk }}">
+                    @error('province')
                         <p class="mt-1 text-xs text-red-500 font-semibold">{{ $message }}</p>
                     @enderror
 
                     {{-- Catatan Tambahan --}}
-                    <label class="mt-4 {{ $errors->has('catatan') ? $labelError : $labelOk }}">Catatan Tambahan</label>
-                    <textarea name="catatan" rows="3" placeholder="Catatan jam operasional atau info sales..."
-                              class="{{ $inputBase }} {{ $errors->has('catatan') ? $inputError : $inputOk }}">{{ old('catatan') }}</textarea>
-                    @error('catatan')
+                    <label class="mt-4 {{ $errors->has('notes') ? $labelError : $labelOk }}">Catatan Tambahan</label>
+                    <textarea name="notes" rows="3" placeholder="Catatan jam operasional atau info sales..."
+                              class="{{ $inputBase }} {{ $errors->has('notes') ? $inputError : $inputOk }}">{{ old('notes') }}</textarea>
+                    @error('notes')
                         <p class="mt-1 text-xs text-red-500 font-semibold">{{ $message }}</p>
                     @enderror
                 </div>

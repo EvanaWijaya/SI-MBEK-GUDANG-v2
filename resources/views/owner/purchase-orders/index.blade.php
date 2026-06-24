@@ -51,11 +51,11 @@
                 $received = $purchaseOrders->where('status', 'received')->count();
             @endphp
             <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-                <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Total PO</p>
+                <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Total Pesanan</p>
                 <p class="text-3xl font-bold text-gray-800 mt-1">{{ $total }}</p>
             </div>
             <div class="bg-white rounded-xl border border-yellow-100 shadow-sm p-4">
-                <p class="text-xs text-yellow-600 font-medium uppercase tracking-wide">Draft</p>
+                <p class="text-xs text-yellow-600 font-medium uppercase tracking-wide">Draf</p>
                 <p class="text-3xl font-bold text-yellow-500 mt-1">{{ $draft }}</p>
             </div>
             <div class="bg-white rounded-xl border border-blue-100 shadow-sm p-4">
@@ -74,8 +74,8 @@
                 <table class="w-full text-sm text-left">
                     <thead class="bg-gray-50 border-b border-gray-200">
                         <tr>
-                            <th class="px-5 py-3.5 font-semibold text-gray-600">Kode PO</th>
-                            <th class="px-5 py-3.5 font-semibold text-gray-600">Supplier</th>
+                            <th class="px-5 py-3.5 font-semibold text-gray-600">Kode Pesanan</th>
+                            <th class="px-5 py-3.5 font-semibold text-gray-600">Pemasok</th>
                             <th class="px-5 py-3.5 font-semibold text-gray-600">Tipe</th>
                             <th class="px-5 py-3.5 font-semibold text-gray-600">Dipesan Oleh</th>
                             <th class="px-5 py-3.5 font-semibold text-gray-600">Tgl Pesan</th>
@@ -149,9 +149,9 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                         </svg>
-                                        <p class="text-sm font-medium">Belum ada Purchase Order</p>
+                                        <p class="text-sm font-medium">Belum ada Pesanan</p>
                                         <a href="{{ route('owner.purchase-orders.create') }}"
-                                            class="text-orange-500 hover:underline text-sm">Buat PO pertama</a>
+                                            class="text-orange-500 hover:underline text-sm">Buat Pesanan pertama</a>
                                     </div>
                                 </td>
                             </tr>

@@ -85,7 +85,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
 
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
-                    <p class="text-xs text-gray-400 uppercase tracking-wide font-medium">Supplier</p>
+                    <p class="text-xs text-gray-400 uppercase tracking-wide font-medium">Pemasok</p>
                     <p class="text-sm font-semibold text-gray-800 mt-1.5">
                         {{ $purchaseOrder->supplier->supplier_name ?? '-' }}
                     </p>
@@ -178,8 +178,8 @@
             {{-- Items Table --}}
             <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                 <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-                    <h3 class="text-sm font-semibold text-gray-700">Item Pesanan</h3>
-                    <span class="text-xs text-gray-400">{{ $purchaseOrder->items->count() }} item</span>
+                    <h3 class="text-sm font-semibold text-gray-700">Bahan Pesanan</h3>
+                    <span class="text-xs text-gray-400">{{ $purchaseOrder->items->count() }} Bahan</span>
                 </div>
 
                 <div class="overflow-x-auto">
@@ -188,7 +188,7 @@
                             <tr>
                                 <th
                                     class="px-5 py-3 text-left font-semibold text-gray-600 text-xs uppercase tracking-wide">
-                                    Material / Produk</th>
+                                    Bahan Baku / Produk</th>
                                 <th
                                     class="px-5 py-3 text-right font-semibold text-gray-600 text-xs uppercase tracking-wide">
                                     Jumlah Pesan</th>
@@ -243,7 +243,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="px-5 py-8 text-center text-gray-400">Tidak ada item</td>
+                                    <td colspan="6" class="px-5 py-8 text-center text-gray-400">Tidak ada bahan</td>
                                 </tr>
                             @endforelse
                         </tbody>

@@ -42,7 +42,7 @@ class ProductSeeder extends Seeder
             'stock' => 100,
             'reorder_point' => 20,
             'formula_id' => $formulaStarter->id,
-            'category' => 'pakan',
+            'category' => 'feed',
             'source' => 'production',
             'created_by' => $admin->id,
         ]);
@@ -54,7 +54,7 @@ class ProductSeeder extends Seeder
             'stock' => 80,
             'reorder_point' => 15,
             'formula_id' => $formulaGrower->id,
-            'category' => 'pakan',
+            'category' => 'feed',
             'source' => 'production',
             'created_by' => $admin->id,
         ]);
@@ -72,7 +72,7 @@ class ProductSeeder extends Seeder
             'stock' => 50,
             'reorder_point' => 10,
             'formula_id' => null,
-            'category' => 'obat',
+            'category' => 'medicine',
             'source' => 'purchase',
             'created_by' => $admin->id,
         ]);
@@ -84,7 +84,7 @@ class ProductSeeder extends Seeder
             'stock' => 40,
             'reorder_point' => 8,
             'formula_id' => null,
-            'category' => 'obat',
+            'category' => 'medicine',
             'source' => 'purchase',
             'created_by' => $admin->id,
         ]);

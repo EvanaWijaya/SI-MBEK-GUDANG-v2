@@ -54,7 +54,7 @@
                     <svg class="w-5 h-5 {{ $belowRopList->count() > 0 ? 'text-red-500' : 'text-gray-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                 </div>
                 <div>
-                    <p class="text-xs {{ $belowRopList->count() > 0 ? 'text-red-500' : 'text-gray-400' }} font-medium">Di Bawah ROP</p>
+                    <p class="text-xs {{ $belowRopList->count() > 0 ? 'text-red-500' : 'text-gray-400' }} font-medium">Di Bawah Stok Minimum</p>
                     <p class="text-2xl font-bold {{ $belowRopList->count() > 0 ? 'text-red-600' : 'text-gray-800' }}">{{ $belowRopList->count() }}</p>
                 </div>
             </div>
@@ -65,7 +65,7 @@
                     <svg class="w-5 h-5 {{ $expiringBatches->count() > 0 ? 'text-yellow-500' : 'text-gray-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </div>
                 <div>
-                    <p class="text-xs {{ $expiringBatches->count() > 0 ? 'text-yellow-600' : 'text-gray-400' }} font-medium">Hampir Expired</p>
+                    <p class="text-xs {{ $expiringBatches->count() > 0 ? 'text-yellow-600' : 'text-gray-400' }} font-medium">Hampir Kadaluarsa</p>
                     <p class="text-2xl font-bold {{ $expiringBatches->count() > 0 ? 'text-yellow-600' : 'text-gray-800' }}">{{ $expiringBatches->count() }}</p>
                     <p class="text-xs text-gray-400">batch ≤ 30 hari</p>
                 </div>
@@ -77,7 +77,7 @@
                     <svg class="w-5 h-5 {{ $expiredBatches->count() > 0 ? 'text-red-400' : 'text-gray-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </div>
                 <div>
-                    <p class="text-xs {{ $expiredBatches->count() > 0 ? 'text-red-500' : 'text-gray-400' }} font-medium">Batch Expired</p>
+                    <p class="text-xs {{ $expiredBatches->count() > 0 ? 'text-red-500' : 'text-gray-400' }} font-medium">Kadaluarsa</p>
                     <p class="text-2xl font-bold {{ $expiredBatches->count() > 0 ? 'text-red-600' : 'text-gray-800' }}">{{ $expiredBatches->count() }}</p>
                     <p class="text-xs text-gray-400">masih ada stok</p>
                 </div>
@@ -94,14 +94,6 @@
                         class="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400">
                 </div>
             </div>
-            <div class="min-w-[120px]">
-                <label class="block text-xs font-medium text-gray-500 mb-1.5">Tipe</label>
-                <select id="f-type" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400">
-                    <option value="">Semua</option>
-                    <option value="pakan">Pakan</option>
-                    <option value="obat">Obat</option>
-                </select>
-            </div>
             <div class="min-w-[130px]">
                 <label class="block text-xs font-medium text-gray-500 mb-1.5">Sumber</label>
                 <select id="f-source" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400">
@@ -112,9 +104,10 @@
             </div>
             <div class="min-w-[150px]">
                 <label class="block text-xs font-medium text-gray-500 mb-1.5">Status Stok</label>
-                <select id="f-status" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400">
+                <select id="f-status"
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400">
                     <option value="">Semua</option>
-                    <option value="reorder_point">⚠ Di Bawah ROP</option>
+                    <option value="reorder_point">⚠ Di Bawah Stok Minimum</option>
                     <option value="aman">✅ Aman</option>
                 </select>
             </div>
@@ -131,7 +124,7 @@
                             <th class="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide text-center">Tipe</th>
                             <th class="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide text-center">Sumber</th>
                             <th class="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide text-right">Stok</th>
-                            <th class="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide text-right">ROP</th>
+                            <th class="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide text-right">Stok minimum</th>
                             <th class="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide text-center">Alokasi Jual</th>
                             <th class="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide text-center">Alokasi Internal</th>
                             <th class="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide text-center">Status</th>
@@ -164,15 +157,15 @@
                                     <p class="font-semibold text-gray-800">{{ $prod->product_name }}</p>
                                     <p class="text-xs text-gray-400 font-mono">{{ $prod->product_code }}</p>
                                     @if($hasExp)
-                                        <p class="text-xs text-red-500 font-medium mt-0.5">⚠ Batch expired</p>
+                                        <p class="text-xs text-red-500 font-medium mt-0.5">⚠ Batch kadaluarsa</p>
                                     @elseif($expSoon)
-                                        <p class="text-xs text-yellow-600 mt-0.5">⏳ Hampir expired</p>
+                                        <p class="text-xs text-yellow-600 mt-0.5">⏳ Hampir kadaluarsa</p>
                                     @endif
                                 </td>
 
                                 <td class="px-5 py-4 text-center">
                                     <span class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold
-                                        {{ $prod->category==='pakan' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700' }}">
+                                        {{ $prod->category==='feed' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700' }}">
                                         {{ ucfirst($prod->category) }}
                                     </span>
                                 </td>
@@ -218,7 +211,7 @@
                                     @if($isRop)
                                         <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">
                                             <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-                                            Perlu Reorder
+                                            Perlu Pesan Ulang
                                         </span>
                                     @else
                                         <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
@@ -256,35 +249,44 @@
 
     @push('scripts')
     <script>
-        const elQ      = document.getElementById('q');
-        const elType   = document.getElementById('f-type');
-        const elSrc    = document.getElementById('f-source');
-        const elStatus = document.getElementById('f-status');
-        const rows     = document.querySelectorAll('#tbl-body tr[data-name]');
-        const noResult = document.getElementById('no-result');
+       const elQ      = document.getElementById('q');
+const elSrc    = document.getElementById('f-source');
+const elStatus = document.getElementById('f-status');
+const rows     = document.querySelectorAll('#tbl-body tr[data-name]');
+const noResult = document.getElementById('no-result');
 
-        function applyFilter() {
-            const q  = elQ.value.toLowerCase().trim();
-            const t  = elType.value;
-            const s  = elSrc.value;
-            const st = elStatus.value;
-            let n    = 0;
-            rows.forEach(r => {
-                const ok = (!q  || r.dataset.name.includes(q))
-                        && (!t  || r.dataset.type   === t)
-                        && (!s  || r.dataset.source === s)
-                        && (!st || r.dataset.status === st);
-                r.classList.toggle('hidden', !ok);
-                if (ok) n++;
-            });
-            noResult.classList.toggle('hidden', n > 0);
-        }
+function applyFilter() {
+    const q  = elQ.value.toLowerCase().trim();
+    const s  = elSrc.value;
+    const st = elStatus.value;
 
-        [elQ, elType, elSrc, elStatus].forEach(el => el.addEventListener('input', applyFilter));
-        document.getElementById('reset-btn').addEventListener('click', () => {
-            [elQ, elType, elSrc, elStatus].forEach(el => el.value = '');
-            applyFilter();
-        });
+    let n = 0;
+
+    rows.forEach(r => {
+        const ok =
+            (!q  || r.dataset.name.includes(q)) &&
+            (!s  || r.dataset.source === s) &&
+            (!st || r.dataset.status === st);
+
+        r.classList.toggle('hidden', !ok);
+
+        if (ok) n++;
+    });
+
+    noResult.classList.toggle('hidden', n > 0);
+}
+
+[elQ, elSrc, elStatus].forEach(el => {
+    el.addEventListener('input', applyFilter);
+    el.addEventListener('change', applyFilter);
+});
+
+document.getElementById('reset-btn').addEventListener('click', () => {
+    elQ.value = '';
+    elSrc.value = '';
+    elStatus.value = '';
+    applyFilter();
+});
     </script>
     @endpush
 </x-admin-app-layout>

@@ -57,7 +57,7 @@
                         </div>
 
                         <div class="mb-4">
-                            <p class="text-xs text-black font-bold uppercase mb-1">Status Role</p>
+                            <p class="text-xs text-black font-bold uppercase mb-1">Status Peran</p>
                             <span class="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800 uppercase inline-block mt-1">
                                 {{ $admin->role }}
                             </span>

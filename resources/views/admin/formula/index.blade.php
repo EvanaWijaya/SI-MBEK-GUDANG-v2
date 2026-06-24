@@ -5,14 +5,14 @@
         <div class="flex items-start justify-between mb-8">
             <div>
                 <h1 class="text-2xl font-bold text-gray-800">Resep Produksi</h1>
-                <p class="text-sm text-gray-500 mt-1">Kelola komposisi bahan baku untuk setiap formula produk</p>
+                <p class="text-sm text-gray-500 mt-1">Kelola komposisi bahan baku untuk setiap Resep produk</p>
             </div>
             <a href="{{ route('admin.formula.create') }}"
                 class="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow text-sm transition-colors">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
                 </svg>
-                Tambah Formula
+                Tambah Resep
             </a>
         </div>
 
@@ -49,7 +49,7 @@
                         </svg>
                     </div>
                     <div>
-                        <p class="text-xs text-gray-400 font-medium">Total Formula</p>
+                        <p class="text-xs text-gray-400 font-medium">Total Resep</p>
                         <p class="text-2xl font-bold text-gray-800">{{ $totalFormula }}</p>
                     </div>
                 </div>
@@ -85,12 +85,12 @@
         {{-- Filter --}}
         <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 mb-6 flex flex-wrap items-end gap-3">
             <div class="flex-1 min-w-[200px]">
-                <label class="block text-xs font-medium text-gray-500 mb-1.5">Cari Formula</label>
+                <label class="block text-xs font-medium text-gray-500 mb-1.5">Cari Resep</label>
                 <div class="relative">
                     <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/>
                     </svg>
-                    <input type="text" id="search-input" placeholder="Kode atau nama formula..."
+                    <input type="text" id="search-input" placeholder="Kode atau nama resep..."
                         class="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent">
                 </div>
             </div>
@@ -117,7 +117,7 @@
                         <tr>
                             <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide">#</th>
                             <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide">Kode</th>
-                            <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide">Nama Formula</th>
+                            <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide">Nama Resep</th>
                             <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide">Deskripsi</th>
                             <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide">Bahan Baku</th>
                             <th class="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wide text-center">Status</th>
@@ -219,8 +219,8 @@
                                     <svg class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                                     </svg>
-                                    <p class="text-sm font-medium">Belum ada formula tersimpan</p>
-                                    <p class="text-xs">Klik "Tambah Formula" untuk membuat formula baru</p>
+                                    <p class="text-sm font-medium">Belum ada resep yang tersimpan</p>
+                                    <p class="text-xs">Klik "Tambah Resep" untuk membuat resep baru</p>
                                 </div>
                             </td>
                         </tr>
@@ -229,7 +229,7 @@
                 </table>
             </div>
             <div id="no-results" class="hidden px-5 py-12 text-center text-sm text-gray-400">
-                Tidak ada formula yang sesuai filter.
+                Tidak ada resep yang sesuai filter.
             </div>
         </div>
     </div>
