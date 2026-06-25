@@ -153,8 +153,6 @@ $domba = Domba::create([
             }
         }
 
-        $domba->update($data);
-
         $newStatus = $domba->for_sale;
         $newHarga = $domba->harga;
         // Cek apakah ada perubahan status dijual atau harga
@@ -200,12 +198,19 @@ $domba = Domba::create([
     
    public function show(Domba $domba)
 {
+    $domba->load([
+        'media',
+        'user'
+    ]);
+
     $users = User::all();
+
     return view('admin.showdomba', [
-        'users'  => $users,
-        'dombas' => $domba,   // ← aliaskan ke $dombas agar cocok dengan blade
+        'users' => $users,
+        'dombas' => $domba,
     ]);
 }
+
     public function monitoring($id)
     {
         $domba = Domba::findOrFail($id);

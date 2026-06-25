@@ -96,7 +96,7 @@
         <span class="text-red-500 text-sm">{{ $message }}</span>
     @enderror
 </div>
-                    <div>
+</div>
                         <div class="mb-4">
                             <label for="type_domba" class="block text-sm font-bold mb-2">Jenis Domba</label>
                             <select name="type_domba" id="type_domba"
