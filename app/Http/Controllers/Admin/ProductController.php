@@ -58,17 +58,23 @@ class ProductController extends Controller
             'selling_price' => preg_replace('/[^0-9]/', '', $request->selling_price)
         ]);
 
-        $request->validate([
-            'product_name' => 'required|string|max:255',
-            'selling_price' => 'nullable|numeric|min:0',
-            'reorder_point' => 'nullable|integer|min:0',
-            'formula_id' => 'nullable|exists:formulas,id',
-            'category' => 'required|in:feed,medicine',
-            'source' => 'required|in:production,purchase',
-            'description' => 'nullable|string',
-            'images' => 'nullable|array|max:10',
-            'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
-        ]);
+        $request->validate(
+            [
+                'product_name' => 'required|string|max:255',
+                'selling_price' => 'nullable|numeric|min:0',
+                'reorder_point' => 'nullable|integer|min:0',
+                'formula_id' => 'nullable|exists:formulas,id',
+                'category' => 'required|in:feed,medicine',
+                'source' => 'required|in:production,purchase',
+                'description' => 'nullable|string',
+                'images' => 'nullable|array|max:10',
+                'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
+            ],
+
+            [
+                'images.*.max' => 'Ukuran gambar maksimal 2 MB.',
+            ]
+        );
 
         if ($request->source === 'production' && !$request->formula_id) {
             return redirect()->back()
@@ -150,17 +156,23 @@ class ProductController extends Controller
             'selling_price' => preg_replace('/[^0-9]/', '', $request->selling_price)
         ]);
 
-        $request->validate([
-            'product_name' => 'required|string|max:255',
-            'selling_price' => 'nullable|numeric|min:0',
-            'reorder_point' => 'nullable|integer|min:0',
-            'formula_id' => 'nullable|exists:formulas,id',
-            'category' => 'required|in:feed,medicine',
-            'source' => 'required|in:production,purchase',
-            'description' => 'nullable|string',
-            'images' => 'nullable|array',
-            'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
-        ]);
+        $request->validate(
+            [
+                'product_name' => 'required|string|max:255',
+                'selling_price' => 'nullable|numeric|min:0',
+                'reorder_point' => 'nullable|integer|min:0',
+                'formula_id' => 'nullable|exists:formulas,id',
+                'category' => 'required|in:feed,medicine',
+                'source' => 'required|in:production,purchase',
+                'description' => 'nullable|string',
+                'images' => 'nullable|array',
+                'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
+            ],
+
+            [
+                'images.*.max' => 'Ukuran gambar maksimal 2 MB.',
+            ]
+        );
 
         if ($request->source === 'production' && !$request->formula_id) {
             return back()

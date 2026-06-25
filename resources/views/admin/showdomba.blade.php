@@ -602,6 +602,10 @@
         Foto yang diunggah akan ditambahkan ke galeri domba ini (maksimal 10 foto tambahan).
     </small>
 
+    <p id="image-error-edit"
+    class="mt-2 text-sm text-red-600 font-medium hidden">
+</p>
+
     <div id="preview-container-edit" class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4"></div>
 </div>
                         <div class="flex justify-end space-x-3 mt-6">
@@ -609,7 +613,7 @@
                                 class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 transition-colors">
                                 Batal
                             </button>
-                            <button type="submit"
+                            <button id="submit-btn-edit" type="submit"
                                 class="px-4 py-2 bg-brand-orange text-white rounded-md hover:bg-orange-700 transition-colors">
                                 Simpan Perubahan
                             </button>
@@ -694,18 +698,48 @@
 
                 function renderPreviewEdit() {
                     previewContainerEdit.innerHTML = '';
+
+                    const maxSize = 2 * 1024 * 1024; // 2MB
+                    const errorBox = document.getElementById('image-error-edit');
+                    const submitBtn = document.getElementById('submit-btn-edit');
+
+                    let hasError = false;
+                    let errorMessages = [];
+
                     document.querySelectorAll('.image-input-edit').forEach(input => {
                         if (!input.files.length) return;
+
+                        const file = input.files[0];
+
+                        if (file.size > maxSize) {
+                            hasError = true;
+                            errorMessages.push(`${file.name} melebihi ukuran maksimal 2 MB`);
+                            input.value = ''; // hapus file yang tidak valid dari input
+                            return; // tidak masuk preview
+                        }
+
                         const reader = new FileReader();
                         reader.onload = (e) => {
                             previewContainerEdit.innerHTML += `
                                 <div class="border border-gray-200 rounded-lg p-1 shadow-sm">
                                     <img src="${e.target.result}"
-                                         class="w-full h-24 object-cover rounded">
+                                        class="w-full h-24 object-cover rounded">
                                 </div>`;
                         };
-                        reader.readAsDataURL(input.files[0]);
+                        reader.readAsDataURL(file);
                     });
+
+                    if (hasError) {
+                        errorBox.innerHTML = errorMessages.join('<br>');
+                        errorBox.classList.remove('hidden');
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    } else {
+                        errorBox.innerHTML = '';
+                        errorBox.classList.add('hidden');
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    }
                 }
             }
         })();

@@ -23,8 +23,8 @@
         @endif
 
         <div class="w-full mx-auto">
-            <form action="{{ route('admin.tambahkambing.save') }}" method="POST" novalidate enctype="multipart/form-data"
-                class="bg-white shadow-lg rounded-lg p-8 mb-6 border border-gray-300">
+            <form action="{{ route('admin.tambahkambing.save') }}" method="POST" novalidate
+                enctype="multipart/form-data" class="bg-white shadow-lg rounded-lg p-8 mb-6 border border-gray-300">
                 @csrf
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
@@ -58,49 +58,42 @@
                         </div>
 
                         <div class="mb-4">
-    <label class="block text-sm font-bold mb-2">Upload Gambar</label>
+                            <label class="block text-sm font-bold mb-2">Upload Gambar</label>
 
-    <div id="image-container">
-        <div class="image-input-row mb-2">
-            <input
-                type="file"
-                name="images[]"
-                accept="image/*"
-                class="image-input block w-full text-sm text-gray-500
+                            <div id="image-container">
+                                <div class="image-input-row mb-2">
+                                    <input type="file" name="images[]" accept="image/*" class="image-input block w-full text-sm text-gray-500
                        file:mr-4 file:py-2 file:px-4
                        file:rounded-full file:border-0
                        file:text-sm file:font-semibold
                        file:bg-orange-50 file:text-orange-700
-                       hover:file:bg-orange-100"
-            >
-        </div>
-    </div>
+                       hover:file:bg-orange-100">
+                                </div>
+                            </div>
 
-    <button
-        type="button"
-        id="add-image-btn"
-        class="mt-2 inline-flex items-center text-orange-700 bg-orange-50
+                            <button type="button" id="add-image-btn" class="mt-2 inline-flex items-center text-orange-700 bg-orange-50
                hover:bg-orange-100 font-semibold text-sm px-4 py-2
                rounded-full border-0">
-        + Tambah Foto
-    </button>
+                                + Tambah Foto
+                            </button>
 
-    <small class="text-gray-500 block mt-1">
-        Maksimal 10 gambar. JPG, JPEG, PNG. Maks 2 MB per file.
-    </small>
+                            <small class="text-gray-500 block mt-1">
+                                Maksimal 10 gambar. JPG, JPEG, PNG. Maks 2 MB per file.
+                            </small>
 
-    <div
-        id="preview-container"
-        class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
-    </div>
+                            <p id="image-error" class="mt-2 text-sm text-red-600 font-medium hidden">
+                            </p>
 
-    @error('images')
-        <span class="text-red-500 text-sm">{{ $message }}</span>
-    @enderror
-    @error('images.*')
-        <span class="text-red-500 text-sm">{{ $message }}</span>
-    @enderror
-</div>
+                            <div id="preview-container" class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
+                            </div>
+
+                            @error('images')
+                                <span class="text-red-500 text-sm">{{ $message }}</span>
+                            @enderror
+                            @error('images.*')
+                                <span class="text-red-500 text-sm">{{ $message }}</span>
+                            @enderror
+                        </div>
                     </div>
                     <div>
                         <div class="mb-4">
@@ -140,8 +133,8 @@
                                 required>
                         </div>
 
-                      
-                            <div>
+
+                        <div>
                             <!-- Pilih Status -->
                             <div class="mb-4">
                                 <label for="faksin_status" class="block text-sm font-bold mb-2">Status Vaksin</label>
@@ -151,8 +144,7 @@
                                     <option value="">-- Pilih Status --</option>
                                     <option value="Aktif" {{ old('faksin_status') == 'Aktif' ? 'selected' : '' }}>
                                         Aktif</option>
-                                    <option value="Tidak Aktif"
-                                        {{ old('faksin_status') == 'Tidak Aktif' ? 'selected' : '' }}>Tidak Aktif
+                                    <option value="Tidak Aktif" {{ old('faksin_status') == 'Tidak Aktif' ? 'selected' : '' }}>Tidak Aktif
                                     </option>
                                 </select>
                             </div>
@@ -163,12 +155,9 @@
                                 <select id="jenis_vaksin"
                                     class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:ring-orange-400 focus:border-orange-400 focus:outline-none focus:shadow-outline">
                                     <option value="">-- Pilih Jenis Vaksin --</option>
-                                    <option value="Vaksin PMK"
-                                        {{ old('faksin_status') == 'Vaksin PMK' ? 'selected' : '' }}>Vaksin PMK</option>
-                                    <option value="Vaksin Antraks"
-                                        {{ old('faksin_status') == 'Vaksin Antraks' ? 'selected' : '' }}>Vaksin Antraks</option>
-                                    <option value="Vaksin Brucellosis"
-                                        {{ old('faksin_status') == 'Vaksin Brucellosis' ? 'selected' : '' }}>Vaksin Brucellosis</option>
+                                    <option value="Vaksin PMK" {{ old('faksin_status') == 'Vaksin PMK' ? 'selected' : '' }}>Vaksin PMK</option>
+                                    <option value="Vaksin Antraks" {{ old('faksin_status') == 'Vaksin Antraks' ? 'selected' : '' }}>Vaksin Antraks</option>
+                                    <option value="Vaksin Brucellosis" {{ old('faksin_status') == 'Vaksin Brucellosis' ? 'selected' : '' }}>Vaksin Brucellosis</option>
                                 </select>
                             </div>
 
@@ -200,7 +189,7 @@
                             updateHiddenInput();
                         </script>
 
-<div class="mb-4">
+                        <div class="mb-4">
                             <label for="health_status" class="block text-sm font-bold mb-2">Status Kesehatan</label>
 
                             <!-- Dropdown -->
@@ -210,10 +199,9 @@
                                 <option value="">-- Pilih Status --</option>
                                 <option value="Sehat" {{ old('healt_status') == 'Sehat' ? 'selected' : '' }}>Sehat
                                 </option>
-                                <option value="Tidak Sehat"
-                                    {{ old('healt_status') == 'Tidak Sehat' ? 'selected' : '' }}>Tidak Sehat</option>
-                                <option value="Lainnya"
-                                    {{ old('healt_status') != 'Sehat' && old('healt_status') != 'Tidak Sehat' && old('healt_status') ? 'selected' : '' }}>
+                                <option value="Tidak Sehat" {{ old('healt_status') == 'Tidak Sehat' ? 'selected' : '' }}>
+                                    Tidak Sehat</option>
+                                <option value="Lainnya" {{ old('healt_status') != 'Sehat' && old('healt_status') != 'Tidak Sehat' && old('healt_status') ? 'selected' : '' }}>
                                     Lainnya</option>
                             </select>
 
@@ -241,7 +229,7 @@
                             }
 
                             // Saat user mengetik di input custom, update hidden input
-                            healthCustom.addEventListener("input", function() {
+                            healthCustom.addEventListener("input", function () {
                                 healthHidden.value = this.value;
                             });
 
@@ -249,14 +237,16 @@
                             toggleOtherHealthStatus(healthSelect);
                         </script>
 
- <div class="pt-4 border-t border-gray-100 flex items-center">
-                <button type="submit" class="bg-brand-orange text-white px-6 py-2.5 rounded-lg font-bold hover:bg-orange-700 shadow transition-colors text-sm">
-                    Simpan 
-                </button>
-                <a href="{{ route('admin.listkambing') }}" class="ml-4 text-gray-600 hover:text-gray-900 font-medium transition-colors text-sm">
-                    Batal
-                </a>
-            </div>
+                        <div class="pt-4 border-t border-gray-100 flex items-center">
+                            <button id="submit-btn" type="submit"
+                                class="bg-brand-orange text-white px-6 py-2.5 rounded-lg font-bold hover:bg-orange-700 shadow transition-colors text-sm">
+                                Simpan
+                            </button>
+                            <a href="{{ route('admin.listkambing') }}"
+                                class="ml-4 text-gray-600 hover:text-gray-900 font-medium transition-colors text-sm">
+                                Batal
+                            </a>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -264,69 +254,103 @@
     </div>
 
     <script>
-       (function () {
-        const container       = document.getElementById('image-container');
-        const addBtn          = document.getElementById('add-image-btn');
-        const previewContainer = document.getElementById('preview-container');
+        (function () {
+            const container = document.getElementById('image-container');
+            const addBtn = document.getElementById('add-image-btn');
 
-        addBtn.addEventListener('click', () => {
-            const total = container.querySelectorAll('input[type=file]').length;
-            if (total >= 10) {
-                alert('Maksimal 10 gambar');
-                return;
-            }
+            addBtn.addEventListener('click', () => {
+                const total = container.querySelectorAll('input[type=file]').length;
+                if (total >= 10) {
+                    alert('Maksimal 10 gambar');
+                    return;
+                }
 
-            const wrapper = document.createElement('div');
-            wrapper.classList.add('image-input-row', 'mb-2');
-            wrapper.innerHTML = `
-                <div class="flex gap-2 items-center">
-                    <input
-                        type="file"
-                        name="images[]"
-                        accept="image/*"
-                        class="image-input block w-full text-sm text-gray-500
-                               file:mr-4 file:py-2 file:px-4 file:rounded-full
-                               file:border-0 file:text-sm file:font-semibold
-                               file:bg-orange-50 file:text-orange-700
-                               hover:file:bg-orange-100"
-                    >
-                    <button
-                        type="button"
-                        class="remove-image shrink-0 px-3 py-1.5 bg-red-500
-                               text-white text-sm rounded-full hover:bg-red-600">
-                        Hapus
-                    </button>
-                </div>
-            `;
-            container.appendChild(wrapper);
-        });
-
-        container.addEventListener('click', (e) => {
-            if (e.target.classList.contains('remove-image')) {
-                e.target.closest('.image-input-row').remove();
+                const wrapper = document.createElement('div');
+                wrapper.classList.add('image-input-row', 'mb-2');
+                wrapper.innerHTML = `
+         <div class="flex gap-2 items-center">
+             <input
+                 type="file"
+                 name="images[]"
+                 accept="image/*"
+                 class="image-input block w-full text-sm text-gray-500
+                        file:mr-4 file:py-2 file:px-4 file:rounded-full
+                        file:border-0 file:text-sm file:font-semibold
+                        file:bg-orange-50 file:text-orange-700
+                        hover:file:bg-orange-100"
+             >
+             <button
+                 type="button"
+                 class="remove-image shrink-0 px-3 py-1.5 bg-red-500
+                        text-white text-sm rounded-full hover:bg-red-600">
+                 Hapus
+             </button>
+         </div>
+     `;
+                container.appendChild(wrapper);
                 renderPreview();
-            }
-        });
-
-        container.addEventListener('change', renderPreview);
-
-        function renderPreview() {
-            previewContainer.innerHTML = '';
-            document.querySelectorAll('.image-input').forEach(input => {
-                if (!input.files.length) return;
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    previewContainer.innerHTML += `
-                        <div class="border rounded p-2">
-                            <img src="${e.target.result}"
-                                 class="w-full h-32 object-cover rounded">
-                        </div>
-                    `;
-                };
-                reader.readAsDataURL(input.files[0]);
             });
-        }
-    })();
+
+            container.addEventListener('click', (e) => {
+                if (e.target.classList.contains('remove-image')) {
+                    e.target.closest('.image-input-row').remove();
+                    renderPreview();
+                }
+            });
+
+            container.addEventListener('change', renderPreview);
+
+            function renderPreview() {
+                const previewContainer = document.getElementById('preview-container');
+                const errorBox = document.getElementById('image-error');
+                const submitBtn = document.getElementById('submit-btn');
+
+                if (!previewContainer || !errorBox || !submitBtn) return;
+
+                previewContainer.innerHTML = '';
+
+                const maxSize = 2 * 1024 * 1024; // 2MB
+                let hasError = false;
+                let errorMessages = [];
+
+                document.querySelectorAll('.image-input').forEach(input => {
+                    if (!input.files.length) return;
+
+                    const file = input.files[0];
+
+                    if (file.size > maxSize) {
+                        hasError = true;
+                        errorMessages.push(`${file.name} melebihi ukuran maksimal 2 MB`);
+                        input.value = '';
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        previewContainer.innerHTML += `
+                 <div class="border rounded p-2">
+                     <img src="${e.target.result}"
+                          class="w-full h-32 object-cover rounded">
+                 </div>
+             `;
+                    };
+                    reader.readAsDataURL(file);
+                });
+
+                if (hasError) {
+                    errorBox.innerHTML = errorMessages.join('<br>');
+                    errorBox.classList.remove('hidden');
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                } else {
+                    errorBox.innerHTML = '';
+                    errorBox.classList.add('hidden');
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            }
+        })();
+
         function toggleOtherHealtStatus(select) {
             const customInput = document.getElementById('healt_status_custom');
             const finalInput = document.getElementById('healt_status_final');
@@ -335,7 +359,7 @@
                 customInput.classList.remove('hidden');
                 customInput.value = '';
                 finalInput.value = '';
-                customInput.addEventListener('input', function() {
+                customInput.addEventListener('input', function () {
                     finalInput.value = this.value;
                 });
             } else {

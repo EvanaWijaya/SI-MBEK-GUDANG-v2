@@ -62,7 +62,8 @@
                     <label class="mt-4 {{ $errors->has('source') ? $labelError : $labelOk }}">Sumber Produk</label>
                     <select name="source"
                         class="{{ $inputBase }} {{ $errors->has('source') ? $inputError : $inputOk }}">
-                        <option value="production" {{ old('source') == 'production' ? 'selected' : '' }}>Hasil Produksi Sendiri</option>
+                        <option value="production" {{ old('source') == 'production' ? 'selected' : '' }}>Hasil Produksi
+                            Sendiri</option>
                         <option value="purchase" {{ old('source') == 'purchase' ? 'selected' : '' }}>Beli Jadi</option>
                     </select>
                     @error('source')
@@ -71,39 +72,31 @@
 
                     {{-- Foto Produk --}}
                     <div class="mb-4">
-    <label class="block font-medium mb-2">
-        Foto Produk
-    </label>
+                        <label class="block font-medium mb-2">
+                            Foto Produk
+                        </label>
 
-    <div id="image-container">
-        <div class="image-input-row mb-2">
-            <input
-                type="file"
-                name="images[]"
-                accept=".jpg,.jpeg,.png"
-                class="image-input block w-full"
-            >
-        </div>
-    </div>
+                        <div id="image-container">
+                            <div class="image-input-row mb-2">
+                                <input type="file" name="images[]" accept=".jpg,.jpeg,.png,.webp"
+                                    class="image-input block w-full">
+                            </div>
+                        </div>
 
-    <button
-        type="button"
-        id="add-image-btn"
-        class="mt-2 px-3 py-2 bg-blue-500 text-white rounded"
-    >
-        + Tambah Foto
-    </button>
+                        <button type="button" id="add-image-btn" class="mt-2 px-3 py-2 bg-blue-500 text-white rounded">
+                            + Tambah Foto
+                        </button>
 
-    <small class="text-gray-500 block mt-2">
-        Maksimal 10 gambar. JPG, JPEG, PNG. Maks 2 MB per file.
-    </small>
+                        <small class="text-gray-500 block mt-2">
+                            Maksimal 10 gambar. JPG, JPEG, PNG. Maks 2 MB per file.
+                        </small>
 
-    <div
-        id="preview-container"
-        class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4"
-    ></div>
-</div>
-</div>
+                        <p id="image-error" class="mt-2 text-sm text-red-600 font-medium hidden">
+                        </p>
+
+                        <div id="preview-container" class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4"></div>
+                    </div>
+                </div>
 
                 {{-- ===== KOLOM KANAN ===== --}}
                 <div>
@@ -129,7 +122,8 @@
                     @enderror
 
                     {{-- Formula --}}
-                    <label class="mt-4 {{ $errors->has('formula_id') ? $labelError : $labelOk }}">Pilih Formula (Jika Hasil Produksi)</label>
+                    <label class="mt-4 {{ $errors->has('formula_id') ? $labelError : $labelOk }}">Pilih Formula (Jika
+                        Hasil Produksi)</label>
                     <select name="formula_id"
                         class="{{ $inputBase }} {{ $errors->has('formula_id') ? $inputError : $inputOk }}">
                         <option value="">-- Tanpa Formula --</option>
@@ -143,8 +137,9 @@
                         <p class="mt-1 text-xs text-red-500 font-semibold">{{ $message }}</p>
                     @enderror
 
-                       {{-- Deskripsi --}}
-                    <label class="mt-4 {{ $errors->has('description') ? $labelError : $labelOk }}">Deskripsi Produk</label>
+                    {{-- Deskripsi --}}
+                    <label class="mt-4 {{ $errors->has('description') ? $labelError : $labelOk }}">Deskripsi
+                        Produk</label>
                     <textarea name="description" rows="3"
                         placeholder="Masukkan deskripsi produk, manfaat, atau cara penggunaan..."
                         class="{{ $inputBase }} {{ $errors->has('description') ? $inputError : $inputOk }}">{{ old('description') }}</textarea>
@@ -152,127 +147,183 @@
                         <p class="mt-1 text-xs text-red-500 font-semibold">{{ $message }}</p>
                     @enderror
 
-            <div class=" pt-4 border-t border-gray-100">
-                <button type="submit" class="bg-brand-orange text-white px-6 py-2.5 rounded-lg font-bold hover:bg-orange-700 shadow transition-colors">
-                    Simpan Produk
-                </button>
-                <a href="{{ route('admin.products.index') }}" class="ml-4 text-gray-600 hover:text-gray-900 font-medium">Batal</a>
-            </div>
+                    <div class=" pt-4 border-t border-gray-100">
+                        <button id="submit-btn" type="submit"
+                            class="bg-brand-orange text-white px-6 py-2.5 rounded-lg font-bold hover:bg-orange-700 shadow transition-colors">
+                            Simpan Produk
+                        </button>
+                        <a href="{{ route('admin.products.index') }}"
+                            class="ml-4 text-gray-600 hover:text-gray-900 font-medium">Batal</a>
+                    </div>
         </form>
     </div>
 
     @push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const categorySelect = document.getElementById('category');
-            const productCodeInput = document.getElementById('product_code');
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const categorySelect = document.getElementById('category');
+                const productCodeInput = document.getElementById('product_code');
 
-            categorySelect.addEventListener('change', function () {
-                fetch(`/admin/products/generate-code/${this.value}`)
-                    .then(response => response.json())
-                    .then(data => productCodeInput.value = data.code)
-                    .catch(error => console.error('Gagal mengambil kode produk:', error));
+                categorySelect.addEventListener('change', function () {
+                    fetch(`/admin/products/generate-code/${this.value}`)
+                        .then(response => response.json())
+                        .then(data => productCodeInput.value = data.code)
+                        .catch(error => console.error('Gagal mengambil kode produk:', error));
+                });
             });
-        });
-        function formatRupiah(input) {
-            let angka = input.value.replace(/[^,\d]/g, '');
+            function formatRupiah(input) {
+                let angka = input.value.replace(/[^,\d]/g, '');
 
-            let split = angka.split(',');
-            let sisa = split[0].length % 3;
-            let rupiah = split[0].substr(0, sisa);
-            let ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+                let split = angka.split(',');
+                let sisa = split[0].length % 3;
+                let rupiah = split[0].substr(0, sisa);
+                let ribuan = split[0].substr(sisa).match(/\d{3}/gi);
 
-            if (ribuan) {
-                let separator = sisa ? '.' : '';
-                rupiah += separator + ribuan.join('.');
+                if (ribuan) {
+                    let separator = sisa ? '.' : '';
+                    rupiah += separator + ribuan.join('.');
+                }
+
+                rupiah = split[1] !== undefined
+                    ? rupiah + ',' + split[1]
+                    : rupiah;
+
+                input.value = rupiah ? 'Rp ' + rupiah : '';
             }
 
-            rupiah = split[1] !== undefined
-                ? rupiah + ',' + split[1]
-                : rupiah;
 
-            input.value = rupiah ? 'Rp ' + rupiah : ''; }
+            document.addEventListener('DOMContentLoaded', () => {
 
+                const container = document.getElementById('image-container');
+                const addBtn = document.getElementById('add-image-btn');
+                const previewContainer = document.getElementById('preview-container');
 
-document.addEventListener('DOMContentLoaded', () => {
+                addBtn.addEventListener('click', () => {
 
-    const container = document.getElementById('image-container');
-    const addBtn = document.getElementById('add-image-btn');
-    const previewContainer = document.getElementById('preview-container');
+                    const totalInputs =
+                        container.querySelectorAll('input[type=file]').length;
 
-    addBtn.addEventListener('click', () => {
+                    if (totalInputs >= 10) {
+                        alert('Maksimal 10 gambar');
+                        return;
+                    }
 
-        const totalInputs =
-            container.querySelectorAll('input[type=file]').length;
+                    const wrapper = document.createElement('div');
 
-        if (totalInputs >= 10) {
-            alert('Maksimal 10 gambar');
-            return;
-        }
+                    wrapper.classList.add('image-input-row', 'mb-2');
 
-        const wrapper = document.createElement('div');
+                    wrapper.innerHTML = `
+                                <div class="flex gap-2">
+                                    <input
+                                        type="file"
+                                        name="images[]"
+                                        accept=".jpg,.jpeg,.png"
+                                        class="image-input block w-full"
+                                    >
 
-        wrapper.classList.add('image-input-row', 'mb-2');
+                                    <button
+                                        type="button"
+                                        class="remove-image px-2 bg-red-500 text-white rounded"
+                                    >
+                                        Hapus
+                                    </button>
+                                </div>
+                            `;
 
-        wrapper.innerHTML = `
-            <div class="flex gap-2">
-                <input
-                    type="file"
-                    name="images[]"
-                    accept=".jpg,.jpeg,.png"
-                    class="image-input block w-full"
-                >
+                    container.appendChild(wrapper);
+                });
 
-                <button
-                    type="button"
-                    class="remove-image px-2 bg-red-500 text-white rounded"
-                >
-                    Hapus
-                </button>
-            </div>
-        `;
+                container.addEventListener('click', (e) => {
 
-        container.appendChild(wrapper);
-    });
+                    if (e.target.classList.contains('remove-image')) {
+                        e.target.closest('.image-input-row').remove();
+                        renderPreview();
+                    }
+                });
 
-    container.addEventListener('click', (e) => {
+                container.addEventListener('change', renderPreview);
 
-        if (e.target.classList.contains('remove-image')) {
-            e.target.closest('.image-input-row').remove();
-            renderPreview();
-        }
-    });
+                function renderPreview() {
 
-    container.addEventListener('change', renderPreview);
+                    previewContainer.innerHTML = '';
 
-    function renderPreview() {
+                    const maxSize = 2 * 1024 * 1024; // 2MB
 
-        previewContainer.innerHTML = '';
+                    const errorBox =
+                        document.getElementById('image-error');
 
-        document.querySelectorAll('.image-input').forEach(input => {
+                    const submitBtn =
+                        document.getElementById('submit-btn');
 
-            if (!input.files.length) return;
+                    let hasError = false;
+                    let errorMessages = [];
 
-            const file = input.files[0];
+                    document.querySelectorAll('.image-input')
+                        .forEach(input => {
 
-            const reader = new FileReader();
+                            if (!input.files.length) return;
 
-            reader.onload = function(e) {
+                            const file = input.files[0];
 
-                previewContainer.innerHTML += `
-                    <div class="border rounded p-2">
-                        <img
-                            src="${e.target.result}"
-                            class="w-full h-32 object-cover rounded"
-                        >
-                    </div>
-                `;
-            };
+                            if (file.size > maxSize) {
 
-            reader.readAsDataURL(file);
-        });
-    }
-});
-    </script>
+                                hasError = true;
+
+                                errorMessages.push(
+                                    `${file.name} melebihi ukuran maksimal 2 MB`
+                                );
+
+                                input.value = '';
+
+                                return;
+                            }
+
+                            const reader = new FileReader();
+
+                            reader.onload = function (e) {
+
+                                previewContainer.innerHTML += `
+                        <div class="border rounded p-2">
+                            <img
+                                src="${e.target.result}"
+                                class="w-full h-32 object-cover rounded"
+                            >
+                        </div>
+                    `;
+                            };
+
+                            reader.readAsDataURL(file);
+                        });
+
+                    if (hasError) {
+
+                        errorBox.innerHTML =
+                            errorMessages.join('<br>');
+
+                        errorBox.classList.remove('hidden');
+
+                        submitBtn.disabled = true;
+
+                        submitBtn.classList.add(
+                            'opacity-50',
+                            'cursor-not-allowed'
+                        );
+
+                    } else {
+
+                        errorBox.innerHTML = '';
+
+                        errorBox.classList.add('hidden');
+
+                        submitBtn.disabled = false;
+
+                        submitBtn.classList.remove(
+                            'opacity-50',
+                            'cursor-not-allowed'
+                        );
+                    }
+                }
+            });
+        </script>
     @endpush
 </x-admin-app-layout>

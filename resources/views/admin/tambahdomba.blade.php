@@ -87,6 +87,10 @@
         Maksimal 10 gambar. JPG, JPEG, PNG. Maks 2 MB per file.
     </small>
 
+    <p id="image-error"
+        class="mt-2 text-sm text-red-600 font-medium hidden">
+    </p>
+
     <div id="preview-container" class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4"></div>
 
     @error('images')
@@ -247,7 +251,7 @@
 
 
                         <div class="mt-4 pt-4 border-t border-gray-100">
-                <button type="submit" class="bg-brand-orange text-white px-6 py-2.5 rounded-lg font-bold hover:bg-orange-700 shadow transition-colors">
+                <button id="submit-btn" type="submit" class="bg-brand-orange text-white px-6 py-2.5 rounded-lg font-bold hover:bg-orange-700 shadow transition-colors">
                     Simpan Produk
                 </button>
                 <a href="{{ route('admin.listdomba') }}" class="ml-4 text-gray-600 hover:text-gray-900 font-medium">Batal</a>
@@ -259,60 +263,93 @@
     </div>
 
    <script>
-        (function () {
-            const container        = document.getElementById('image-container');
-            const addBtn           = document.getElementById('add-image-btn');
-            const previewContainer = document.getElementById('preview-container');
+(function () {
+    const container = document.getElementById('image-container');
+    const addBtn     = document.getElementById('add-image-btn');
 
-            addBtn.addEventListener('click', () => {
-                if (container.querySelectorAll('input[type=file]').length >= 10) {
-                    alert('Maksimal 10 gambar');
-                    return;
-                }
-                const wrapper = document.createElement('div');
-                wrapper.classList.add('image-input-row', 'mb-2');
-                wrapper.innerHTML = `
-                    <div class="flex gap-2 items-center">
-                        <input type="file" name="images[]" accept="image/*"
-                            class="image-input block w-full text-sm text-gray-500
-                                   file:mr-4 file:py-2 file:px-4 file:rounded-full
-                                   file:border-0 file:text-sm file:font-semibold
-                                   file:bg-orange-50 file:text-orange-700
-                                   hover:file:bg-orange-100">
-                        <button type="button"
-                            class="remove-image shrink-0 px-3 py-1.5 bg-red-500
-                                   text-white text-sm rounded-full hover:bg-red-600">
-                            Hapus
-                        </button>
-                    </div>`;
-                container.appendChild(wrapper);
-            });
+    addBtn.addEventListener('click', () => {
+        if (container.querySelectorAll('input[type=file]').length >= 10) {
+            alert('Maksimal 10 gambar');
+            return;
+        }
+        const wrapper = document.createElement('div');
+        wrapper.classList.add('image-input-row', 'mb-2');
+        wrapper.innerHTML = `
+            <div class="flex gap-2 items-center">
+                <input type="file" name="images[]" accept="image/*"
+                    class="image-input block w-full text-sm text-gray-500
+                           file:mr-4 file:py-2 file:px-4 file:rounded-full
+                           file:border-0 file:text-sm file:font-semibold
+                           file:bg-orange-50 file:text-orange-700
+                           hover:file:bg-orange-100">
+                <button type="button"
+                    class="remove-image shrink-0 px-3 py-1.5 bg-red-500
+                           text-white text-sm rounded-full hover:bg-red-600">
+                    Hapus
+                </button>
+            </div>`;
+        container.appendChild(wrapper);
+        renderPreview();
+    });
 
-            container.addEventListener('click', (e) => {
-                if (e.target.classList.contains('remove-image')) {
-                    e.target.closest('.image-input-row').remove();
-                    renderPreview();
-                }
-            });
+    container.addEventListener('click', (e) => {
+        if (e.target.classList.contains('remove-image')) {
+            e.target.closest('.image-input-row').remove();
+            renderPreview();
+        }
+    });
 
-            container.addEventListener('change', renderPreview);
+    container.addEventListener('change', renderPreview);
 
-            function renderPreview() {
-                previewContainer.innerHTML = '';
-                document.querySelectorAll('.image-input').forEach(input => {
-                    if (!input.files.length) return;
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        previewContainer.innerHTML += `
-                            <div class="border rounded p-1">
-                                <img src="${e.target.result}"
-                                     class="w-full h-28 object-cover rounded">
-                            </div>`;
-                    };
-                    reader.readAsDataURL(input.files[0]);
-                });
+    function renderPreview() {
+        const previewContainer = document.getElementById('preview-container');
+        const errorBox = document.getElementById('image-error');
+        const submitBtn = document.getElementById('submit-btn');
+
+        if (!previewContainer || !errorBox || !submitBtn) return;
+
+        previewContainer.innerHTML = '';
+
+        const maxSize = 2 * 1024 * 1024; // 2MB
+        let hasError = false;
+        let errorMessages = [];
+
+        document.querySelectorAll('.image-input').forEach(input => {
+            if (!input.files.length) return;
+
+            const file = input.files[0];
+
+            if (file.size > maxSize) {
+                hasError = true;
+                errorMessages.push(`${file.name} melebihi ukuran maksimal 2 MB`);
+                input.value = '';
+                return;
             }
-        })();
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewContainer.innerHTML += `
+                    <div class="border rounded p-1">
+                        <img src="${e.target.result}"
+                             class="w-full h-28 object-cover rounded">
+                    </div>`;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        if (hasError) {
+            errorBox.innerHTML = errorMessages.join('<br>');
+            errorBox.classList.remove('hidden');
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        } else {
+            errorBox.innerHTML = '';
+            errorBox.classList.add('hidden');
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+    }
+})();
 
         function toggleOtherHealthStatus(select) {
             const customInput = document.getElementById('health_status_custom');

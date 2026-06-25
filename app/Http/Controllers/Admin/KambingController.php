@@ -51,20 +51,26 @@ class KambingController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'user_id' => 'required',
-            'name' => 'required',
-            'age' => 'nullable|integer',
-            'images' => 'nullable|array|max:10',
-            'images.*' => 'file|mimes:jpg,jpeg,png,webp|max:2048',
-            'type_goat' => 'required',
-            'jenis_kelamin' => 'required|in:Jantan,Betina',
-            'weight' => 'required|numeric',
-            'tanggal_lahir' => 'required|date|before_or_equal:today',
-            'faksin_status' => 'required',
-            'healt_status' => 'required',
+        $request->validate(
+            [
+                'user_id' => 'required',
+                'name' => 'required',
+                'age' => 'nullable|integer',
+                'images' => 'nullable|array|max:10',
+                'images.*' => 'file|mimes:jpg,jpeg,png,webp|max:2048',
+                'type_goat' => 'required',
+                'jenis_kelamin' => 'required|in:Jantan,Betina',
+                'weight' => 'required|numeric',
+                'tanggal_lahir' => 'required|date|before_or_equal:today',
+                'faksin_status' => 'required',
+                'healt_status' => 'required',
 
-        ]);
+            ],
+
+            [
+                'images.*.max' => 'Ukuran gambar maksimal 2 MB.',
+            ]
+        );
 
         $kambing = Kambing::create([
             'user_id' => $request->user_id,
@@ -89,11 +95,11 @@ class KambingController extends Controller
                 $filePath = $file->storeAs('kambing', $fileName, 'public');
 
                 $kambing->media()->create([
-                    'file_name'  => $file->getClientOriginalName(),
-                    'file_path'  => $filePath,
-                    'mime_type'  => $file->getMimeType(),
-                    'file_size'  => $file->getSize(),
-                    'type'       => 'image',
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_path' => $filePath,
+                    'mime_type' => $file->getMimeType(),
+                    'file_size' => $file->getSize(),
+                    'type' => 'image',
                     'is_primary' => $index === 0,
                     'sort_order' => $index,
                 ]);
@@ -108,21 +114,27 @@ class KambingController extends Controller
         $oldStatus = $kambing->for_sale;
         $oldHarga = $kambing->harga;
 
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'tanggal_lahir' => 'required|date|before_or_equal:today',
-            'user_id' => 'required|exists:users,id',
-            'type_goat' => 'required|string|max:255',
-            'jenis_kelamin' => 'required|in:Jantan,Betina',
-            'weight' => 'required|numeric',
-            'faksin_status' => 'required|string|max:255',
-            'healt_status' => 'required|string|max:255',
-            'images' => 'nullable|array|max:10',
-            'images.*' => 'file|mimes:jpg,jpeg,png,webp|max:2048',
-            'weight_now' => 'nullable|numeric',
-            'for_sale' => 'nullable|in:yes,no',
-            'harga' => 'nullable|numeric',
-        ]);
+        $request->validate(
+            [
+                'name' => 'required|string|max:255',
+                'tanggal_lahir' => 'required|date|before_or_equal:today',
+                'user_id' => 'required|exists:users,id',
+                'type_goat' => 'required|string|max:255',
+                'jenis_kelamin' => 'required|in:Jantan,Betina',
+                'weight' => 'required|numeric',
+                'faksin_status' => 'required|string|max:255',
+                'healt_status' => 'required|string|max:255',
+                'images' => 'nullable|array|max:10',
+                'images.*' => 'file|mimes:jpg,jpeg,png,webp|max:2048',
+                'weight_now' => 'nullable|numeric',
+                'for_sale' => 'nullable|in:yes,no',
+                'harga' => 'nullable|numeric',
+            ],
+
+            [
+                'images.*.max' => 'Ukuran gambar maksimal 2 MB.',
+            ]
+        );
 
         $data = $request->except(['images', 'hapus_media']);
 
@@ -141,30 +153,30 @@ class KambingController extends Controller
                 $filePath = $file->storeAs('kambing', $fileName, 'public');
 
                 $kambing->media()->create([
-                    'file_name'  => $file->getClientOriginalName(),
-                    'file_path'  => $filePath,
-                    'mime_type'  => $file->getMimeType(),
-                    'file_size'  => $file->getSize(),
-                    'type'       => 'image',
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_path' => $filePath,
+                    'mime_type' => $file->getMimeType(),
+                    'file_size' => $file->getSize(),
+                    'type' => 'image',
                     'is_primary' => ($startingIndex === 0 && $index === 0),
                     'sort_order' => $startingIndex + $index,
                 ]);
             }
         }
-        
+
         $kambing->update($data);
 
         $newStatus = $kambing->for_sale;
         $newHarga = $kambing->harga;
-        
+
         $statusBerubah = $oldStatus !== $newStatus;
-        $hargaBerubah = $oldHarga != $newHarga; 
+        $hargaBerubah = $oldHarga != $newHarga;
 
         if ($statusBerubah || $hargaBerubah) {
             $kambing->user->notify(new StatusDijualChanged($kambing, $oldStatus, $oldHarga, 'kambing'));
         }
 
-        $today = Carbon::today()->toDateString(); 
+        $today = Carbon::today()->toDateString();
         KambingHistory::updateOrCreate(
             [
                 'kambing_id' => $kambing->id,

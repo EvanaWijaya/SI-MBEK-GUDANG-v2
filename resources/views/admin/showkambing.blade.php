@@ -268,7 +268,7 @@
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Status Vaksin</label>
                                     <select id="faksin_status" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-brand-orange" required>
                                         <option value="Aktif" {{ $kambings->faksin_status != 'Tidak Aktif' ? 'selected' : '' }}>Aktif</option>
-                                        <option value="Tidak Atif" {{ $kambings->faksin_status == 'Tidak Aktif' ? 'selected' : '' }}>Tidak Aktif</option>
+                                        <option value="Tidak Aktif" {{ $kambings->faksin_status == 'Tidak Aktif' ? 'selected' : '' }}>Tidak Aktif</option>
                                     </select>
                                 </div>
 
@@ -316,6 +316,13 @@
                                     <button type="button" id="add-image-btn-edit" class="mt-1 inline-flex items-center text-orange-700 bg-orange-50 hover:bg-orange-100 font-semibold text-xs px-3 py-1.5 rounded-full border-0 transition-colors">
                                         + Tambah Baris Foto
                                     </button>
+                                        <small class="text-gray-500 block mt-2">
+                                            Foto yang diunggah akan ditambahkan ke galeri kambing ini (maksimal 10 foto tambahan).
+                                        </small>
+
+                                        <p id="image-error-edit"
+                                        class="mt-2 text-sm text-red-600 font-medium hidden">
+                                    </p>
                                     <div id="preview-container-edit" class="grid grid-cols-3 gap-2 mt-3"></div>
                                 </div>
                             </div>
@@ -323,7 +330,7 @@
 
                         <div class="mt-6 pt-4 border-t border-gray-200 flex justify-end space-x-3">
                             <button type="button" @click="open = false" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 font-semibold transition-colors">Batal</button>
-                            <button type="submit" class="px-6 py-2 bg-brand-orange text-white rounded-md hover:bg-orange-700 font-bold transition-colors shadow-md">Simpan Perubahan</button>
+                            <button id="submit-btn-edit" type="submit" class="px-6 py-2 bg-brand-orange text-white rounded-md hover:bg-orange-700 font-bold transition-colors shadow-md">Simpan Perubahan</button>
                         </div>
                     </form>
                 </div>
@@ -365,51 +372,83 @@
 
         // Jalankan Script Tambah Input Baris Foto Secara Dinamis
         (function () {
-            const containerEdit = document.getElementById('image-container-edit');
-            const addBtnEdit = document.getElementById('add-image-btn-edit');
-            const previewContainerEdit = document.getElementById('preview-container-edit');
+    const containerEdit = document.getElementById('image-container-edit');
+    const addBtnEdit = document.getElementById('add-image-btn-edit');
 
-            if(addBtnEdit) {
-                addBtnEdit.addEventListener('click', () => {
-                    if (containerEdit.querySelectorAll('input[type=file]').length >= 10) {
-                        alert('Maksimal 10 gambar');
-                        return;
-                    }
-                    const wrapper = document.createElement('div');
-                    wrapper.classList.add('image-input-row', 'mb-2');
-                    wrapper.innerHTML = `
-                        <div class="flex gap-2 items-center mt-1">
-                            <input type="file" name="images[]" accept="image/*" class="image-input-edit block w-full text-sm text-gray-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
-                            <button type="button" class="remove-image-edit shrink-0 px-2.5 py-1 bg-red-500 text-white text-xs rounded-full hover:bg-red-600">Hapus</button>
-                        </div>`;
-                    containerEdit.appendChild(wrapper);
-                });
-
-                containerEdit.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('remove-image-edit')) {
-                        e.target.closest('.image-input-row').remove();
-                        renderPreviewEdit();
-                    }
-                });
-
-                containerEdit.addEventListener('change', renderPreviewEdit);
-
-                function renderPreviewEdit() {
-                    previewContainerEdit.innerHTML = '';
-                    document.querySelectorAll('.image-input-edit').forEach(input => {
-                        if (!input.files.length) return;
-                        const reader = new FileReader();
-                        reader.onload = (e) => {
-                            previewContainerEdit.innerHTML += `
-                                <div class="border rounded p-1 shadow-sm bg-white">
-                                    <img src="${e.target.result}" class="w-full h-16 object-cover rounded">
-                                </div>`;
-                        };
-                        reader.readAsDataURL(input.files[0]);
-                    });
-                }
+    if(addBtnEdit) {
+        addBtnEdit.addEventListener('click', () => {
+            if (containerEdit.querySelectorAll('input[type=file]').length >= 10) {
+                alert('Maksimal 10 gambar');
+                return;
             }
-        })();
+            const wrapper = document.createElement('div');
+            wrapper.classList.add('image-input-row', 'mb-2');
+            wrapper.innerHTML = `
+                <div class="flex gap-2 items-center mt-1">
+                    <input type="file" name="images[]" accept="image/*" class="image-input-edit block w-full text-sm text-gray-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
+                    <button type="button" class="remove-image-edit shrink-0 px-2.5 py-1 bg-red-500 text-white text-xs rounded-full hover:bg-red-600">Hapus</button>
+                </div>`;
+            containerEdit.appendChild(wrapper);
+        });
+
+        containerEdit.addEventListener('click', (e) => {
+            if (e.target.classList.contains('remove-image-edit')) {
+                e.target.closest('.image-input-row').remove();
+                renderPreviewEdit();
+            }
+        });
+
+        containerEdit.addEventListener('change', renderPreviewEdit);
+
+        function renderPreviewEdit() {
+            const previewContainerEdit = document.getElementById('preview-container-edit');
+            const errorBox = document.getElementById('image-error-edit');
+            const submitBtn = document.getElementById('submit-btn-edit');
+
+            if (!previewContainerEdit || !errorBox || !submitBtn) return;
+
+            previewContainerEdit.innerHTML = '';
+
+            const maxSize = 2 * 1024 * 1024; // 2MB
+            let hasError = false;
+            let errorMessages = [];
+
+            document.querySelectorAll('.image-input-edit').forEach(input => {
+                if (!input.files.length) return;
+
+                const file = input.files[0];
+
+                if (file.size > maxSize) {
+                    hasError = true;
+                    errorMessages.push(`${file.name} melebihi ukuran maksimal 2 MB`);
+                    input.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewContainerEdit.innerHTML += `
+                        <div class="border rounded p-1 shadow-sm bg-white">
+                            <img src="${e.target.result}" class="w-full h-16 object-cover rounded">
+                        </div>`;
+                };
+                reader.readAsDataURL(file);
+            });
+
+            if (hasError) {
+                errorBox.innerHTML = errorMessages.join('<br>');
+                errorBox.classList.remove('hidden');
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                errorBox.innerHTML = '';
+                errorBox.classList.add('hidden');
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+    }
+})();
 
         // Logika Dropdown Form manual
         const statusSelect = document.getElementById('faksin_status');
