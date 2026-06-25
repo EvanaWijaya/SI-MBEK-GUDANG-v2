@@ -27,9 +27,22 @@
 
     <div class="min-h-screen flex flex-col bg-gray-50" x-data="{ open: false, forSale: '{{ $kambings->for_sale ?? 'no' }}' }">
         <main class="max-w-5xl mx-auto py-8 w-full px-4">
+            
+            {{-- Notifikasi Sukses --}}
             @if (session('success'))
                 <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-6 font-semibold">
                     {{ session('success') }}
+                </div>
+            @endif
+
+            {{-- Notifikasi Error Backend (Kalau ditolak dari server) --}}
+            @if ($errors->any())
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6 font-semibold">
+                    <ul class="list-disc list-inside">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
                 </div>
             @endif
 
@@ -114,7 +127,6 @@
                         </div>
 
                         <div>
-                            {{-- STRUKTUR GRID FOTO TERBARU: 1 BESAR, SISANYA KECIL --}}
                             <div class="info-card">
                                 <h4 class="text-xl font-bold text-gray-800 mb-4 pb-2 border-b border-gray-200">Foto Kambing</h4>
                                 @php
@@ -184,6 +196,7 @@
             </div>
         </main>
 
+        {{-- MODAL EDIT --}}
         <div x-show="open" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 transition-opacity duration-300" x-cloak>
             <div class="bg-white rounded-lg shadow-xl w-full max-w-3xl mx-auto max-h-[90vh] overflow-y-auto" @click.outside="open = false">
                 <div class="brand-orange p-4 rounded-t-lg sticky top-0 z-10 flex justify-between items-center">
@@ -232,7 +245,6 @@
                                     </div>
                                 </div>
 
-                                {{-- PENGELOLAAN FOTO LAMA DI MODAL EDIT --}}
                                 @if($kambings->media->isNotEmpty())
                                     <div class="mb-4 bg-gray-50 p-3 rounded-lg border border-gray-200">
                                         <label class="block text-xs font-bold text-gray-700 mb-2">Foto Saat Ini (Klik untuk Hapus)</label>
@@ -284,7 +296,7 @@
 
                                 <div class="mb-4">
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Status Kesehatan</label>
-                                    <select id="health_status_select" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-brand-orange" onchange="toggleOtherHealthStatus(this)" required>
+                                    <select id="health_status_select" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-brand-orange" required>
                                         <option value="Sehat" {{ $kambings->healt_status == 'Sehat' ? 'selected' : '' }}>Sehat</option>
                                         <option value="Tidak Sehat" {{ $kambings->healt_status == 'Tidak Sehat' ? 'selected' : '' }}>Tidak Sehat</option>
                                         <option value="Lainnya" {{ $kambings->healt_status != 'Sehat' && $kambings->healt_status != 'Tidak Sehat' ? 'selected' : '' }}>Lainnya</option>
@@ -301,28 +313,43 @@
                                     </select>
                                     <div class="mt-3" x-show="forSale === 'yes'">
                                         <label class="block text-xs font-bold text-gray-600 mb-1">Harga (Rp)</label>
-                                        <input type="number" name="harga" value="{{ $kambings->harga }}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-brand-orange">
+                                        <input
+                                            type="text"
+                                            name="harga"
+                                            value="{{ $kambings->harga ? 'Rp ' . number_format($kambings->harga, 0, ',', '.') : '' }}"
+                                            oninput="formatRupiah(this)"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400"
+                                            placeholder="Masukkan harga">
                                     </div>
                                 </div>
 
-                                {{-- FORM UPLOAD MULTIPLE FOTO BARU --}}
+                                {{-- TAMBAH FOTO BARU --}}
                                 <div class="mb-4">
                                     <label class="block text-sm font-bold text-gray-700 mb-1">Tambah Foto Baru</label>
                                     <div id="image-container-edit">
                                         <div class="image-input-row mb-2">
-                                            <input type="file" name="images[]" accept="image/*" class="image-input-edit block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
+                                            <input type="file" name="images[]" accept="image/*"
+                                                   class="image-input-edit block w-full text-sm text-gray-500
+                                                          file:mr-4 file:py-2 file:px-4 file:rounded-full
+                                                          file:border-0 file:text-sm file:font-semibold
+                                                          file:bg-orange-50 file:text-orange-700
+                                                          hover:file:bg-orange-100">
                                         </div>
                                     </div>
-                                    <button type="button" id="add-image-btn-edit" class="mt-1 inline-flex items-center text-orange-700 bg-orange-50 hover:bg-orange-100 font-semibold text-xs px-3 py-1.5 rounded-full border-0 transition-colors">
-                                        + Tambah Baris Foto
+                                    <button type="button" id="add-image-btn-edit"
+                                            class="mt-1 inline-flex items-center text-orange-700 bg-orange-50
+                                                   hover:bg-orange-100 font-semibold text-xs px-3 py-1.5 rounded-full
+                                                   border-0 transition-colors">
+                                        + Tambah Foto
                                     </button>
-                                        <small class="text-gray-500 block mt-2">
-                                            Foto yang diunggah akan ditambahkan ke galeri kambing ini (maksimal 10 foto tambahan).
-                                        </small>
+                                    <div class="mt-2 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                                        <p class="text-xs text-orange-700 font-medium">• Maksimal total 10 foto per kambing</p>
+                                        <p class="text-xs text-orange-700 font-medium">• Ukuran maksimal 2 MB per foto</p>
+                                        <p class="text-xs text-orange-700 font-medium">• Format yang didukung: JPG, JPEG, PNG</p>
+                                    </div>
 
-                                        <p id="image-error-edit"
-                                        class="mt-2 text-sm text-red-600 font-medium hidden">
-                                    </p>
+                                    <p id="image-error-edit" class="mt-2 text-sm text-red-600 font-medium hidden"></p>
+
                                     <div id="preview-container-edit" class="grid grid-cols-3 gap-2 mt-3"></div>
                                 </div>
                             </div>
@@ -347,6 +374,7 @@
 
     @push('scripts')
     <script>
+        // ── Popup Foto ──────────────────────────────────────────────────────────
         function showImagePopup(src) {
             document.getElementById('popupImage').src = src;
             const popup = document.getElementById('imagePopup');
@@ -354,6 +382,7 @@
             popup.classList.add('flex');
             document.body.style.overflow = 'hidden';
         }
+
         function hideImagePopup() {
             const popup = document.getElementById('imagePopup');
             popup.classList.add('hidden');
@@ -361,131 +390,197 @@
             document.body.style.overflow = '';
         }
 
+        // ── Hapus Foto Lama ─────────────────────────────────────────────────────
         function tandaiHapusFoto(mediaId) {
             document.getElementById('foto-lama-' + mediaId).remove();
-            let input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'hapus_media[]';
+            const input = document.createElement('input');
+            input.type  = 'hidden';
+            input.name  = 'hapus_media[]';
             input.value = mediaId;
             document.getElementById('wrapper-hapus-media').appendChild(input);
         }
 
-        // Jalankan Script Tambah Input Baris Foto Secara Dinamis
-        (function () {
-    const containerEdit = document.getElementById('image-container-edit');
-    const addBtnEdit = document.getElementById('add-image-btn-edit');
+        // ── Logika Utama (dijalankan setelah DOM siap) ──────────────────────────
+        document.addEventListener('DOMContentLoaded', function () {
 
-    if(addBtnEdit) {
-        addBtnEdit.addEventListener('click', () => {
-            if (containerEdit.querySelectorAll('input[type=file]').length >= 10) {
-                alert('Maksimal 10 gambar');
-                return;
-            }
-            const wrapper = document.createElement('div');
-            wrapper.classList.add('image-input-row', 'mb-2');
-            wrapper.innerHTML = `
-                <div class="flex gap-2 items-center mt-1">
-                    <input type="file" name="images[]" accept="image/*" class="image-input-edit block w-full text-sm text-gray-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
-                    <button type="button" class="remove-image-edit shrink-0 px-2.5 py-1 bg-red-500 text-white text-xs rounded-full hover:bg-red-600">Hapus</button>
-                </div>`;
-            containerEdit.appendChild(wrapper);
-        });
-
-        containerEdit.addEventListener('click', (e) => {
-            if (e.target.classList.contains('remove-image-edit')) {
-                e.target.closest('.image-input-row').remove();
-                renderPreviewEdit();
-            }
-        });
-
-        containerEdit.addEventListener('change', renderPreviewEdit);
-
-        function renderPreviewEdit() {
+            // -- Upload & Preview Foto Baru --
+            const containerEdit        = document.getElementById('image-container-edit');
+            const addBtnEdit           = document.getElementById('add-image-btn-edit');
             const previewContainerEdit = document.getElementById('preview-container-edit');
-            const errorBox = document.getElementById('image-error-edit');
-            const submitBtn = document.getElementById('submit-btn-edit');
+            const errorBox             = document.getElementById('image-error-edit');
+            const submitBtn            = document.getElementById('submit-btn-edit');
+            const MAX_SIZE             = 2 * 1024 * 1024; // 2 MB
 
-            if (!previewContainerEdit || !errorBox || !submitBtn) return;
+            function renderPreviewEdit() {
+                if (!previewContainerEdit || !errorBox || !submitBtn) return;
 
-            previewContainerEdit.innerHTML = '';
+                previewContainerEdit.innerHTML = '';
+                let hasError     = false;
+                let errorMessages = [];
 
-            const maxSize = 2 * 1024 * 1024; // 2MB
-            let hasError = false;
-            let errorMessages = [];
+                containerEdit.querySelectorAll('.image-input-edit').forEach(function (input) {
+                    if (!input.files.length) return;
 
-            document.querySelectorAll('.image-input-edit').forEach(input => {
-                if (!input.files.length) return;
+                    const file = input.files[0];
 
-                const file = input.files[0];
+                    if (file.size > MAX_SIZE) {
+                        hasError = true;
+                        errorMessages.push(file.name + ' melebihi ukuran maksimal 2 MB');
+                        input.value = '';
+                        return;
+                    }
 
-                if (file.size > maxSize) {
-                    hasError = true;
-                    errorMessages.push(`${file.name} melebihi ukuran maksimal 2 MB`);
-                    input.value = '';
-                    return;
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        previewContainerEdit.innerHTML += `
+                            <div class="border rounded p-1 shadow-sm bg-white">
+                                <img src="${e.target.result}" class="w-full h-16 object-cover rounded">
+                            </div>`;
+                    };
+                    reader.readAsDataURL(file);
+                });
+
+                if (hasError) {
+                    errorBox.innerHTML = errorMessages.join('<br>');
+                    errorBox.classList.remove('hidden');
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                } else {
+                    errorBox.innerHTML = '';
+                    errorBox.classList.add('hidden');
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
                 }
+            }
 
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    previewContainerEdit.innerHTML += `
-                        <div class="border rounded p-1 shadow-sm bg-white">
-                            <img src="${e.target.result}" class="w-full h-16 object-cover rounded">
+            if (addBtnEdit && containerEdit) {
+                addBtnEdit.addEventListener('click', function () {
+                    const fotoLama = document.querySelectorAll('[id^="foto-lama-"]').length;
+                    const fotoBaru = containerEdit.querySelectorAll('input[type=file]').length;
+
+                    if ((fotoLama + fotoBaru) >= 10) {
+                        alert('Maksimal total 10 foto per kambing.');
+                        return;
+                    }
+
+                    const wrapper = document.createElement('div');
+                    wrapper.classList.add('image-input-row', 'mb-2');
+                    wrapper.innerHTML = `
+                        <div class="flex gap-2 items-center mt-1">
+                            <input type="file" name="images[]" accept="image/*"
+                                   class="image-input-edit block w-full text-sm text-gray-500
+                                          file:mr-4 file:py-1.5 file:px-3 file:rounded-full
+                                          file:border-0 file:text-xs file:font-semibold
+                                          file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
+                            <button type="button"
+                                    class="remove-image-edit shrink-0 px-2.5 py-1 bg-red-500 text-white text-xs rounded-full hover:bg-red-600">
+                                Hapus
+                            </button>
                         </div>`;
-                };
-                reader.readAsDataURL(file);
-            });
+                    containerEdit.appendChild(wrapper);
+                });
 
-            if (hasError) {
-                errorBox.innerHTML = errorMessages.join('<br>');
-                errorBox.classList.remove('hidden');
-                submitBtn.disabled = true;
-                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            } else {
-                errorBox.innerHTML = '';
-                errorBox.classList.add('hidden');
-                submitBtn.disabled = false;
-                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                containerEdit.addEventListener('click', function (e) {
+                    if (e.target.classList.contains('remove-image-edit')) {
+                        e.target.closest('.image-input-row').remove();
+                        renderPreviewEdit();
+                    }
+                });
+
+                containerEdit.addEventListener('change', function (e) {
+                    if (!e.target.classList.contains('image-input-edit')) return;
+                    renderPreviewEdit();
+                });
             }
-        }
-    }
-})();
 
-        // Logika Dropdown Form manual
-        const statusSelect = document.getElementById('faksin_status');
-        const jenisWrapper = document.getElementById('jenis_vaksin_wrapper');
-        const jenisSelect = document.getElementById('jenis_vaksin');
-        const hiddenInputVaksin = document.getElementById('faksin_status_final');
-
-        function updateVaksin() {
-            if (statusSelect.value === "Aktif") {
-                jenisWrapper.style.display = "block";
-                hiddenInputVaksin.value = jenisSelect.value || ''; 
-            } else {
-                jenisWrapper.style.display = "none";
-                hiddenInputVaksin.value = statusSelect.value;
+            // Validasi tambahan saat submit (double-check sebelum ke server)
+            const form = document.querySelector('form[enctype="multipart/form-data"]');
+            if (form) {
+                form.addEventListener('submit', function (e) {
+                    if (!containerEdit) return;
+                    const inputs = containerEdit.querySelectorAll('.image-input-edit');
+                    for (let input of inputs) {
+                        if (!input.files.length) continue;
+                        if (input.files[0].size > MAX_SIZE) {
+                            alert('File "' + input.files[0].name + '" melebihi batas 2 MB. Upload dibatalkan.');
+                            e.preventDefault();
+                            return false;
+                        }
+                    }
+                });
             }
-        }
-        statusSelect.addEventListener('change', updateVaksin);
-        jenisSelect.addEventListener('change', updateVaksin);
-        updateVaksin();
 
-        const healthSelect = document.getElementById('health_status_select');
-        const healthCustom = document.getElementById('health_status_custom');
-        const healthHidden = document.getElementById('health_status_final_input');
+            // -- Dropdown Vaksin --
+            const statusSelect  = document.getElementById('faksin_status');
+            const jenisWrapper  = document.getElementById('jenis_vaksin_wrapper');
+            const jenisSelect   = document.getElementById('jenis_vaksin');
+            const hiddenVaksin  = document.getElementById('faksin_status_final');
 
-        function toggleOtherHealthStatus(el) {
-            if (el.value === "Lainnya") {
-                healthCustom.classList.remove("hidden");
-                healthHidden.value = healthCustom.value; 
-            } else {
-                healthCustom.classList.add("hidden");
-                healthHidden.value = el.value; 
+            function updateVaksin() {
+                if (!statusSelect) return;
+                if (statusSelect.value === 'Aktif') {
+                    jenisWrapper.style.display = 'block';
+                    hiddenVaksin.value = jenisSelect.value || '';
+                } else {
+                    jenisWrapper.style.display = 'none';
+                    hiddenVaksin.value = statusSelect.value;
+                }
             }
-        }
-        healthCustom.addEventListener("input", function() {
-            healthHidden.value = this.value;
+
+            if (statusSelect) {
+                statusSelect.addEventListener('change', updateVaksin);
+                jenisSelect.addEventListener('change', updateVaksin);
+                updateVaksin();
+            }
+
+            // -- Dropdown Status Kesehatan --
+            const healthSelect = document.getElementById('health_status_select');
+            const healthCustom = document.getElementById('health_status_custom');
+            const healthHidden = document.getElementById('health_status_final_input');
+
+            function toggleOtherHealthStatus(el) {
+                if (el.value === 'Lainnya') {
+                    healthCustom.classList.remove('hidden');
+                    healthHidden.value = healthCustom.value;
+                } else {
+                    healthCustom.classList.add('hidden');
+                    healthHidden.value = el.value;
+                }
+            }
+
+            if (healthSelect) {
+                healthSelect.addEventListener('change', function () {
+                    toggleOtherHealthStatus(this);
+                });
+                healthCustom.addEventListener('input', function () {
+                    healthHidden.value = this.value;
+                });
+                toggleOtherHealthStatus(healthSelect);
+            }
         });
-        toggleOtherHealthStatus(healthSelect);
+
+        function formatRupiah(input) {
+
+            let angka = input.value.replace(/[^,\d]/g, '');
+
+            let split = angka.split(',');
+            let sisa = split[0].length % 3;
+
+            let rupiah = split[0].substr(0, sisa);
+
+            let ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+            if (ribuan) {
+                let separator = sisa ? '.' : '';
+                rupiah += separator + ribuan.join('.');
+            }
+
+            rupiah = split[1] !== undefined
+                ? rupiah + ',' + split[1]
+                : rupiah;
+
+            input.value = rupiah ? 'Rp ' + rupiah : '';
+        }
     </script>
     @endpush
 </x-admin-app-layout>

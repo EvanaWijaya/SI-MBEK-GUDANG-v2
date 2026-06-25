@@ -103,6 +103,10 @@ class DombaController extends Controller
 
     public function update(Request $request, Domba $domba)
     {
+        $request->merge([
+            'harga' => preg_replace('/[^0-9]/', '', $request->harga)
+        ]);
+        
         $oldStatus = $domba->for_sale;
         $oldHarga = $domba->harga;
 
@@ -165,8 +169,6 @@ class DombaController extends Controller
             }
         }
 
-        $domba->update($data);
-
         $newStatus = $domba->for_sale;
         $newHarga = $domba->harga;
         // Cek apakah ada perubahan status dijual atau harga
@@ -218,6 +220,7 @@ class DombaController extends Controller
             'dombas' => $domba,   // ← aliaskan ke $dombas agar cocok dengan blade
         ]);
     }
+
     public function monitoring($id)
     {
         $domba = Domba::findOrFail($id);

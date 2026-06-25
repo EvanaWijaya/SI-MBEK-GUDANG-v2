@@ -111,6 +111,10 @@ class KambingController extends Controller
 
     public function update(Request $request, Kambing $kambing)
     {
+        $request->merge([
+            'harga' => preg_replace('/[^0-9]/', '', $request->harga)
+        ]);
+
         $oldStatus = $kambing->for_sale;
         $oldHarga = $kambing->harga;
 
