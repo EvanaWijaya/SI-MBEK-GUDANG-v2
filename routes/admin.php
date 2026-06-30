@@ -225,8 +225,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/warehouse', [WarehouseDashboardController::class, 'index'])
                 ->name('warehouse.dashboard');
 
-            Route::get('/warehouse/activity-log', [WarehouseDashboardController::class, 'activityLog'])
-                ->name('warehouse.activity-log');
+            Route::middleware(['auth:admin', 'superadmin'])->group(function () {
+
+                Route::get('/activity-log', [WarehouseDashboardController::class, 'index'])
+                    ->name('activity-log.index');
+
+            });
 
             // Dashboard
             Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
