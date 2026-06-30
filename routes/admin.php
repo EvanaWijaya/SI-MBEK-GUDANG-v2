@@ -170,7 +170,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 [ProductionQcController::class, 'store']
             )->name('qc.store');
 
-            // Product Inventory (Gunakan ->names() untuk menghindari bentrok dengan Master Data)
+            // Product Inventory
             Route::resource('inventory/product', ProductInventoryController::class)
                 ->names([
                     'index' => 'inventory.product.index',

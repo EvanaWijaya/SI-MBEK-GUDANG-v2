@@ -10,24 +10,11 @@ return new class extends Migration {
         Schema::create('purchase_order_items', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('purchase_order_id')
-                ->constrained()
-                ->cascadeOnDelete();
-
-            $table->foreignId('material_id')
-                ->nullable()
-                ->constrained()
-                ->cascadeOnDelete();
-
-            $table->foreignId('product_id')
-                ->nullable()
-                ->constrained()
-                ->cascadeOnDelete();
-
+            $table->foreignId('purchase_order_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('material_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->foreignId('product_id')->nullable()->constrained()->cascadeOnDelete();
             $table->integer('quantity');
-
-            $table->integer('received_quantity')
-                ->nullable();
+            $table->integer('received_quantity')->nullable();
 
             $table->integer('difference')
                 ->default(0);
@@ -47,3 +34,4 @@ return new class extends Migration {
         Schema::dropIfExists('purchase_order_items');
     }
 };
+

@@ -9,11 +9,11 @@ class SupplierFactory extends Factory
     public function definition(): array
     {
         return [
-            'nama_supplier' => fake()->company(),
-            'kontak' => fake()->phoneNumber(),
-            'alamat' => fake()->address(),
-            'kota' => fake()->city(),
-            'provinsi' => fake()->state(),
+            'supplier_name' => fake()->company(),
+            'contact' => fake()->phoneNumber(),
+            'address' => fake()->address(),
+            'city' => fake()->city(),
+            'province' => fake()->state(),
         ];
     }
 }

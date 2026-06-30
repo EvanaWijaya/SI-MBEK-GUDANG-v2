@@ -16,16 +16,16 @@ class MaterialFactory extends Factory
         $safetyStock = $this->faker->numberBetween(0, 30);
 
         return [
-            'nama_bahan' => $this->faker->words(2, true),
-            'kategori' => $this->faker->randomElement(['Pakan', 'Obat']),
-            'satuan' => $this->faker->randomElement(['kg', 'liter', 'pcs']),
-            'stok' => 0,
+            'material_name' => $this->faker->words(2, true),
+            'category' => $this->faker->randomElement(['feed', 'medicine']),
+            'unit' => $this->faker->randomElement(['kg', 'liter', 'pcs']),
+            'stock' => 0,
 
-            'pemakaian_rata_rata' => $pemakaian,
+            'average_usage' => $pemakaian,
             'lead_time' => $leadTime,
             'safety_stock' => $safetyStock,
 
-            'deskripsi' => $this->faker->sentence(),
+            'description' => $this->faker->sentence(),
         ];
     }
 
@@ -35,11 +35,11 @@ class MaterialFactory extends Factory
     public function belowRop(): static
     {
         return $this->state(function (array $attributes) {
-            $rop = ($attributes['pemakaian_rata_rata'] * $attributes['lead_time'])
+            $rop = ($attributes['average_usage'] * $attributes['lead_time'])
                 + $attributes['safety_stock'];
 
             return [
-                'stok' => max(0, $rop - 1),
+                'stock' => max(0, $rop - 1),
             ];
         });
     }

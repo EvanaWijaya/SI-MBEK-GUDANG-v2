@@ -55,7 +55,9 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $request->merge([
-            'selling_price' => preg_replace('/[^0-9]/', '', $request->selling_price)
+            'selling_price' => $request->selling_price
+                ? preg_replace('/[^0-9]/', '', $request->selling_price)
+                : null
         ]);
 
         $request->validate(
@@ -153,7 +155,9 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $request->merge([
-            'selling_price' => preg_replace('/[^0-9]/', '', $request->selling_price)
+            'selling_price' => $request->selling_price
+                ? preg_replace('/[^0-9]/', '', $request->selling_price)
+                : null
         ]);
 
         $request->validate(

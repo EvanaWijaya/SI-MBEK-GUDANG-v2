@@ -19,13 +19,13 @@ class MaterialStockFactory extends Factory
             'material_id' => Material::factory(),
 
             // Batch masuk realistis
-            'qty' => $this->faker->numberBetween(50, 200),
+            'quantity' => $this->faker->numberBetween(50, 200),
 
             // FIFO based on received_date
             'received_date' => $receivedDate->format('Y-m-d'),
 
             // 50% kemungkinan punya expired date
-            'expired_date' => $this->faker->boolean(70)
+            'expiration_date' => $this->faker->boolean(70)
                 ? (clone $receivedDate)
                     ->modify('+6 months')
                     ->format('Y-m-d')
@@ -46,7 +46,7 @@ class MaterialStockFactory extends Factory
     public function expired(): static
     {
         return $this->state(fn() => [
-            'expired_date' => now()->subDays(5)->format('Y-m-d'),
+            'expiration_date' => now()->subDays(5)->format('Y-m-d'),
         ]);
     }
 
@@ -56,7 +56,7 @@ class MaterialStockFactory extends Factory
     public function noExpired(): static
     {
         return $this->state(fn() => [
-            'expired_date' => null,
+            'expiration_date' => null,
         ]);
     }
 
@@ -66,7 +66,7 @@ class MaterialStockFactory extends Factory
     public function lowStock(): static
     {
         return $this->state(fn() => [
-            'qty' => 5,
+            'quantity' => 5,
         ]);
     }
 }

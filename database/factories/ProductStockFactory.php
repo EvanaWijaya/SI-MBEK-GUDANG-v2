@@ -20,7 +20,7 @@ class ProductStockFactory extends Factory
 
         return [
             'product_id' => Product::factory(), // otomatis buat product kalau belum ada
-            'qty' => $this->faker->numberBetween(10, 500),
+            'quantity' => $this->faker->numberBetween(10, 500),
 
             'source' => $source,
 
@@ -31,7 +31,7 @@ class ProductStockFactory extends Factory
 
             'received_date' => $this->faker->dateTimeBetween('-3 months', 'now'),
 
-            'expired_date' => $this->faker->optional(0.7)
+            'expiration_date' => $this->faker->optional(0.7)
                 ->dateTimeBetween('now', '+6 months'),
 
             'price_per_unit' => $this->faker->optional(0.9)

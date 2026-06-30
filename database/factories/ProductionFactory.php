@@ -19,7 +19,7 @@ class ProductionFactory extends Factory
         return [
             'formula_id' => Formula::factory(),
             'product_id' => Product::factory(),
-            'qty_produksi' => $this->faker->numberBetween(10, 100),
+            'production_quantity' => $this->faker->numberBetween(10, 100),
 
             // ======================
             // QC SUMMARY
@@ -34,14 +34,14 @@ class ProductionFactory extends Factory
             'production_date' => $productionDate->format('Y-m-d'),
 
             // Expired 6 bulan setelah produksi (contoh realistis pakan/obat)
-            'expired_date' => (clone $productionDate)
+            'expiration_date' => (clone $productionDate)
                 ->modify('+6 months')
                 ->format('Y-m-d'),
 
             // ======================
             // STATUS PRODUKSI
             // ======================
-            'status' => 'diproses',
+            'status' => 'progress',
 
             // Admin pembuat
             'created_by' => Admin::factory(),
@@ -56,7 +56,7 @@ class ProductionFactory extends Factory
         float $threshold = 80
     ): static {
         return $this->state(fn() => [
-            'qc_status' => 'layak',
+            'qc_status' => 'passed',
             'qc_percentage' => $percentage,
             'qc_threshold' => $threshold,
         ]);
@@ -82,7 +82,7 @@ class ProductionFactory extends Factory
     public function selesai(): static
     {
         return $this->state(fn() => [
-            'status' => 'selesai',
+            'status' => 'completed',
         ]);
     }
 }

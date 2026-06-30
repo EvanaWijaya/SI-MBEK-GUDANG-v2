@@ -14,8 +14,8 @@ class PurchaseOrderItemFactory extends Factory
 
     public function definition(): array
     {
-        $jumlah = $this->faker->numberBetween(5, 50);
-        $harga = $this->faker->numberBetween(1000, 10000);
+        $quantity = $this->faker->numberBetween(5, 50);
+        $unit_price = $this->faker->numberBetween(1000, 10000);
 
         return [
             'purchase_order_id' => PurchaseOrder::factory(),
@@ -24,12 +24,12 @@ class PurchaseOrderItemFactory extends Factory
             'material_id' => null,
             'product_id' => null,
 
-            'jumlah' => $jumlah,
-            'jumlah_diterima' => null,
-            'selisih' => 0,
+            'quantity' => $quantity,
+            'received_quantity' => null,
+            'difference' => 0,
 
-            'harga_satuan' => $harga,
-            'subtotal' => $jumlah * $harga,
+            'unit_price' => $unit_price,
+            'subtotal' => $quantity * $unit_price,
         ];
     }
 
@@ -55,15 +55,15 @@ class PurchaseOrderItemFactory extends Factory
         ]);
     }
 
-    public function received(?int $qty = null): static
+    public function received(?int $quantity = null): static
     {
-        return $this->state(function (array $attributes) use ($qty) {
-            $jumlah = $attributes['jumlah'];
-            $diterima = $qty ?? $jumlah;
+        return $this->state(function (array $attributes) use ($quantity) {
+            $quantity = $attributes['quantity'];
+            $reveived = $quantity ?? $quantity;
 
             return [
-                'jumlah_diterima' => $diterima,
-                'selisih' => $diterima - $jumlah,
+                'received_quantity' => $reveived,
+                'selisih' => $reveived - $quantity,
             ];
         });
     }
