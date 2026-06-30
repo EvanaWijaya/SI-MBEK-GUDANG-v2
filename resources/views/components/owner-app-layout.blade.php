@@ -147,6 +147,8 @@
                                         <li><a href="{{ route('owner.materials.index') }}" class="block w-full pl-11 pr-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->routeIs('owner.materials.index') ? 'bg-orange-50 text-brand-orange font-medium' : '' }}">Bahan Baku</a></li>
                                         <li><a href="{{ route('owner.products.index') }}" class="block w-full pl-11 pr-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->routeIs('owner.products.index') ? 'bg-orange-50 text-brand-orange font-medium' : '' }}">Produk</a></li>
                                         <li><a href="{{ route('owner.suppliers.index') }}" class="block w-full pl-11 pr-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->routeIs('owner.suppliers.index') ? 'bg-orange-50 text-brand-orange font-medium' : '' }}">Pemasok</a></li>
+                                        <li><a href="{{ route('owner.qc-indicators.index') }}" class="block w-full pl-11 pr-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->routeIs('owner.suppliers.index') ? 'bg-orange-50 text-brand-orange font-medium' : '' }}">Pengecekan Kualitas</a></li>
+
                                     </ul>
                                 </li>
 

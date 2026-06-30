@@ -150,6 +150,7 @@
                                         <li><a href="{{ route('admin.materials.index') }}" class="block w-full pl-11 pr-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->routeIs('admin.materials.index') ? 'bg-orange-50 text-brand-orange font-medium' : '' }}">Bahan Baku</a></li>
                                         <li><a href="{{ route('admin.products.index') }}" class="block w-full pl-11 pr-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->routeIs('admin.products.index') ? 'bg-orange-50 text-brand-orange font-medium' : '' }}">Produk</a></li>
                                         <li><a href="{{ route('admin.suppliers.index') }}" class="block w-full pl-11 pr-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->routeIs('admin.suppliers.index') ? 'bg-orange-50 text-brand-orange font-medium' : '' }}">Pemasok</a></li>
+                                        <li><a href="{{ route('admin.qc-indicators.index') }}" class="block w-full pl-11 pr-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->routeIs('admin.suppliers.index') ? 'bg-orange-50 text-brand-orange font-medium' : '' }}">Pengecekan Kualitas</a></li>
                                     </ul>
                                 </li>
                                 

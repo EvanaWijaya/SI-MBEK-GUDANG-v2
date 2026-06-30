@@ -17,6 +17,7 @@ use App\Http\Controllers\Owner\ProductController;
 use App\Http\Controllers\Owner\FormulaController;
 use App\Http\Controllers\Owner\WarehouseDashboardController;
 use App\Http\Controllers\Owner\ReportController;
+use App\Http\Controllers\Owner\QcIndicatorController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('owner')->name('owner.')->group(function () {
@@ -106,6 +107,7 @@ Route::prefix('owner')->name('owner.')->group(function () {
             Route::get('/materials/{material}', [MaterialController::class, 'show'])->name('materials.show');
             Route::put('/materials/{material}', [MaterialController::class, 'update'])->name('materials.update');
             Route::delete('/materials/{material}', [MaterialController::class, 'destroy'])->name('materials.destroy');
+            Route::resource('qc-indicators', QcIndicatorController::class);
 
             //Product Master
             Route::get('/products', [ProductController::class, 'index'])->name('products.index');

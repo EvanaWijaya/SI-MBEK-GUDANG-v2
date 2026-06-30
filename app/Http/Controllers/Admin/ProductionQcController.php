@@ -18,7 +18,7 @@ class ProductionQcController extends Controller
     public function store(Request $request, Production $production)
     {
         // Retrieve active QC indicators
-        $indicators = QcIndicator::active()->get();
+        $indicators = QcIndicator::active()->orderByDesc('is_critical')->orderBy('name')->get();
 
         // Build dynamic validation rules
         $rules = [
