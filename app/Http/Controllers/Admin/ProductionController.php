@@ -396,6 +396,7 @@ class ProductionController extends Controller
 
         return view('admin.production.show', compact('production', 'qcIndicators'));
     }
+    
 
 }
 

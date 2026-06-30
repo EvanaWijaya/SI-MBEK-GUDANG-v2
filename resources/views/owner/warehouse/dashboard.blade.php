@@ -20,13 +20,6 @@
             </div>
             <p class="text-sm text-gray-500 ml-1">Ringkasan operasional inventori · {{ now()->translatedFormat('d F Y') }}</p>
         </div>
-        <a href="{{ route('owner.warehouse.activity-log') }}"
-             class="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow text-sm transition-colors">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-            </svg>
-            Log Aktivitas
-        </a>
     </div>
 
     {{-- ══ 1. SUMMARY CARDS ROW (4 Kolom) ══ --}}
@@ -108,7 +101,7 @@
     </div>
 
     {{-- ══ 2. MIDDLE ROW (Stok Kritis & Status PO) ══ --}}
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="space-y-6">
 
         {{-- PO Status (1 Kolom Kiri) --}}
         <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
@@ -198,165 +191,115 @@
         </div>
     </div>
 
-    {{-- ══ 3. BOTTOM ROW (Grafik, Distribusi & Aktivitas) ══ --}}
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+   {{-- ══ 3. BOTTOM ROW (Grafik & Distribusi) ══ --}}
+    <div class="space-y-6">
 
-        {{-- Kolom Kiri: Chart & Distribusi --}}
-        <div class="lg:col-span-2 space-y-6">
-            
-            {{-- Movement Chart --}}
-            <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-sm font-semibold text-gray-700">Pergerakan Stok Gudang (7 Hari Terakhir)</h3>
-                    <a href="{{ route('owner.report.stock') }}" class="text-xs text-orange-500 font-semibold hover:underline no-print">Lihat Laporan Detail &rarr;</a>
-                </div>
-                <div class="h-60">
-                    <canvas id="movementChart"></canvas>
-                </div>
+        {{-- Movement Chart (Sekarang Full Width) --}}
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 w-full">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-semibold text-gray-700">Pergerakan Stok Gudang (7 Hari Terakhir)</h3>
+                <a href="{{ route('owner.report.stock') }}" class="text-xs text-orange-500 font-semibold hover:underline no-print">Lihat Laporan Detail &rarr;</a>
             </div>
-
-            {{-- Row Distribusi (Dibagi 2 Sebelahan) --}}
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {{-- Supplier Distribution --}}
-                <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-                    <h3 class="text-sm font-semibold text-gray-700 mb-4">Distribusi Pembelian</h3>
-                    @if($supplierDistribution->isEmpty())
-                        <p class="text-sm text-gray-400 text-center py-4">Belum ada data Pesanan.</p>
-                    @else
-                        @php $maxPo = $supplierDistribution->max('total'); @endphp
-                        <div class="space-y-3">
-                            @foreach($supplierDistribution->sortByDesc('total')->take(4) as $sd)
-                                <div>
-                                    <div class="flex justify-between text-xs mb-1.5">
-                                        <span class="font-medium text-gray-700 truncate max-w-[150px]">{{ $sd->supplier?->supplier_name ?? 'Supplier #'.$sd->supplier_id }}</span>
-                                        <span class="font-bold text-gray-800">{{ $sd->total }} Pesanan</span>
-                                    </div>
-                                    <div class="w-full bg-gray-100 rounded-full h-1.5">
-                                        <div class="h-1.5 rounded-full bg-blue-400 transition-all duration-700" style="width: {{ $maxPo > 0 ? ($sd->total / $maxPo * 100) : 0 }}%"></div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    @endif
-                </div>
-
-               {{-- Buyer Distribution --}}
-                <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 flex flex-col">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-sm font-semibold text-gray-700">Top 5 Kota Pembeli</h3>
-                        <button type="button" onclick="document.getElementById('modalSemuaKota').classList.remove('hidden')" class="text-xs text-orange-500 hover:text-orange-700 font-bold transition-colors">
-                            Lihat Semua &rarr;
-                        </button>
-                    </div>
-                    
-                    @php
-                        $ordersSukses = \App\Models\Order::with('user')
-                            ->whereIn('status', ['success', 'settlement', 'capture'])
-                            ->get();
-
-                        $allBuyerData = $ordersSukses->groupBy(function($order) {
-                            return ($order->user && $order->user->city) ? $order->user->city : 'Lainnya';
-                        })->map(function($group, $city) {
-                            return [
-                                'daerah' => (string) $city,
-                                'total'  => $group->count()
-                            ];
-                        })->sortByDesc('total')->values();
-
-                       $top5Data = $allBuyerData->take(5);
-                        
-                        $labelsJson = $top5Data->pluck('daerah')->values()->toJson();
-                        $totalsJson = $top5Data->pluck('total')->values()->toJson();
-                    @endphp
-
-                    @if($top5Data->isEmpty())
-                        <div class="flex flex-col items-center justify-center py-10 my-auto text-gray-400">
-                            <span class="text-3xl mb-2">📊</span>
-                            <p class="text-sm">Belum ada data transaksi sukses.</p>
-                        </div>
-                    @else
-                        <div class="flex-1 relative min-h-[220px]">
-                            <canvas id="buyerRegionChart"></canvas>
-                        </div>
-                    @endif
-                </div>
-
-                {{-- MODAL POPUP LIHAT SEMUA KOTA --}}
-                <div id="modalSemuaKota" class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4">
-                    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 relative max-h-[80vh] flex flex-col">
-                        <div class="flex justify-between items-center border-b border-gray-100 pb-3 mb-3">
-                            <h3 class="text-lg font-bold text-gray-800">Seluruh Kota Pembeli</h3>
-                            <button type="button" onclick="document.getElementById('modalSemuaKota').classList.add('hidden')" class="text-gray-400 hover:text-red-500 font-bold text-2xl">&times;</button>
-                        </div>
-                        <div class="overflow-y-auto flex-1 pr-1">
-                            <table class="w-full text-sm text-left">
-                                <thead class="bg-gray-50 text-gray-500 sticky top-0">
-                                    <tr>
-                                        <th class="py-2 px-3 rounded-l-lg font-semibold">Kota</th>
-                                        <th class="py-2 px-3 text-right rounded-r-lg font-semibold">Total Order</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-100">
-                                    @foreach($allBuyerData as $data)
-                                    <tr class="hover:bg-orange-50/50">
-                                        <td class="py-2.5 px-3 text-gray-700">{{ $data['daerah'] }}</td>
-                                        <td class="py-2.5 px-3 text-right text-orange-500 font-bold">{{ $data['total'] }}x</td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+            <div class="h-60">
+                <canvas id="movementChart"></canvas>
             </div>
         </div>
 
-        {{-- Kolom Kanan: Recent Activity --}}
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col h-full">
-            <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/30">
-                <h3 class="text-sm font-semibold text-gray-700">Log Aktivitas Terbaru</h3>
-                <a href="{{ route('owner.warehouse.activity-log') }}" class="text-xs text-gray-500 hover:text-orange-500 transition-colors">
-                    Lihat Semua
-                </a>
-            </div>
-            
-            <div class="flex-1 overflow-y-auto">
-                @if($recentActivities->isEmpty())
-                    <div class="p-8 text-center text-sm text-gray-400">Belum ada aktivitas tercatat.</div>
+        {{-- Row Distribusi (Dibagi 2 Sebelahan) --}}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {{-- Supplier Distribution --}}
+            <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+                <h3 class="text-sm font-semibold text-gray-700 mb-4">Distribusi Pembelian</h3>
+                @if($supplierDistribution->isEmpty())
+                    <p class="text-sm text-gray-400 text-center py-4">Belum ada data Pesanan.</p>
                 @else
-                    <div class="divide-y divide-gray-50">
-                        @foreach($recentActivities as $log)
-                            @php
-                                $iconCfg = match(true) {
-                                    str_contains($log->category, 'po_')         => ['bg'=>'bg-blue-50',  'text'=>'text-blue-500',   'icon'=>'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'],
-                                    str_contains($log->category, 'production_') => ['bg'=>'bg-purple-50','text'=>'text-purple-500', 'icon'=>'M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z'],
-                                    str_contains($log->type, 'order_')      => ['bg'=>'bg-green-50', 'text'=>'text-green-500',  'icon'=>'M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z'],
-                                    str_contains($log->type, 'disposal_')   => ['bg'=>'bg-red-50',   'text'=>'text-red-400',   'icon'=>'M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16'],
-                                    str_contains($log->type, 'qc_')         => ['bg'=>'bg-yellow-50','text'=>'text-yellow-500','icon'=>'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'],
-                                    default                                 => ['bg'=>'bg-gray-50',  'text'=>'text-gray-400',  'icon'=>'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'],
-                                };
-                            @endphp
-                            <div class="flex items-start gap-4 px-5 py-4 hover:bg-gray-50 transition-colors">
-                                <div class="w-9 h-9 rounded-full {{ $iconCfg['bg'] }} flex-shrink-0 flex items-center justify-center">
-                                    <svg class="w-4 h-4 {{ $iconCfg['text'] }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="{{ $iconCfg['icon'] }}"/>
-                                    </svg>
+                    @php $maxPo = $supplierDistribution->max('total'); @endphp
+                    <div class="space-y-3">
+                        @foreach($supplierDistribution->sortByDesc('total')->take(4) as $sd)
+                            <div>
+                                <div class="flex justify-between text-xs mb-1.5">
+                                    <span class="font-medium text-gray-700 truncate max-w-[150px]">{{ $sd->supplier?->supplier_name ?? 'Supplier #'.$sd->supplier_id }}</span>
+                                    <span class="font-bold text-gray-800">{{ $sd->total }} Pesanan</span>
                                 </div>
-                                <div class="flex-1 min-w-0 pt-0.5">
-                                    <p class="text-sm font-medium text-gray-800 leading-snug line-clamp-2">{{ $log->description }}</p>
-                                    <div class="flex items-center gap-2 mt-1.5">
-                                        <span class="text-[11px] text-gray-400">{{ $log->created_at->diffForHumans() }}</span>
-                                    </div>
+                                <div class="w-full bg-gray-100 rounded-full h-1.5">
+                                    <div class="h-1.5 rounded-full bg-blue-400 transition-all duration-700" style="width: {{ $maxPo > 0 ? ($sd->total / $maxPo * 100) : 0 }}%"></div>
                                 </div>
                             </div>
                         @endforeach
                     </div>
                 @endif
             </div>
+
+            {{-- Buyer Distribution --}}
+            <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 flex flex-col">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-semibold text-gray-700">Top 5 Kota Pembeli</h3>
+                    <button type="button" onclick="document.getElementById('modalSemuaKota').classList.remove('hidden')" class="text-xs text-orange-500 hover:text-orange-700 font-bold transition-colors">
+                        Lihat Semua &rarr;
+                    </button>
+                </div>
+                
+                @php
+                    $ordersSukses = \App\Models\Order::with('user')
+                        ->whereIn('status', ['success', 'settlement', 'capture'])
+                        ->get();
+
+                    $allBuyerData = $ordersSukses->groupBy(function($order) {
+                        return ($order->user && $order->user->city) ? $order->user->city : 'Lainnya';
+                    })->map(function($group, $city) {
+                        return [
+                            'daerah' => (string) $city,
+                            'total'  => $group->count()
+                        ];
+                    })->sortByDesc('total')->values();
+
+                    $top5Data = $allBuyerData->take(5);
+                    
+                    $labelsJson = $top5Data->pluck('daerah')->values()->toJson();
+                    $totalsJson = $top5Data->pluck('total')->values()->toJson();
+                @endphp
+
+                @if($top5Data->isEmpty())
+                    <div class="flex flex-col items-center justify-center py-10 my-auto text-gray-400">
+                        <span class="text-3xl mb-2">📊</span>
+                        <p class="text-sm">Belum ada data transaksi sukses.</p>
+                    </div>
+                @else
+                    <div class="flex-1 relative min-h-[220px]">
+                        <canvas id="buyerRegionChart"></canvas>
+                    </div>
+                @endif
+            </div>
+
+            {{-- MODAL POPUP LIHAT SEMUA KOTA --}}
+            <div id="modalSemuaKota" class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4">
+                <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 relative max-h-[80vh] flex flex-col">
+                    <div class="flex justify-between items-center border-b border-gray-100 pb-3 mb-3">
+                        <h3 class="text-lg font-bold text-gray-800">Seluruh Kota Pembeli</h3>
+                        <button type="button" onclick="document.getElementById('modalSemuaKota').classList.add('hidden')" class="text-gray-400 hover:text-red-500 font-bold text-2xl">&times;</button>
+                    </div>
+                    <div class="overflow-y-auto flex-1 pr-1">
+                        <table class="w-full text-sm text-left">
+                            <thead class="bg-gray-50 text-gray-500 sticky top-0">
+                                <tr>
+                                    <th class="py-2 px-3 rounded-l-lg font-semibold">Kota</th>
+                                    <th class="py-2 px-3 text-right rounded-r-lg font-semibold">Total Order</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                @foreach($allBuyerData as $data)
+                                <tr class="hover:bg-orange-50/50">
+                                    <td class="py-2.5 px-3 text-gray-700">{{ $data['daerah'] }}</td>
+                                    <td class="py-2.5 px-3 text-right text-orange-500 font-bold">{{ $data['total'] }}x</td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-
-</div>
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
